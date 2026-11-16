@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AppErrorBoundary from '../components/layout/AppErrorBoundary.jsx'
 import DashboardLayout from '../components/layout/DashboardLayout.jsx'
+import { useAuth } from '../context/AuthContext.jsx'
 import HomePage from '../pages/HomePage.jsx'
 
 const AuthPage = lazy(() => import('../pages/AuthPage.jsx'))
@@ -29,9 +30,11 @@ const NotificationsPage = lazy(() => import('../pages/DashboardExtraPages.jsx').
 const SettingsPage = lazy(() => import('../pages/DashboardExtraPages.jsx').then((module) => ({ default: module.SettingsPage })))
 
 function DashboardWorkspace() {
-  const previewModeEnabled = import.meta.env.DEV && import.meta.env.VITE_ENABLE_PREVIEW_MODE === 'true'
+  const { isAuthenticated, isLoading, isPreviewMode } = useAuth()
 
-  return previewModeEnabled ? <DashboardLayout /> : <Navigate to="/login" replace />
+  if (isPreviewMode || isAuthenticated) return <DashboardLayout />
+  if (isLoading) return <div className="screen-loading" role="status">Restoring your account session…</div>
+  return <Navigate to="/login" replace />
 }
 
 function AppRoutes() {

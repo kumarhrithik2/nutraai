@@ -13,6 +13,7 @@ import {
   FileHeart,
   LayoutDashboard,
   Leaf,
+  LogOut,
   Menu,
   Package,
   Search,
@@ -23,6 +24,7 @@ import {
   X,
 } from 'lucide-react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../context/AuthContext.jsx'
 import AmbientParticles from '../effects/AmbientParticles.jsx'
 import ProfileAvatar from './ProfileAvatar.jsx'
 
@@ -70,7 +72,11 @@ function DashboardLayout() {
   const [searchQuery, setSearchQuery] = useState('')
   const location = useLocation()
   const navigate = useNavigate()
-  const displayName = 'Account'
+  const { user, logout, isPreviewMode } = useAuth()
+  const [isSigningOut, setIsSigningOut] = useState(false)
+  const displayName = user?.name?.trim() || 'Account'
+  const accountSubtitle = isPreviewMode ? 'Account services unavailable' : user?.email || 'Signed in'
+  const canSignOut = !isPreviewMode && Boolean(user)
   const searchRef = useRef(null)
   const sidebarRef = useRef(null)
   const menuToggleRef = useRef(null)
@@ -95,6 +101,19 @@ function DashboardLayout() {
   function navigateTo(path) {
     closeMenus()
     navigate(path)
+  }
+
+  async function handleSignOut() {
+    if (isSigningOut) return
+    setIsSigningOut(true)
+    try {
+      // Revokes the refresh token server-side and clears the in-memory access token.
+      await logout()
+    } finally {
+      closeMenus()
+      navigate('/login', { replace: true })
+      setIsSigningOut(false)
+    }
   }
 
   useEffect(() => {
@@ -203,8 +222,9 @@ function DashboardLayout() {
           <Link to="/contact" title={sidebarCollapsed ? 'Help & support' : undefined}><CircleUserRound size={15} /><span className="dashboard-nav__label">Help &amp; support</span></Link>
           <div className="sidebar-profile">
             <ProfileAvatar name={displayName} />
-            <span className="sidebar-profile__copy"><strong>{displayName}</strong><small>Account services unavailable</small></span>
+            <span className="sidebar-profile__copy"><strong>{displayName}</strong><small>{accountSubtitle}</small></span>
           </div>
+          {canSignOut && <button className="sidebar-logout" type="button" title={sidebarCollapsed ? 'Sign out' : undefined} disabled={isSigningOut} onClick={handleSignOut}><LogOut size={14} /><span className="dashboard-nav__label">{isSigningOut ? 'Signing out…' : 'Sign out'}</span></button>}
           <Link className="sidebar-logout" to="/" title={sidebarCollapsed ? 'Back to website' : undefined}><Leaf size={14} /><span className="dashboard-nav__label">Back to website</span></Link>
         </div>
       </aside>
@@ -255,23 +275,25 @@ function DashboardLayout() {
               }}>
                 <div className="profile-popover__identity">
                   <ProfileAvatar name={displayName} className="profile-avatar--menu" />
-                  <span><strong>{displayName}</strong><small>Account services unavailable</small></span>
+                  <span><strong>{displayName}</strong><small>{accountSubtitle}</small></span>
                 </div>
                 <Link role="menuitem" to="/dashboard/profile" onClick={closeMenus}><UserRound size={15} />View Profile</Link>
                 <Link role="menuitem" to="/dashboard/profile#basic-information" onClick={closeMenus}><Edit3 size={15} />Basic Information</Link>
                 <Link role="menuitem" to="/dashboard/settings" onClick={closeMenus}><Settings size={15} />Settings</Link>
                 <Link role="menuitem" to="/dashboard/notifications" onClick={closeMenus}><Bell size={15} />Notifications</Link>
-                <Link role="menuitem" to="/login" onClick={closeMenus}><CircleUserRound size={15} />Connect account</Link>
+                {canSignOut
+                  ? <button className="profile-popover__logout" role="menuitem" type="button" disabled={isSigningOut} onClick={handleSignOut}><LogOut size={15} />{isSigningOut ? 'Signing out…' : 'Sign out'}</button>
+                  : <Link role="menuitem" to="/login" onClick={closeMenus}><CircleUserRound size={15} />Connect account</Link>}
               </div>}
             </div>
           </div>
         </header>
-        <aside className="dashboard-service-notice" aria-label="Development preview status">
+        {isPreviewMode && <aside className="dashboard-service-notice" aria-label="Development preview status">
           <strong>Development Preview – Sample Data</strong>
           <span>Visual-only preview. No customer identity or personal data is loaded; backend actions remain unavailable.</span>
-        </aside>
+        </aside>}
         <main id="dashboard-main-content" tabIndex="-1" className={`dashboard-content${location.pathname === '/dashboard' ? ' dashboard-content--overview' : ''}`}><Outlet /></main>
-        <footer className="dashboard-footer"><span>NutraAI Labs · Workspace preview</span><span>Wellness information is not medical advice.</span></footer>
+        <footer className="dashboard-footer"><span>NutraAI Labs · {isPreviewMode ? 'Workspace preview' : 'Personal workspace'}</span><span>Wellness information is not medical advice.</span></footer>
         <nav className="dashboard-bottom-nav" aria-label="Quick navigation">
           {[
             { to: '/dashboard/overview', label: 'Home', icon: LayoutDashboard, end: true },
