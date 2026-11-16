@@ -6,6 +6,7 @@ import { defineConfig, loadEnv } from 'vite'
 // /api to Django. This keeps the HTTP-only refresh cookie first-party (SameSite=Lax, path
 // /api/v1/auth/) so session restore and token refresh work in development without CORS.
 const API_PREFIX = '/api'
+const MEDIA_PREFIX = '/media'
 const DEFAULT_PROXY_TARGET = 'http://127.0.0.1:8000'
 
 export default defineConfig(({ mode }) => {
@@ -20,11 +21,19 @@ export default defineConfig(({ mode }) => {
           target: proxyTarget,
           changeOrigin: true,
         },
+        [MEDIA_PREFIX]: {
+          target: proxyTarget,
+          changeOrigin: true,
+        },
       },
     },
     preview: {
       proxy: {
         [API_PREFIX]: {
+          target: proxyTarget,
+          changeOrigin: true,
+        },
+        [MEDIA_PREFIX]: {
           target: proxyTarget,
           changeOrigin: true,
         },

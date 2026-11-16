@@ -189,6 +189,16 @@ const FIELD_NAMES = {
   email_updates: 'emailUpdates',
   reminder_time: 'reminderTime',
   reminder_channel: 'reminderChannel',
+  category_id: 'categoryId',
+  short_description: 'shortDescription',
+  servings_per_pack: 'servingsPerPack',
+  serving_size: 'servingSize',
+  is_active: 'isActive',
+  is_featured: 'isFeatured',
+  is_vegan: 'isVegan',
+  is_vegetarian: 'isVegetarian',
+  requires_doctor_approval: 'requiresDoctorApproval',
+  usage_directions: 'usageDirections',
 }
 
 /**
