@@ -12,11 +12,12 @@ test('product listing filters remain available without showing unverified produc
   await expect(page.getByText(/product information is currently loaded/i)).toBeVisible()
 })
 
-test('product details route displays an integration-ready unavailable state', async ({ page }) => {
+test('product details route handles missing products without inventing product data', async ({ page }) => {
+  await page.route('**/api/v1/products/vitamin-d3/', (route) => route.fulfill({ status: 404, contentType: 'application/json', body: '{}' }))
   await page.goto('/products/vitamin-d3')
 
   await expect(page.getByRole('heading', { level: 1, name: 'Product details unavailable' })).toBeVisible()
-  await expect(page.getByText(/no placeholder product or price is shown/i)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Retry' })).toBeVisible()
   await expect(page.getByRole('button', { name: /add to cart/i })).toHaveCount(0)
 })
 

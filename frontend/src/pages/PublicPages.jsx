@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { ArrowRight, ChevronRight, Eye, Leaf, Mail, Target } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { ArrowLeft, ArrowRight, Eye, Leaf, Mail, Package, Target } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
 import Membership from '../components/home/Membership.jsx'
 import PublicPageFrame from '../components/layout/PublicPageFrame.jsx'
-import IntegrationState from '../components/common/IntegrationState.jsx'
+import { getErrorMessage, getProduct } from '../services/apiBackend/index.js'
 import { products } from '../data/products.js'
 
 export function AboutPage() {
@@ -102,10 +102,85 @@ export function ContactPage() {
 }
 
 export function ProductDetailsPage() {
+  const { slug } = useParams()
+  const [product, setProduct] = useState(null)
+  const [loadedSlug, setLoadedSlug] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [retryCount, setRetryCount] = useState(0)
+  const [failedImageUrls, setFailedImageUrls] = useState([])
+
+  useEffect(() => {
+    let active = true
+    getProduct(slug)
+      .then((result) => {
+        if (active) {
+          setProduct(result)
+          setError('')
+          setFailedImageUrls([])
+          setLoadedSlug(slug)
+        }
+      })
+      .catch((requestError) => {
+        if (active) {
+          setError(getErrorMessage(requestError, 'Product details could not be loaded.'))
+          setLoadedSlug(slug)
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => { active = false }
+  }, [slug, retryCount])
+
+  const isLoading = loading || loadedSlug !== slug
+  const priceFormatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 })
+  const images = product?.images?.length
+    ? product.images
+    : product?.image ? [{ url: product.image, alt: product.imageAlt || product.name }] : []
+  const availableImages = images.filter((image) => image.url && !failedImageUrls.includes(image.url))
+
   return (
     <PublicPageFrame>
-      <div className="not-found"><span className="eyebrow">Product information</span><h1>Product details unavailable</h1><p>Verified product information is not currently available. No placeholder product or price is shown.</p><Link to="/products">Browse the catalogue <ChevronRight size={15} /></Link></div>
-      <IntegrationState title="Product catalogue not connected" description="Product details will be displayed after verified catalogue data is available." />
+      <section className="product-detail-page">
+        <Link className="product-detail-back" to="/products"><ArrowLeft size={15} /> Product information</Link>
+        {isLoading
+          ? <div className="product-detail-state" role="status" aria-busy="true"><Package size={20} /><h1>Loading product details</h1><p>Fetching verified information from the catalogue.</p></div>
+          : error
+            ? <div className="product-detail-state" role="alert"><Package size={20} /><h1>Product details unavailable</h1><p>{error}</p><button className="button button--primary" type="button" onClick={() => { setLoading(true); setError(''); setLoadedSlug(null); setRetryCount((value) => value + 1) }}>Retry</button></div>
+            : product && <>
+              <div className="product-detail-main">
+                <div className={`product-detail-image${availableImages.length > 1 ? ' has-gallery' : ''}`}>
+                  {availableImages.length
+                    ? availableImages.map((image, index) => <img key={`${image.url}-${index}`} src={image.url} alt={image.alt || product.name} onError={() => setFailedImageUrls((current) => [...current, image.url])} />)
+                    : <span role="img" aria-label="Product image unavailable"><Package size={42} aria-hidden="true" /></span>}
+                </div>
+                <div className="product-detail-copy">
+                  <span className="eyebrow">{product.category || 'Product information'}</span>
+                  <h1>{product.name}</h1>
+                  {product.longDescription && <p className="product-detail-description">{product.longDescription}</p>}
+                  {product.longDescription && product.description !== product.longDescription && <p>{product.description}</p>}
+                  <div className="product-detail-price"><strong>{product.price === null ? 'Price unavailable' : priceFormatter.format(product.price)}</strong>{product.mrp !== null && product.price !== null && product.mrp > product.price && <del>{priceFormatter.format(product.mrp)}</del>}{product.discountPercent > 0 && <span>{product.discountPercent}% off</span>}</div>
+                  <p className={product.inStock ? 'product-detail-stock is-in-stock' : 'product-detail-stock is-out-of-stock'}>{product.inStock ? (product.lowStock ? 'Low stock' : 'In stock') : 'Out of stock'}</p>
+                  <dl className="product-detail-specs">
+                    {product.form && <div><dt>Form</dt><dd>{product.form}</dd></div>}
+                    {product.servingSize && <div><dt>Serving size</dt><dd>{product.servingSize}</dd></div>}
+                    {product.servingsPerPack && <div><dt>Servings per pack</dt><dd>{product.servingsPerPack}</dd></div>}
+                  </dl>
+                  <Link className="button button--outline" to="/dashboard/marketplace">Back to marketplace <ArrowRight size={14} /></Link>
+                </div>
+              </div>
+              <div className="product-detail-sections">
+                {Array.isArray(product.benefits) && product.benefits.length > 0 && <section><h2>Benefits</h2><ul>{product.benefits.map((benefit, index) => <li key={`${benefit}-${index}`}>{benefit}</li>)}</ul></section>}
+                {typeof product.benefits === 'string' && product.benefits && <section><h2>Benefits</h2><p>{product.benefits}</p></section>}
+                {product.usageDirections && <section><h2>Usage directions</h2><p>{product.usageDirections}</p></section>}
+                {product.ingredients?.length > 0 && <section><h2>Ingredients</h2><ul>{product.ingredients.map((ingredient, index) => <li key={`${ingredient.name}-${index}`}>{ingredient.name}{ingredient.amount ? ` — ${ingredient.amount}` : ''}</li>)}</ul></section>}
+                {product.allergens?.length > 0 && <section><h2>Allergens</h2><p>{product.allergens.map((allergen) => allergen.name).join(', ')}</p></section>}
+                {product.warnings && <section><h2>Warnings</h2><p>{product.warnings}</p></section>}
+                {product.requiresDoctorApproval && <p className="product-detail-warning">Consult a doctor before using this product.</p>}
+              </div>
+            </>}
+      </section>
     </PublicPageFrame>
   )
 }
