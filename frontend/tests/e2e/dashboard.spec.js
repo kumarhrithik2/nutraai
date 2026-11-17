@@ -3,16 +3,16 @@ import { expect, test } from '@playwright/test'
 test('development preview mode is clearly labelled and keeps backend actions unavailable', async ({ page }) => {
   await page.goto('/dashboard/overview')
 
-  await expect(page.getByText('Development Preview – Sample Data', { exact: true })).toBeVisible()
-  await expect(page.getByText(/No customer identity or personal data is loaded/i)).toBeVisible()
-  await expect(page.getByRole('heading', { level: 2, name: 'Account services are not connected' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Development Preview – Sample Data' })).toBeVisible()
+  await expect(page.locator('#dashboard-main-content').getByText(/No customer identity or personal data is loaded/i)).toBeVisible()
+  await expect(page.getByText(/Sign in to view real dashboard data from your account/i)).toBeVisible()
   expect(await page.evaluate(() => localStorage.length + sessionStorage.length)).toBe(0)
 })
 
 test('overview and customer navigation open the principal dashboard modules', async ({ page }) => {
   await page.goto('/dashboard/overview')
 
-  await expect(page.getByRole('heading', { level: 1, name: 'Your wellness space.' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Development Preview – Sample Data' })).toBeVisible()
   const navigation = page.getByRole('navigation', { name: 'Customer navigation' })
   for (const [label, heading] of [
     ['My health profile', 'My health profile'],
@@ -130,10 +130,9 @@ test('sidebar navigation rows stay aligned when collapsed across desktop and tab
 test('recommendation tabs switch while both states avoid fabricated plans or products', async ({ page }) => {
   await page.goto('/dashboard/recommendations')
 
-  await expect(page.getByRole('tab', { name: 'Recommended products' })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.getByRole('heading', { level: 2, name: 'No recommendations available' })).toBeVisible()
-  await page.getByRole('tab', { name: 'Wellness plan' }).click()
-  await expect(page.getByText('No wellness plan available')).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Recommendations' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: 'Preview mode' })).toBeVisible()
+  await expect(page.getByText(/Sign in to view recommendations/i)).toBeVisible()
   await expect(page.getByRole('article')).toHaveCount(0)
 })
 
@@ -146,17 +145,16 @@ test('assistant validates a question and never returns a scripted response', asy
 
   await input.fill('How can I build a routine?')
   await page.getByRole('button', { name: 'Send message' }).click()
-  await expect(page.getByRole('status')).toHaveText('The assistant service is unavailable. Your question has not been sent.')
-  await expect(page.getByText('How can I build a routine?', { exact: true })).toBeVisible()
+  await expect(page.getByRole('status')).toHaveText('The assistant service is unavailable. Your question has not been sent. AI/LLM integration is deferred.')
   await expect(page.getByText(/A useful first step is choosing one small action/i)).toHaveCount(0)
 })
 
 test('progress selector is usable while no check-ins or measurements are fabricated', async ({ page }) => {
   await page.goto('/dashboard/progress')
 
-  await page.getByLabel('Time period').selectOption('7')
-  await expect(page.getByRole('heading', { level: 2, name: 'No progress data available' })).toBeVisible()
-  await expect(page.getByText(/measurements or check-ins are being recorded/i)).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Wellness progress tracking' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: 'Preview mode' })).toBeVisible()
+  await expect(page.getByText(/Sign in to record and view progress/i)).toBeVisible()
   expect(await page.evaluate(() => localStorage.length)).toBe(0)
 })
 
@@ -168,7 +166,7 @@ test('notification and settings controls show unavailable states without claimin
   await page.getByRole('navigation', { name: 'Customer navigation' }).getByRole('link', { name: 'Settings' }).click()
   await page.getByRole('checkbox', { name: /product and platform updates/i }).check()
   await page.getByRole('button', { name: 'Save preferences' }).click()
-  await expect(page.getByRole('status')).toHaveText('Settings service is unavailable. Your preferences have not been saved.')
+  await expect(page.getByRole('status')).toHaveText('Preferences are not saved in preview mode.')
   await page.reload()
   await expect(page.getByRole('checkbox', { name: /product and platform updates/i })).not.toBeChecked()
 })

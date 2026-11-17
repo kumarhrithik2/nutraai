@@ -10,6 +10,7 @@ function normalizeOrder(o) {
     number: o.number,
     status: o.status,
     statusLabel: o.status_label,
+    paymentMethod: o.payment_method,
     total: money(o.total),
     currency: o.currency,
     itemCount: o.item_count,
@@ -64,12 +65,12 @@ function normalizePayment(p) {
  * Errors: 400 "empty_cart", 404 address, 409 "cart_changed" (details list the changed items),
  *         503 "checkout_disabled".
  */
-export async function placeOrder({ addressId, notes = '', idempotencyKey } = {}) {
+export async function placeOrder({ addressId, notes = '', paymentMethod = 'online', idempotencyKey } = {}) {
   const key =
     idempotencyKey || globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`
   const { data } = await apiClient.post(
     '/checkout/',
-    { address_id: addressId, notes },
+    { address_id: addressId, notes, payment_method: paymentMethod },
     { headers: { 'Idempotency-Key': key } },
   )
   return { order: normalizeOrder(data.order), payment: normalizePayment(data.payment) }

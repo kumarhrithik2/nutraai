@@ -72,10 +72,11 @@ function DashboardLayout() {
   const [searchQuery, setSearchQuery] = useState('')
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, logout, isPreviewMode } = useAuth()
+  const { user, profile, cartCount, logout, isPreviewMode, refreshCartCount } = useAuth()
   const [isSigningOut, setIsSigningOut] = useState(false)
-  const displayName = user?.name?.trim() || 'Account'
-  const accountSubtitle = isPreviewMode ? 'Account services unavailable' : user?.email || 'Signed in'
+  const displayName = user?.name?.trim() || profile?.name || 'Account'
+  const avatarUrl = profile?.avatarUrl || user?.avatarUrl || ''
+  const accountSubtitle = isPreviewMode ? 'Account services unavailable' : user?.email || profile?.email || 'Signed in'
   const canSignOut = !isPreviewMode && Boolean(user)
   const searchRef = useRef(null)
   const sidebarRef = useRef(null)
@@ -136,6 +137,10 @@ function DashboardLayout() {
   useEffect(() => {
     if (profileOpen) profileMenuRef.current?.querySelector('[role="menuitem"]')?.focus()
   }, [profileOpen])
+
+  useEffect(() => {
+    if (!isPreviewMode && user) refreshCartCount()
+  }, [isPreviewMode, user, refreshCartCount])
 
   useEffect(() => {
     if (sidebarOpen) sidebarRef.current?.querySelector('a')?.focus()
@@ -221,7 +226,7 @@ function DashboardLayout() {
         <div className="sidebar-bottom">
           <Link to="/contact" title={sidebarCollapsed ? 'Help & support' : undefined}><CircleUserRound size={15} /><span className="dashboard-nav__label">Help &amp; support</span></Link>
           <div className="sidebar-profile">
-            <ProfileAvatar name={displayName} />
+            <ProfileAvatar name={displayName} imageUrl={avatarUrl} />
             <span className="sidebar-profile__copy"><strong>{displayName}</strong><small>{accountSubtitle}</small></span>
           </div>
           {canSignOut && <button className="sidebar-logout" type="button" title={sidebarCollapsed ? 'Sign out' : undefined} disabled={isSigningOut} onClick={handleSignOut}><LogOut size={14} /><span className="dashboard-nav__label">{isSigningOut ? 'Signing out…' : 'Sign out'}</span></button>}
@@ -250,7 +255,7 @@ function DashboardLayout() {
                 {filteredResults.length ? filteredResults.map(({ to, label, icon: Icon }) => <button key={to} type="button" role="option" aria-selected="false" onClick={() => navigateTo(to)}><Icon size={15} />{label}</button>) : <p>No matching pages.</p>}
               </div>}
             </div>
-            <Link className="dashboard-cart-link" to="/dashboard/cart" aria-label="Shopping cart"><ShoppingCart size={17} /></Link>
+            <Link className="dashboard-cart-link" to="/dashboard/cart" aria-label={cartCount ? `Shopping cart, ${cartCount} items` : 'Shopping cart'}><ShoppingCart size={17} />{cartCount > 0 && <span className="cart-badge" aria-hidden="true">{cartCount > 99 ? '99+' : cartCount}</span>}</Link>
             <div className="header-menu-anchor">
               <button type="button" className={`dashboard-notice${notificationsOpen ? ' is-open' : ''}`} aria-label="Notifications" aria-expanded={notificationsOpen} onClick={() => {
                 setProfileOpen(false)
@@ -269,12 +274,12 @@ function DashboardLayout() {
                 setNotificationsOpen(false)
                 setSearchOpen(false)
                 setProfileOpen((open) => !open)
-              }}><span className="topbar-user__name">{displayName}</span><ProfileAvatar name={displayName} /><ChevronDown size={13} /></button>
+              }}><span className="topbar-user__name">{displayName}</span><ProfileAvatar name={displayName} imageUrl={avatarUrl} /><ChevronDown size={13} /></button>
               {profileOpen && <div ref={profileMenuRef} className="header-popover profile-popover" id="profile-menu" role="menu" aria-label="Profile menu" onBlur={(event) => {
                 if (!event.currentTarget.contains(event.relatedTarget) && event.relatedTarget !== profileButtonRef.current) setProfileOpen(false)
               }}>
                 <div className="profile-popover__identity">
-                  <ProfileAvatar name={displayName} className="profile-avatar--menu" />
+                  <ProfileAvatar name={displayName} imageUrl={avatarUrl} className="profile-avatar--menu" />
                   <span><strong>{displayName}</strong><small>{accountSubtitle}</small></span>
                 </div>
                 <Link role="menuitem" to="/dashboard/profile" onClick={closeMenus}><UserRound size={15} />View Profile</Link>

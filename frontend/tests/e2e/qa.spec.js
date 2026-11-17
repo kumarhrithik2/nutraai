@@ -48,8 +48,8 @@ test('invalid login input displays validation feedback without navigation', asyn
 
 test('workspace modules are navigable and display unavailable states without authentication fixtures', async ({ page }) => {
   for (const [path, title] of [
-    ['/dashboard', 'Your wellness space.'],
-    ['/dashboard/overview', 'Your wellness space.'],
+    ['/dashboard', 'Development Preview – Sample Data'],
+    ['/dashboard/overview', 'Development Preview – Sample Data'],
     ['/dashboard/profile', 'My health profile'],
     ['/dashboard/assessment', 'Health assessment'],
     ['/dashboard/report', 'Wellness report'],

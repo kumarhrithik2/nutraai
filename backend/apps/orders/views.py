@@ -78,7 +78,9 @@ class CheckoutView(APIView):
         key = validate_idempotency_key(request.headers.get("Idempotency-Key"))
         order, payment = await services.checkout(
             request.user, address_id=s.validated_data["address_id"], idempotency_key=key,
-            notes=s.validated_data["notes"], request=request,
+            notes=s.validated_data["notes"],
+            payment_method=s.validated_data.get("payment_method", "online"),
+            request=request,
         )
         body = {"order": OrderDetailSerializer(order).data,
                 "payment": PaymentInitSerializer(payment).data if payment else None}
@@ -113,5 +115,9 @@ class OrderPayView(APIView):
                    summary="Get payment details again for an unpaid order")
     async def post(self, request, number: str):
         order = await services.get_order(request.user, number)
+        if getattr(order, "payment_method", "online") == "cod":
+            from apps.core.exceptions import ApiError
+            raise ApiError("Cash on Delivery orders do not require online payment.",
+                           code="cod_no_online_payment", status_code=409)
         payment = await payment_services.initiate_payment(order)
         return Response(PaymentInitSerializer(payment).data)

@@ -23,6 +23,9 @@ async def initiate_payment(order: Order) -> dict:
     """Return what the browser needs to open the checkout widget. Reuses an open payment."""
     if order.status != Order.Status.PENDING_PAYMENT:
         raise ApiError("This order is not awaiting payment.", code="order_not_payable", status_code=409)
+    if getattr(order, "payment_method", "online") == "cod":
+        raise ApiError("Cash on Delivery orders do not require online payment.",
+                       code="cod_no_online_payment", status_code=409)
     gateway = get_gateway()
     amount = order_services.to_paise(order.total)
     payment = await Payment.objects.filter(

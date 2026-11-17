@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
+import { useAuth } from '../context/AuthContext.jsx'
+import { getErrorMessage, getFieldErrors, logProgress, submitAssessment, updatePreferences } from '../services/apiBackend/index.js'
 
 const steps = [
   { title: 'About you', short: 'About you', description: 'Share only the information you are comfortable entering.' },
@@ -164,8 +166,11 @@ function AssessmentReview({ answers, onEdit }) {
 }
 
 export function HealthAssessmentPage() {
+  const { isPreviewMode } = useAuth()
   const [assessment, setAssessment] = useState({ step: 0, answers: {} })
   const [submissionStatus, setSubmissionStatus] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(null)
   const answers = assessment.answers
   const step = Math.min(Math.max(Number(assessment.step) || 0, 0), steps.length - 1)
   const [errors, setErrors] = useState({})
@@ -260,7 +265,7 @@ export function HealthAssessmentPage() {
     setSubmissionStatus('')
   }
 
-  function continueAssessment() {
+  async function continueAssessment() {
     if (step < 5 && !validateStep(step)) return
     if (step === 1 && !answers.sleepHours) setAnswer('sleepHours', '7')
     if (step === steps.length - 1) {
@@ -271,7 +276,32 @@ export function HealthAssessmentPage() {
         validateStep(firstInvalid)
         return
       }
-      setSubmissionStatus('Assessment services are unavailable. Your responses remain only on this screen and have not been submitted.')
+      if (isPreviewMode) {
+        setSubmissionStatus('Assessment submission is not available in preview mode. No data was sent.')
+        return
+      }
+      if (isSubmitting) return
+      setIsSubmitting(true)
+      setSubmissionStatus('')
+      try {
+        const result = await submitAssessment(answers)
+        // Best-effort: save optional check-in/preferences if provided (non-blocking, ignore not-implemented)
+        const checkIn = { energyLevel: answers.energyLevel, waterIntake: answers.waterIntake, waterIntakeUnknown: answers.waterIntakeUnknown, checkInWeight: answers.checkInWeight, tookSupplements: answers.tookSupplements }
+        if (answers.energyLevel || answers.waterIntake || answers.checkInWeight || answers.tookSupplements) {
+          logProgress(checkIn).catch(() => {})
+        }
+        if (answers.reminderTime || answers.reminderChannel) {
+          updatePreferences({ emailUpdates: false, reminders: Boolean(answers.reminderTime || answers.reminderChannel), reminderTime: answers.reminderTime || '', reminderChannel: answers.reminderChannel || '' }).catch(() => {})
+        }
+        setSubmitted(result)
+        setSubmissionStatus(`Assessment submitted successfully. BMI: ${result.bmi}, Age band: ${result.ageBand}.`)
+      } catch (error) {
+        const fieldErrors = getFieldErrors(error)
+        setErrors(fieldErrors)
+        setSubmissionStatus(getErrorMessage(error, 'Could not submit the assessment.'))
+      } finally {
+        setIsSubmitting(false)
+      }
       return
     }
     moveTo(step + 1)
@@ -410,7 +440,7 @@ export function HealthAssessmentPage() {
           <span><strong>Wellness information disclaimer <i>Required</i></strong><small>I understand NutraAI provides wellness information and educational support, not medical diagnosis or treatment. I will consult a qualified healthcare professional for medical advice.</small></span>
         </label>
         {fieldError('disclaimerConsent') && <span className="assessment-field__error" role="alert">{fieldError('disclaimerConsent')}</span>}
-        <p className="assessment-privacy-note">Assessment services are not connected. Responses stay in this page's memory and are cleared when you leave.</p>
+        <p className="assessment-privacy-note">{isPreviewMode ? 'Preview mode: responses are not submitted.' : 'When you submit, your responses are saved to your account to generate recommendations and reports.'}</p>
       </div>
     )
   }
@@ -493,8 +523,8 @@ export function HealthAssessmentPage() {
                 </button>
                 <div>
                   {(step === 5 || step === 6) && <button className="button button--text" type="button" onClick={() => moveTo(step + 1)}>Skip this optional step</button>}
-                  <button className="button button--primary" type="button" onClick={continueAssessment}>
-                    {step === steps.length - 1 ? 'Submit assessment' : 'Continue'} <ArrowRight size={15} />
+                  <button className="button button--primary" type="button" onClick={continueAssessment} disabled={isSubmitting || Boolean(submitted)}>
+                    {isSubmitting ? 'Submitting...' : step === steps.length - 1 ? (submitted ? 'Submitted' : 'Submit assessment') : 'Continue'} <ArrowRight size={15} />
                   </button>
                 </div>
               </div>
@@ -502,7 +532,7 @@ export function HealthAssessmentPage() {
         </>
       </section>
       {submissionStatus && <p className="dashboard-inline-error" role="status">{submissionStatus}</p>}
-      <p className="dashboard-disclaimer">Responses are held only in this page's memory and are cleared when you leave. Nothing is submitted until assessment services are connected. This is not medical advice.</p>
+      <p className="dashboard-disclaimer">{submitted ? 'Your assessment has been saved to your account. Recommendations and reports are now available.' : 'Responses are held in memory until you submit. Submitting saves your assessment to your account.'} This is not medical advice.</p>
     </>
   )
 }

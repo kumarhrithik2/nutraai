@@ -3,7 +3,8 @@ import { ArrowLeft, ArrowRight, Eye, Leaf, Mail, Package, Target } from 'lucide-
 import { Link, useParams } from 'react-router-dom'
 import Membership from '../components/home/Membership.jsx'
 import PublicPageFrame from '../components/layout/PublicPageFrame.jsx'
-import { getErrorMessage, getProduct } from '../services/apiBackend/index.js'
+import { addToCart, getErrorMessage, getProduct } from '../services/apiBackend/index.js'
+import { useAuth } from '../context/AuthContext.jsx'
 import { products } from '../data/products.js'
 
 export function AboutPage() {
@@ -103,12 +104,15 @@ export function ContactPage() {
 
 export function ProductDetailsPage() {
   const { slug } = useParams()
+  const { isPreviewMode, isAuthenticated, refreshCartCount } = useAuth()
   const [product, setProduct] = useState(null)
   const [loadedSlug, setLoadedSlug] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [retryCount, setRetryCount] = useState(0)
   const [failedImageUrls, setFailedImageUrls] = useState([])
+  const [adding, setAdding] = useState(false)
+  const [cartStatus, setCartStatus] = useState('')
 
   useEffect(() => {
     let active = true
@@ -140,6 +144,21 @@ export function ProductDetailsPage() {
     : product?.image ? [{ url: product.image, alt: product.imageAlt || product.name }] : []
   const availableImages = images.filter((image) => image.url && !failedImageUrls.includes(image.url))
 
+  async function handleAddToCart() {
+    if (!product || !product.inStock) return
+    if (isPreviewMode || !isAuthenticated) { setCartStatus('Sign in to add products to your cart.'); return }
+    setAdding(true); setCartStatus('')
+    try {
+      await addToCart(product.id, 1)
+      await refreshCartCount()
+      setCartStatus('Added to your cart.')
+    } catch (e) {
+      setCartStatus(getErrorMessage(e, 'Could not add to cart.'))
+    } finally {
+      setAdding(false)
+    }
+  }
+
   return (
     <PublicPageFrame>
       <section className="product-detail-page">
@@ -167,7 +186,8 @@ export function ProductDetailsPage() {
                     {product.servingSize && <div><dt>Serving size</dt><dd>{product.servingSize}</dd></div>}
                     {product.servingsPerPack && <div><dt>Servings per pack</dt><dd>{product.servingsPerPack}</dd></div>}
                   </dl>
-                  <Link className="button button--outline" to="/dashboard/marketplace">Back to marketplace <ArrowRight size={14} /></Link>
+                  <div className="product-detail-actions"><button className="button button--primary" type="button" disabled={!product.inStock || adding} onClick={handleAddToCart}>{adding ? 'Adding…' : 'Add to cart'}</button><Link className="button button--outline" to="/dashboard/marketplace">View marketplace <ArrowRight size={14} /></Link></div>
+                  {cartStatus && <p className="form-status" role="status">{cartStatus}</p>}
                 </div>
               </div>
               <div className="product-detail-sections">

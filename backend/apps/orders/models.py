@@ -35,10 +35,16 @@ class Order(TimeStampedModel):
         CANCELLED = "cancelled", "Cancelled"
         REFUND_REQUIRED = "refund_required", "Refund required"
 
+    class PaymentMethod(models.TextChoices):
+        ONLINE = "online", "Online payment"
+        COD = "cod", "Cash on Delivery"
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="orders")
     number = models.CharField(max_length=20, unique=True, editable=False)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING_PAYMENT,
                               db_index=True)
+    payment_method = models.CharField(max_length=20, choices=PaymentMethod.choices,
+                                      default=PaymentMethod.ONLINE, db_index=True)
     idempotency_key = models.CharField(max_length=64, null=True, blank=True, editable=False)
 
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)

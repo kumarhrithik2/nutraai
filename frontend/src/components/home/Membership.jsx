@@ -30,7 +30,7 @@ function Membership({ onSelectPlan, selectedPlan = '', compact = false, showComp
         <h2>Wellness support, <em>at your pace.</em></h2>
         <p>Three clear options with the approved benefits and pricing.</p>
       </div>}
-      <p className="membership-pricing-note">Account, membership, and billing services are not connected. Choosing a plan will not create or change a subscription.</p>
+      <p className="membership-pricing-note">Paid plan activation requires configured payment credentials. Free plan changes can be saved to your account when signed in.</p>
       <div className="membership-grid">
         {membershipPlans.map((plan) => {
           const isSelected = selectedPlan === plan.id
@@ -61,7 +61,7 @@ function Membership({ onSelectPlan, selectedPlan = '', compact = false, showComp
           )
         })}
       </div>
-      {onSelectPlan && selectedPlan && <p className="form-status" role="status">Plan selection is for comparison only. Membership services are unavailable, and no changes were made.</p>}
+      {onSelectPlan && selectedPlan && <p className="form-status" role="status">Selected plan: {selectedPlan}. Paid activation requires configured payment credentials.</p>}
       {showComparison && <div className="membership-comparison-wrap">
         <h3>Compare membership benefits</h3>
         <div className="membership-comparison">

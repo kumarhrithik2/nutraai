@@ -50,6 +50,11 @@ class SetQuantitySerializer(serializers.Serializer):
 class CheckoutSerializer(serializers.Serializer):
     address_id = serializers.IntegerField(min_value=1)
     notes = serializers.CharField(max_length=300, required=False, allow_blank=True, default="")
+    payment_method = serializers.ChoiceField(
+        choices=[Order.PaymentMethod.ONLINE, Order.PaymentMethod.COD],
+        default=Order.PaymentMethod.ONLINE,
+        required=False,
+    )
 
     def validate_notes(self, value):
         return " ".join(value.split())
@@ -81,7 +86,7 @@ class OrderListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["number", "status", "status_label", "total", "currency", "item_count", "created_at"]
+        fields = ["number", "status", "status_label", "total", "currency", "item_count", "created_at", "payment_method"]
 
     def get_item_count(self, obj) -> int:
         return sum(i.quantity for i in obj.items.all())

@@ -132,7 +132,8 @@ def _add_event(order: Order, status: str, note: str = "") -> None:
     OrderEvent.objects.create(order=order, status=status, note=note)
 
 
-def _checkout_sync(user, address, idempotency_key: str | None, notes: str) -> tuple[Order, bool]:
+def _checkout_sync(user, address, idempotency_key: str | None, notes: str,
+                   payment_method: str = Order.PaymentMethod.ONLINE) -> tuple[Order, bool]:
     with transaction.atomic():
         if idempotency_key:
             existing = Order.objects.filter(user=user, idempotency_key=idempotency_key).first()
@@ -164,18 +165,20 @@ def _checkout_sync(user, address, idempotency_key: str | None, notes: str) -> tu
 
         subtotal = sum((products[i.product_id].price * i.quantity for i in items), Decimal("0"))
         shipping = shipping_for(subtotal)
+        is_cod = payment_method == Order.PaymentMethod.COD
         for attempt in range(5):
             try:
                 with transaction.atomic():
                     order = Order.objects.create(
                         user=user, number=_new_number(), idempotency_key=idempotency_key or None,
+                        payment_method=payment_method,
                         subtotal=subtotal.quantize(MONEY), shipping_fee=shipping,
                         total=(subtotal + shipping).quantize(MONEY),
                         contact_email=user.email, ship_full_name=address.full_name,
                         ship_phone=address.phone, ship_line1=address.line1, ship_line2=address.line2,
                         ship_city=address.city, ship_state=address.state, ship_pincode=address.pincode,
                         notes=notes,
-                        expires_at=timezone.now() + timedelta(
+                        expires_at=None if is_cod else timezone.now() + timedelta(
                             minutes=settings.ORDER_PAYMENT_TIMEOUT_MINUTES),
                     )
                 break
@@ -194,11 +197,13 @@ def _checkout_sync(user, address, idempotency_key: str | None, notes: str) -> tu
             )
             Product.objects.filter(pk=p.pk).update(stock=F("stock") - item.quantity)
         CartItem.objects.filter(cart=cart).delete()
-        _add_event(order, Order.Status.PENDING_PAYMENT, "Order placed")
+        _add_event(order, Order.Status.PENDING_PAYMENT,
+                   "Order placed (Cash on Delivery)" if is_cod else "Order placed")
         return order, True
 
 
-async def checkout(user, *, address_id: int, idempotency_key: str | None, notes: str, request=None):
+async def checkout(user, *, address_id: int, idempotency_key: str | None, notes: str,
+                   payment_method: str = Order.PaymentMethod.ONLINE, request=None):
     """Reserve stock, create the order and open a payment. Returns (order, payment_info)."""
     from apps.payments import services as payment_services  # lazy: payments imports orders
 
@@ -206,7 +211,9 @@ async def checkout(user, *, address_id: int, idempotency_key: str | None, notes:
         raise ApiError("Checkout is temporarily unavailable.", code="checkout_disabled", status_code=503)
     address = await profile_services.get_address(user, address_id)
     try:
-        order, created = await sync_to_async(_checkout_sync)(user, address, idempotency_key, notes)
+        order, created = await sync_to_async(_checkout_sync)(
+            user, address, idempotency_key, notes, payment_method
+        )
     except IntegrityError:  # same idempotency key raced: return the winner
         order = await Order.objects.aget(user=user, idempotency_key=idempotency_key)
         created = False
@@ -214,7 +221,7 @@ async def checkout(user, *, address_id: int, idempotency_key: str | None, notes:
         await audit("order.created", request=request, actor=user, target=order, total=str(order.total))
     order = await get_order(user, order.number)
     payment = None
-    if order.status == Order.Status.PENDING_PAYMENT:
+    if order.status == Order.Status.PENDING_PAYMENT and order.payment_method != Order.PaymentMethod.COD:
         payment = await payment_services.initiate_payment(order)
     return order, payment
 
@@ -244,8 +251,12 @@ def _cancel_sync(order_id: int, user_id: int | None, note: str) -> Order:
             raise ApiError("Order not found.", code="not_found", status_code=404)
         if order.status == Order.Status.CANCELLED:
             return order
-        if order.status != Order.Status.PENDING_PAYMENT:
-            raise ApiError("Paid orders cannot be cancelled here. Please contact support.",
+        # COD orders remain pending/unpaid until delivery/collection but can be cancelled before fulfillment.
+        cancellable = {Order.Status.PENDING_PAYMENT}
+        if order.payment_method == Order.PaymentMethod.COD:
+            cancellable |= {Order.Status.PROCESSING}
+        if order.status not in cancellable:
+            raise ApiError("This order cannot be cancelled here. Please contact support.",
                            code="cannot_cancel", status_code=409)
         _restock(order)
         order.status = Order.Status.CANCELLED
@@ -307,5 +318,10 @@ def mark_order_paid(order_id: int, *, note: str = "Payment received") -> Order:
         order.save(update_fields=["status", "paid_at", "cancelled_at", "updated_at"])
         _add_event(order, Order.Status.PAID, note)
         audit_sync("order.paid", target=order, actor=order.user)
-        transaction.on_commit(lambda: send_order_confirmation.delay(order.pk))
+        def _send_confirmation():
+            if settings.CELERY_TASK_ALWAYS_EAGER:
+                send_order_confirmation.apply(args=[order.pk])
+            else:
+                send_order_confirmation.delay(order.pk)
+        transaction.on_commit(_send_confirmation)
         return order

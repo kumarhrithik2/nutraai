@@ -17,6 +17,9 @@ if DATABASES["default"]["ENGINE"].endswith("sqlite3"):
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}}
 CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
+CELERY_BROKER_URL = "memory://"
+CELERY_RESULT_BACKEND = "cache+memory://"
 EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 MEDIA_ROOT = Path(tempfile.mkdtemp(prefix="nutraai-test-media-"))
 STORAGES = {

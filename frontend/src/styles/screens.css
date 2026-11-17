@@ -4880,3 +4880,57 @@ button:disabled { cursor: not-allowed; }
   .product-detail-specs { grid-template-columns: 1fr; }
   .product-detail-warning { grid-column: auto; }
 }
+
+
+/* Cart badge */
+.dashboard-cart-link { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.cart-badge { position: absolute; top: -6px; right: -8px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #1f5e3b; color: #fff; font-size: 10px; font-weight: 700; line-height: 18px; text-align: center; pointer-events: none; }
+
+/* Cart page */
+.cart-page-grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .cart-page-grid { grid-template-columns: 1.6fr 1fr; align-items: start; } }
+.cart-items-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.cart-item { display: grid; grid-template-columns: 72px 1fr auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(31,61,45,0.12); }
+.cart-item:last-child { border-bottom: 0; }
+.cart-item__image { width: 72px; height: 72px; border-radius: 10px; background: #eef3ea; display: grid; place-items: center; overflow: hidden; }
+.cart-item__image img { width: 100%; height: 100%; object-fit: cover; }
+.cart-item__info h3 { margin: 0 0 4px; font-size: 15px; color: #173525; }
+.cart-item__info p { margin: 0; color: #5b6f63; font-size: 13px; }
+.cart-item__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: flex-end; }
+.cart-qty { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(31,61,45,0.2); border-radius: 999px; padding: 4px 8px; }
+.cart-qty button { background: none; border: 0; cursor: pointer; color: #173525; display: inline-flex; padding: 2px; }
+.cart-summary { background: #f7faf5; border: 1px solid rgba(31,61,45,0.12); border-radius: 14px; padding: 18px; display: grid; gap: 10px; }
+.cart-summary__row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: #2f4b3d; }
+.cart-summary__row--total { font-size: 16px; color: #173525; border-top: 1px solid rgba(31,61,45,0.12); padding-top: 10px; margin-top: 4px; }
+.cart-page-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+.cart-empty { text-align: center; padding: 28px 12px; }
+.cart-feedback { margin: 8px 0 0; }
+.payment-options { display: grid; gap: 10px; margin: 10px 0 4px; }
+.payment-option { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid rgba(31,61,45,0.18); border-radius: 12px; cursor: pointer; }
+.payment-option.is-selected { border-color: #1f5e3b; background: #f3f8f1; }
+.payment-option.is-disabled { opacity: 0.7; cursor: default; }
+.payment-option__copy strong { display: block; color: #173525; }
+.payment-option__copy small { color: #5b6f63; display: block; margin-top: 2px; }
+.payment-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #e8efe6; color: #2f4b3d; margin-left: 6px; }
+
+/* Assessment history & report */
+.assessment-history { display: grid; gap: 12px; }
+.assessment-history__item { border: 1px solid rgba(31,61,45,0.14); border-radius: 12px; padding: 14px; background: #fff; }
+.assessment-history__meta { display: flex; flex-wrap: wrap; gap: 10px 18px; color: #2f4b3d; font-size: 13px; margin: 6px 0 0; }
+.assessment-answers-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.assessment-answer { padding: 10px 12px; border-radius: 10px; background: #f7faf5; }
+.assessment-answer dt { font-size: 12px; color: #5b6f63; margin: 0 0 2px; }
+.assessment-answer dd { margin: 0; color: #173525; font-size: 14px; }
+.report-grid { display: grid; gap: 16px; }
+@media (min-width: 900px) { .report-grid--two { grid-template-columns: 1fr 1fr; } }
+.report-section { border: 1px solid rgba(31,61,45,0.12); border-radius: 14px; padding: 16px; background: #fff; }
+.report-section h2 { margin: 0 0 8px; font-size: 18px; color: #173525; }
+.report-section h3 { margin: 12px 0 6px; font-size: 15px; color: #173525; }
+.report-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.report-kpi { background: #f3f8f1; border-radius: 10px; padding: 12px; }
+.report-kpi strong { display: block; font-size: 20px; color: #173525; }
+.report-kpi span { font-size: 12px; color: #5b6f63; }
+.report-list { margin: 6px 0 0; padding-left: 18px; color: #2f4b3d; }
+.report-bar { height: 8px; background: #e8efe6; border-radius: 999px; overflow: hidden; margin-top: 6px; }
+.report-bar > span { display: block; height: 100%; background: #1f5e3b; border-radius: 999px; }
+.report-note { color: #5b6f63; font-size: 13px; }
