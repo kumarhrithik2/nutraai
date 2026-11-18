@@ -1,4 +1,4 @@
-const freeFeatures = {
+﻿const freeFeatures = {
   account: true,
   assessment: true,
   basicDashboard: true,
@@ -10,8 +10,6 @@ const freeFeatures = {
   personalizedPlan: false,
   enhancedDashboard: false,
   supplementRecommendations: false,
-  reminders: false,
-  progressTracking: false,
   monthlyReview: false,
   expandedAssistant: false,
   nutritionGuidance: false,
@@ -32,8 +30,6 @@ const paidFeatures = {
   personalizedPlan: true,
   enhancedDashboard: true,
   supplementRecommendations: true,
-  reminders: true,
-  progressTracking: true,
   monthlyReview: true,
   expandedAssistant: true,
   nutritionGuidance: true,
@@ -62,8 +58,6 @@ const paidFeatureLabels = [
   'Everything in Free',
   'Personalized wellness plan',
   'Enhanced dashboard and supplement recommendations',
-  'Wellness reminders',
-  'Progress and habit tracking',
   'Monthly AI wellness review',
   'Expanded and premium AI assistant',
   'Nutrition guidance and extended wellness reviews',

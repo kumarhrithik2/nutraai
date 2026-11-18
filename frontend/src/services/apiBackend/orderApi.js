@@ -32,8 +32,12 @@ function normalizeOrder(o) {
       pincode: o.shipping_address.pincode,
     },
     items: o.items?.map((i) => ({
+      productId: i.product_id ?? null,
+      productSlug: i.product_slug || null,
       name: i.name,
       sku: i.sku,
+      image: i.image || null,
+      imageAlt: i.image_alt || i.name || 'Product image',
       unitPrice: money(i.unit_price),
       quantity: i.quantity,
       lineTotal: money(i.line_total),
@@ -140,4 +144,15 @@ export async function getOrder(orderNumber) {
 export async function cancelOrder(orderNumber) {
   const { data } = await apiClient.post(`/orders/${encodeURIComponent(orderNumber)}/cancel/`)
   return normalizeOrder(data)
+}
+
+/**
+ * Purpose: remove an eligible order from the customer's visible order list (soft-delete/archive).
+ * Endpoint: POST /orders/{orderNumber}/archive/
+ * Params: orderNumber: string
+ * Returns: Promise<void>
+ * Errors: 404 when it is not the user's order, 409 when the order cannot be deleted.
+ */
+export async function archiveOrder(orderNumber) {
+  await apiClient.post(`/orders/${encodeURIComponent(orderNumber)}/archive/`)
 }

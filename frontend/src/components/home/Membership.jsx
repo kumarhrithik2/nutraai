@@ -11,7 +11,6 @@ const comparisonFeatures = [
   ['Marketplace and individual purchases', 'marketplace'],
   ['Personalized wellness plan', 'personalizedPlan'],
   ['Enhanced dashboard and recommendations', 'enhancedDashboard'],
-  ['Wellness reminders and progress tracking', 'progressTracking'],
   ['Monthly AI wellness review', 'monthlyReview'],
   ['Nutrition guidance and extended reviews', 'nutritionGuidance'],
   ['Supplement subscriptions and eligible discounts', 'supplementManagement'],

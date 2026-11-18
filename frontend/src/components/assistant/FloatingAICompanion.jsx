@@ -3,14 +3,13 @@ import { Bot, Sparkles } from 'lucide-react'
 import { gsap } from 'gsap'
 import { useLocation } from 'react-router-dom'
 import RobotAvatar from './RobotAvatar.jsx'
+import { useAuth } from '../../context/AuthContext.jsx'
 import './assistant.css'
 
 const AIChatPanel = lazy(() => import('./AIChatPanel.jsx'))
 const RobotCharacter = lazy(() => import('./RobotCharacter.jsx'))
 
-function FloatingAICompanion() {
-  const location = useLocation()
-  const isDashboard = location.pathname.startsWith('/dashboard')
+function FloatingAICompanionInner({ isDashboard }) {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([])
   const [message, setMessage] = useState('')
@@ -140,6 +139,18 @@ function FloatingAICompanion() {
       </button>
     </div>
   )
+}
+
+function FloatingAICompanion() {
+  const location = useLocation()
+  const { user, isAuthenticated } = useAuth()
+  const isDashboard = location.pathname === '/dashboard' || location.pathname.startsWith('/dashboard/')
+  const isCustomerSession = isAuthenticated && user?.role !== 'admin'
+  const canUseAssistant = isDashboard && isCustomerSession
+
+  if (!canUseAssistant) return null
+
+  return <FloatingAICompanionInner key={user?.id ?? user?.email ?? 'customer'} isDashboard={isDashboard} />
 }
 
 export default FloatingAICompanion

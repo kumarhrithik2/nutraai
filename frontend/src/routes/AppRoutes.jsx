@@ -16,7 +16,6 @@ const ProductsPage = lazy(() => import('../pages/PublicPages.jsx').then((module)
 const AssistantPage = lazy(() => import('../pages/DashboardPages.jsx').then((module) => ({ default: module.AssistantPage })))
 const DashboardOverview = lazy(() => import('../pages/DashboardPages.jsx').then((module) => ({ default: module.DashboardOverview })))
 const HealthAssessmentPage = lazy(() => import('../pages/HealthAssessmentPage.jsx').then((module) => ({ default: module.HealthAssessmentPage })))
-const ProgressPage = lazy(() => import('../pages/DashboardPages.jsx').then((module) => ({ default: module.ProgressPage })))
 const RecommendationsPage = lazy(() => import('../pages/DashboardPages.jsx').then((module) => ({ default: module.RecommendationsPage })))
 const WellnessReportPage = lazy(() => import('../pages/DashboardPages.jsx').then((module) => ({ default: module.WellnessReportPage })))
 const CommercePages = lazy(() => import('../pages/CommercePages.jsx'))
@@ -34,9 +33,13 @@ const AdminRoute = lazy(() => import('./AdminRoute.jsx'))
 const AdminLayout = lazy(() => import('../components/admin/AdminLayout.jsx'))
 const AdminLoginPage = lazy(() => import('../pages/admin/AdminLoginPage.jsx'))
 const AdminProductsPage = lazy(() => import('../pages/admin/AdminProductsPage.jsx'))
-const AdminModulePlaceholder = lazy(() =>
-  import('../pages/admin/AdminPlaceholderPage.jsx').then((m) => ({ default: m.AdminModulePlaceholder }))
-)
+const AdminOverviewPage = lazy(() => import('../pages/admin/AdminOverviewPage.jsx'))
+const AdminInventoryPage = lazy(() => import('../pages/admin/AdminInventoryPage.jsx'))
+const AdminOrdersPage = lazy(() => import('../pages/admin/AdminOrdersPage.jsx'))
+const AdminCustomersPage = lazy(() => import('../pages/admin/AdminCustomersPage.jsx'))
+const AdminSubscriptionsPage = lazy(() => import('../pages/admin/AdminSubscriptionsPage.jsx'))
+const AdminAnalyticsPage = lazy(() => import('../pages/admin/AdminAnalyticsPage.jsx'))
+const AdminSettingsPage = lazy(() => import('../pages/admin/AdminSettingsPage.jsx'))
 
 function DashboardWorkspace() {
   const { isAuthenticated, isLoading, isPreviewMode } = useAuth()
@@ -72,7 +75,6 @@ function AppRoutes() {
             <Route path="report" element={<WellnessReportPage />} />
             <Route path="recommendations" element={<RecommendationsPage />} />
             <Route path="wellness-plan" element={<WellnessPlanPage />} />
-            <Route path="progress" element={<ProgressPage />} />
             <Route path="assistant" element={<AssistantPage />} />
             <Route path="marketplace" element={<MarketplacePage />} />
             <Route path="cart" element={<CommercePages page="cart" />} />
@@ -80,9 +82,9 @@ function AppRoutes() {
             <Route path="orders" element={<OrdersPage />} />
             <Route path="orders/:orderId" element={<OrderDetailsPage />} />
             <Route path="subscriptions" element={<SubscriptionDashboard />} />
-            <Route path="subscriptions/membership" element={<SubscriptionDashboard />} />
-            <Route path="subscriptions/supplements" element={<SubscriptionDashboard />} />
-            <Route path="subscriptions/billing" element={<SubscriptionDashboard />} />
+            <Route path="subscriptions/membership" element={<Navigate to="/dashboard/subscriptions" replace />} />
+            <Route path="subscriptions/supplements" element={<Navigate to="/dashboard/subscriptions" replace />} />
+            <Route path="subscriptions/billing" element={<Navigate to="/dashboard/subscriptions" replace />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
@@ -91,71 +93,15 @@ function AppRoutes() {
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminRoute />}>
             <Route element={<AdminLayout />}>
-              <Route index element={<Navigate to="/admin/products" replace />} />
+              <Route index element={<Navigate to="/admin/overview" replace />} />
+              <Route path="overview" element={<AdminOverviewPage />} />
               <Route path="products" element={<AdminProductsPage />} />
-              <Route
-                path="overview"
-                element={
-                  <AdminModulePlaceholder
-                    title="Overview Dashboard"
-                    description="High-level business metrics, catalogue health, and quick administration actions."
-                  />
-                }
-              />
-              <Route
-                path="inventory"
-                element={
-                  <AdminModulePlaceholder
-                    title="Inventory Management"
-                    description="Batch stock adjustments, reorder thresholds, and warehouse status."
-                  />
-                }
-              />
-              <Route
-                path="orders"
-                element={
-                  <AdminModulePlaceholder
-                    title="Orders & Fulfillment"
-                    description="Track incoming customer orders, review payment verification, and dispatch supplements."
-                  />
-                }
-              />
-              <Route
-                path="customers"
-                element={
-                  <AdminModulePlaceholder
-                    title="Customer Accounts"
-                    description="Review registered customers, health profiles, and active supplement regimens."
-                  />
-                }
-              />
-              <Route
-                path="subscriptions"
-                element={
-                  <AdminModulePlaceholder
-                    title="Subscription Plans"
-                    description="Manage recurring supplement deliveries, billing cycles, and membership tiers."
-                  />
-                }
-              />
-              <Route
-                path="analytics"
-                element={
-                  <AdminModulePlaceholder
-                    title="Sales & Health Analytics"
-                    description="Catalogue performance, top trending ingredients, and revenue insights."
-                  />
-                }
-              />
-              <Route
-                path="settings"
-                element={
-                  <AdminModulePlaceholder
-                    title="Administration Settings"
-                    description="Configure store policies, tax rules, staff roles, and system audit logs."
-                  />
-                }
-              />
+              <Route path="inventory" element={<AdminInventoryPage />} />
+              <Route path="orders" element={<AdminOrdersPage />} />
+              <Route path="customers" element={<AdminCustomersPage />} />
+              <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
+              <Route path="analytics" element={<AdminAnalyticsPage />} />
+              <Route path="settings" element={<AdminSettingsPage />} />
             </Route>
           </Route>
 

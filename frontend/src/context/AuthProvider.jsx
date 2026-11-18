@@ -15,10 +15,16 @@ export function AuthProvider({ children }) {
   const isPreviewMode = import.meta.env.DEV && import.meta.env.VITE_ENABLE_PREVIEW_MODE === 'true'
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
+  const [cart, setCart] = useState(null)
   const [cartCount, setCartCount] = useState(0)
   const [isLoading, setIsLoading] = useState(!isPreviewMode)
   const [sessionError, setSessionError] = useState('')
   const restorePromiseRef = useRef(null)
+
+  const applyCart = useCallback((nextCart) => {
+    setCart(nextCart || null)
+    setCartCount(nextCart?.itemCount ?? 0)
+  }, [])
 
   const refreshProfile = useCallback(async () => {
     if (isPreviewMode) return null
@@ -32,18 +38,22 @@ export function AuthProvider({ children }) {
     }
   }, [isPreviewMode])
 
-  const refreshCartCount = useCallback(async () => {
-    if (isPreviewMode) { setCartCount(0); return 0 }
+  const refreshCart = useCallback(async () => {
+    if (isPreviewMode) { applyCart(null); return null }
     try {
-      const cart = await getCart()
-      const count = cart?.itemCount ?? 0
-      setCartCount(count)
-      return count
+      const nextCart = await getCart()
+      applyCart(nextCart)
+      return nextCart
     } catch {
-      setCartCount(0)
-      return 0
+      applyCart(null)
+      return null
     }
-  }, [isPreviewMode])
+  }, [isPreviewMode, applyCart])
+
+  const refreshCartCount = useCallback(async () => {
+    const nextCart = await refreshCart()
+    return nextCart?.itemCount ?? 0
+  }, [refreshCart])
 
   useEffect(() => {
     if (isPreviewMode) return undefined
@@ -62,10 +72,15 @@ export function AuthProvider({ children }) {
         setUser(restoredUser)
         if (error) setSessionError(getErrorMessage(error))
         if (restoredUser) {
-          await Promise.allSettled([refreshProfile(), refreshCartCount()])
+          if (restoredUser.role !== 'admin') {
+            await Promise.allSettled([refreshProfile(), refreshCart()])
+          } else {
+            setProfile(null)
+            applyCart(null)
+          }
         } else {
           setProfile(null)
-          setCartCount(0)
+          applyCart(null)
         }
       })
       .finally(() => {
@@ -75,38 +90,38 @@ export function AuthProvider({ children }) {
     return () => {
       active = false
     }
-  }, [isPreviewMode, refreshCartCount, refreshProfile])
+  }, [isPreviewMode, refreshCart, refreshProfile, applyCart])
 
   useEffect(() => {
     if (isPreviewMode) return undefined
     return onSessionExpired(() => {
       setUser(null)
       setProfile(null)
-      setCartCount(0)
+      applyCart(null)
       setSessionError('Your session has expired. Please sign in again.')
     })
-  }, [isPreviewMode])
+  }, [isPreviewMode, applyCart])
 
   const login = useCallback(async (credentials) => {
     const authenticatedUser = await loginUser(credentials)
     setUser(authenticatedUser)
     setSessionError('')
     if (authenticatedUser?.role !== 'admin') {
-      Promise.allSettled([refreshProfile(), refreshCartCount()])
+      Promise.allSettled([refreshProfile(), refreshCart()])
     } else {
       setProfile(null)
-      setCartCount(0)
+      applyCart(null)
     }
     return authenticatedUser
-  }, [refreshCartCount, refreshProfile])
+  }, [refreshCart, refreshProfile, applyCart])
 
   const register = useCallback(async (details) => {
     const authenticatedUser = await registerUser(details)
     setUser(authenticatedUser)
     setSessionError('')
-    Promise.allSettled([refreshProfile(), refreshCartCount()])
+    Promise.allSettled([refreshProfile(), refreshCart()])
     return authenticatedUser
-  }, [refreshCartCount, refreshProfile])
+  }, [refreshCart, refreshProfile])
 
   const logout = useCallback(async () => {
     try {
@@ -114,13 +129,14 @@ export function AuthProvider({ children }) {
     } finally {
       setUser(null)
       setProfile(null)
-      setCartCount(0)
+      applyCart(null)
     }
-  }, [])
+  }, [applyCart])
 
   const value = useMemo(() => ({
     user,
     profile,
+    cart,
     cartCount,
     isAuthenticated: Boolean(user),
     isLoading,
@@ -130,9 +146,11 @@ export function AuthProvider({ children }) {
     register,
     logout,
     refreshProfile,
+    refreshCart,
     refreshCartCount,
+    applyCart,
     setCartCount,
-  }), [user, profile, cartCount, isLoading, isPreviewMode, sessionError, login, register, logout, refreshProfile, refreshCartCount])
+  }), [user, profile, cart, cartCount, isLoading, isPreviewMode, sessionError, login, register, logout, refreshProfile, refreshCart, refreshCartCount, applyCart])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
-  Activity,
   Bell,
   Bot,
   ShoppingCart,
@@ -27,6 +26,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import { useAuth } from '../../context/AuthContext.jsx'
 import AmbientParticles from '../effects/AmbientParticles.jsx'
 import ProfileAvatar from './ProfileAvatar.jsx'
+import ThemeToggle from '../common/ThemeToggle.jsx'
 
 const navigationGroups = [
   {
@@ -44,7 +44,6 @@ const navigationGroups = [
       { to: '/dashboard/recommendations', label: 'AI recommendations', icon: Sparkles },
       { to: '/dashboard/wellness-plan', label: 'My wellness plan', icon: Leaf },
       { to: '/dashboard/assistant', label: 'AI wellness assistant', icon: Bot },
-      { to: '/dashboard/progress', label: 'Progress tracking', icon: Activity },
     ],
   },
   {
@@ -54,7 +53,7 @@ const navigationGroups = [
       { to: '/dashboard/cart', label: 'Cart', icon: ShoppingCart },
       { to: '/dashboard/checkout', label: 'Checkout', icon: CreditCard },
       { to: '/dashboard/orders', label: 'My orders', icon: Package },
-      { to: '/dashboard/subscriptions', label: 'Subscriptions', icon: CreditCard },
+      { to: '/dashboard/subscriptions', label: 'Memberships', icon: CreditCard },
       { to: '/dashboard/notifications', label: 'Notifications', icon: Bell },
       { to: '/dashboard/settings', label: 'Settings', icon: Settings },
     ],
@@ -241,6 +240,7 @@ function DashboardLayout() {
           </button>
           <div className="dashboard-breadcrumb" aria-label="Breadcrumb"><Link to="/dashboard/overview">Workspace</Link><span>/</span><strong>{currentPage?.label ?? 'Overview'}</strong></div>
           <div className="dashboard-top-actions">
+            <ThemeToggle className="dashboard-theme-toggle" />
             <div className={`app-search${searchOpen ? ' app-search--open' : ''}`}>
               {searchOpen && <input ref={searchRef} aria-label="Search application pages" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} onKeyDown={(event) => {
                 if (event.key === 'Escape') closeMenus()
@@ -304,7 +304,6 @@ function DashboardLayout() {
             { to: '/dashboard/overview', label: 'Home', icon: LayoutDashboard, end: true },
             { to: '/dashboard/assessment', label: 'Assess', icon: ClipboardCheck },
             { to: '/dashboard/recommendations', label: 'Discover', icon: Sparkles },
-            { to: '/dashboard/progress', label: 'Progress', icon: Activity },
           ].map(({ to, label, icon: Icon, end }) => <NavLink key={to} to={to} end={end} onClick={closeMenus} className={({ isActive }) => `dashboard-bottom-nav__link${isActive ? ' is-active' : ''}`}><Icon size={18} /><span>{label}</span></NavLink>)}
         </nav>
         {(notificationsOpen || profileOpen || searchOpen) && <button className="menu-dismiss" type="button" tabIndex="-1" aria-label="Close open menu" onClick={closeMenus} />}

@@ -67,6 +67,8 @@ class Order(TimeStampedModel):
     paid_at = models.DateTimeField(null=True, blank=True)
     cancelled_at = models.DateTimeField(null=True, blank=True)
     tracking_note = models.CharField(max_length=200, blank=True)
+    hidden_by_customer = models.BooleanField(default=False, db_index=True)
+    hidden_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at", "-id"]

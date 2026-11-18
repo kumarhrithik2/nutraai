@@ -191,11 +191,22 @@ def _checkout_sync(user, address, idempotency_key: str | None, notes: str,
 
         for item in items:
             p = products[item.product_id]
+            prev_stock = p.stock
             OrderItem.objects.create(
                 order=order, product=p, name=p.name, sku=p.sku, unit_price=p.price,
                 quantity=item.quantity, line_total=(p.price * item.quantity).quantize(MONEY),
             )
             Product.objects.filter(pk=p.pk).update(stock=F("stock") - item.quantity)
+            try:
+                from apps.admin_portal.models import StockAdjustment
+                StockAdjustment.objects.create(
+                    product_id=p.pk, adjusted_by=None, delta=-item.quantity,
+                    previous_stock=prev_stock, new_stock=max(0, prev_stock - item.quantity),
+                    reason=StockAdjustment.Reason.ORDER_RESERVED,
+                    note=f"Reserved for order {order.number}",
+                )
+            except Exception:
+                pass
         CartItem.objects.filter(cart=cart).delete()
         _add_event(order, Order.Status.PENDING_PAYMENT,
                    "Order placed (Cash on Delivery)" if is_cod else "Order placed")
@@ -228,7 +239,10 @@ async def checkout(user, *, address_id: int, idempotency_key: str | None, notes:
 
 # ---------------------------------------------------------------------- order reads
 def orders_for(user):
-    return Order.objects.filter(user=user).prefetch_related("items", "events")
+    return Order.objects.filter(user=user, hidden_by_customer=False).prefetch_related(
+        "items__product__images",
+        "events",
+    )
 
 
 async def get_order(user, number: str) -> Order:
@@ -238,10 +252,66 @@ async def get_order(user, number: str) -> Order:
     return order
 
 
+def _archive_order_sync(order_id: int, user_id: int) -> Order:
+    with transaction.atomic():
+        order = Order.objects.select_for_update().filter(pk=order_id, user_id=user_id).first()
+        if order is None:
+            raise ApiError("Order not found.", code="not_found", status_code=404)
+        if order.hidden_by_customer:
+            return order
+        if order.status in {Order.Status.SHIPPED, Order.Status.DELIVERED}:
+            message = (
+                "Delivered orders cannot be deleted because the order is finalized."
+                if order.status == Order.Status.DELIVERED
+                else "Shipped orders cannot be deleted because fulfillment is in progress."
+            )
+            raise ApiError(message, code="cannot_delete_order", status_code=409)
+        if order.status in {Order.Status.PAID, Order.Status.PROCESSING, Order.Status.REFUND_REQUIRED}:
+            if order.status == Order.Status.PAID:
+                message = "Paid orders cannot be deleted because payment has been completed."
+            elif order.status == Order.Status.PROCESSING:
+                message = "Orders being processed cannot be deleted."
+            else:
+                message = "Orders requiring refund review cannot be deleted."
+            raise ApiError(message, code="cannot_delete_order", status_code=409)
+        if order.status == Order.Status.PENDING_PAYMENT:
+            raise ApiError(
+                "Orders awaiting payment cannot be deleted. Cancel the order if you no longer need it.",
+                code="cannot_delete_order",
+                status_code=409,
+            )
+        if order.status != Order.Status.CANCELLED:
+            raise ApiError("This order cannot be deleted.", code="cannot_delete_order", status_code=409)
+        order.hidden_by_customer = True
+        order.hidden_at = timezone.now()
+        order.save(update_fields=["hidden_by_customer", "hidden_at", "updated_at"])
+        _add_event(order, order.status, "Removed from your orders list")
+        return order
+
+
+async def archive_order_for_customer(user, number: str, *, request=None) -> None:
+    order = await Order.objects.filter(user=user, number=number).afirst()
+    if order is None:
+        raise ApiError("Order not found.", code="not_found", status_code=404)
+    await sync_to_async(_archive_order_sync)(order.pk, user.pk)
+    await audit("order.hidden_by_customer", request=request, actor=user, target=order)
+
+
 # --------------------------------------------------------------------- cancellation
 def _restock(order: Order) -> None:
-    for item in order.items.all():
+    for item in order.items.select_related("product").all():
+        prev_stock = item.product.stock
         Product.objects.filter(pk=item.product_id).update(stock=F("stock") + item.quantity)
+        try:
+            from apps.admin_portal.models import StockAdjustment
+            StockAdjustment.objects.create(
+                product_id=item.product_id, adjusted_by=None, delta=item.quantity,
+                previous_stock=prev_stock, new_stock=prev_stock + item.quantity,
+                reason=StockAdjustment.Reason.ORDER_RESTOCKED,
+                note=f"Restocked from order {order.number}",
+            )
+        except Exception:
+            pass
 
 
 def _cancel_sync(order_id: int, user_id: int | None, note: str) -> Order:
@@ -304,7 +374,18 @@ def mark_order_paid(order_id: int, *, note: str = "Payment received") -> Order:
                         .filter(pk__in=[i.product_id for i in items]).order_by("pk")}
             if all(products[i.product_id].stock >= i.quantity for i in items):
                 for i in items:
+                    prev_stock = products[i.product_id].stock
                     Product.objects.filter(pk=i.product_id).update(stock=F("stock") - i.quantity)
+                    try:
+                        from apps.admin_portal.models import StockAdjustment
+                        StockAdjustment.objects.create(
+                            product_id=i.product_id, adjusted_by=None, delta=-i.quantity,
+                            previous_stock=prev_stock, new_stock=max(0, prev_stock - i.quantity),
+                            reason=StockAdjustment.Reason.ORDER_RESERVED,
+                            note=f"Re-reserved for paid-late order {order.number}",
+                        )
+                    except Exception:
+                        pass
             else:
                 order.status = Order.Status.REFUND_REQUIRED
                 order.paid_at = timezone.now()

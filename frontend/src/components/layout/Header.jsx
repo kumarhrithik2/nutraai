@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Leaf, Menu, X } from 'lucide-react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
+import ThemeToggle from '../common/ThemeToggle.jsx'
 
 const navigation = [
   { label: 'About', href: '/#about' },
@@ -63,6 +64,7 @@ function Header() {
             </NavLink>
           ))}
           <div className="mobile-nav-actions">
+            <ThemeToggle variant="labeled" className="mobile-theme-toggle" />
             <Link to="/login" onClick={closeMenu}>Log in</Link>
             <Link className="button button--primary" to="/register" onClick={closeMenu}>
               Get started
@@ -70,6 +72,7 @@ function Header() {
           </div>
         </nav>
         <div className="header-actions">
+          <ThemeToggle className="header-theme-toggle" />
           <Link className="login-link" to="/login">Log in</Link>
           <Link className="button button--primary header-cta" to="/register">
             Get started <span aria-hidden="true">↗</span>

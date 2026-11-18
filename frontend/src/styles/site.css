@@ -3430,3 +3430,348 @@
     padding: 26px 22px;
   }
 }
+
+/* Dark theme - public site, auth, footer, shared marketing surfaces */
+:root[data-theme="dark"] .site-header {
+  background: var(--header-bg);
+  border-bottom-color: rgb(127 212 168 / 10%);
+}
+
+:root[data-theme="dark"] .primary-navigation > a,
+:root[data-theme="dark"] .login-link,
+:root[data-theme="dark"] .menu-toggle {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .primary-navigation > a:hover,
+:root[data-theme="dark"] .primary-navigation > a.is-active,
+:root[data-theme="dark"] .login-link:hover,
+:root[data-theme="dark"] .menu-toggle:hover {
+  color: var(--text-heading);
+}
+
+:root[data-theme="dark"] .primary-navigation--open {
+  background: var(--app-bg);
+  border-bottom-color: var(--card-border);
+  box-shadow: 0 18px 36px rgb(0 0 0 / 28%);
+}
+
+:root[data-theme="dark"] .primary-navigation--open > a {
+  border-bottom-color: var(--card-border);
+}
+
+:root[data-theme="dark"] .brand,
+:root[data-theme="dark"] .hero-copy h1,
+:root[data-theme="dark"] .section-heading h2,
+:root[data-theme="dark"] .faq-intro h2,
+:root[data-theme="dark"] .inner-hero h1,
+:root[data-theme="dark"] .catalog-heading h1,
+:root[data-theme="dark"] .contact-copy h1,
+:root[data-theme="dark"] .product-title-row h3,
+:root[data-theme="dark"] .detail-copy h1,
+:root[data-theme="dark"] .not-found h1,
+:root[data-theme="dark"] .auth-card h1,
+:root[data-theme="dark"] .mission-card h2,
+:root[data-theme="dark"] .editorial-note h2,
+:root[data-theme="dark"] .process-step h2,
+:root[data-theme="dark"] .contact-form h2,
+:root[data-theme="dark"] .step-card h3,
+:root[data-theme="dark"] .testimonial-person strong,
+:root[data-theme="dark"] .membership-page-heading h1,
+:root[data-theme="dark"] .product-detail-copy h1,
+:root[data-theme="dark"] .product-detail-sections h2,
+:root[data-theme="dark"] .product-detail-state h1 {
+  color: var(--text-heading);
+}
+
+:root[data-theme="dark"] .hero-copy h1 em,
+:root[data-theme="dark"] .section-heading h2 em,
+:root[data-theme="dark"] .ai-content h2 em,
+:root[data-theme="dark"] .faq-intro h2 em,
+:root[data-theme="dark"] .catalog-heading h1 em,
+:root[data-theme="dark"] .contact-copy h1 em,
+:root[data-theme="dark"] .personalization-copy h2 em {
+  color: #8fb39a;
+}
+
+:root[data-theme="dark"] .hero-description,
+:root[data-theme="dark"] .section-heading > p,
+:root[data-theme="dark"] .section-heading--split > p,
+:root[data-theme="dark"] .step-card p,
+:root[data-theme="dark"] .product-info > p,
+:root[data-theme="dark"] .product-disclaimer,
+:root[data-theme="dark"] .membership-note,
+:root[data-theme="dark"] .membership-pricing-note,
+:root[data-theme="dark"] .testimonial-disclaimer,
+:root[data-theme="dark"] .faq-intro > p,
+:root[data-theme="dark"] .faq-item > p,
+:root[data-theme="dark"] .inner-hero__copy > p,
+:root[data-theme="dark"] .catalog-heading > p,
+:root[data-theme="dark"] .contact-copy > p,
+:root[data-theme="dark"] .mission-card p,
+:root[data-theme="dark"] .value-item > span:last-child,
+:root[data-theme="dark"] .editorial-note p,
+:root[data-theme="dark"] .process-step p,
+:root[data-theme="dark"] .catalog-disclaimer,
+:root[data-theme="dark"] .contact-details small,
+:root[data-theme="dark"] .detail-intro,
+:root[data-theme="dark"] .detail-tabs p,
+:root[data-theme="dark"] .auth-subtitle,
+:root[data-theme="dark"] .auth-switch,
+:root[data-theme="dark"] .auth-service-note,
+:root[data-theme="dark"] .product-detail-copy > p,
+:root[data-theme="dark"] .product-detail-sections p,
+:root[data-theme="dark"] .product-detail-state p,
+:root[data-theme="dark"] .membership-page-heading p {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .hero-kicker,
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="dark"] .hero-assurance,
+:root[data-theme="dark"] .hero-bottom,
+:root[data-theme="dark"] .step-topline,
+:root[data-theme="dark"] .product-price,
+:root[data-theme="dark"] .testimonial-person small,
+:root[data-theme="dark"] .breadcrumbs,
+:root[data-theme="dark"] .detail-promises span,
+:root[data-theme="dark"] .detail-tabs [role="tab"],
+:root[data-theme="dark"] .value-item__number,
+:root[data-theme="dark"] .process-step__top small,
+:root[data-theme="dark"] .process-note {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .hero-section,
+:root[data-theme="dark"] .public-page {
+  background: var(--app-bg);
+}
+
+:root[data-theme="dark"] .hero-section {
+  background:
+    radial-gradient(ellipse at 75% 44%, rgb(40 74 55 / 28%), transparent 36%),
+    var(--app-bg);
+}
+
+:root[data-theme="dark"] .public-page {
+  background:
+    radial-gradient(ellipse at 92% 10%, rgb(40 74 55 / 18%), transparent 25%),
+    var(--app-bg);
+}
+
+:root[data-theme="dark"] .products-section,
+:root[data-theme="dark"] .personalization-section {
+  background: var(--app-bg-alt);
+}
+
+:root[data-theme="dark"] .hero-bottom,
+:root[data-theme="dark"] .step-card,
+:root[data-theme="dark"] .values-strip,
+:root[data-theme="dark"] .testimonials-section,
+:root[data-theme="dark"] .faq-section,
+:root[data-theme="dark"] .faq-list,
+:root[data-theme="dark"] .faq-item,
+:root[data-theme="dark"] .detail-tabs,
+:root[data-theme="dark"] .footer-bottom,
+:root[data-theme="dark"] .site-footer {
+  border-color: var(--card-border);
+}
+
+:root[data-theme="dark"] .step-line,
+:root[data-theme="dark"] .hero-bottom-line,
+:root[data-theme="dark"] .process-step__top i,
+:root[data-theme="dark"] .plan-rule {
+  background: var(--card-border);
+}
+
+:root[data-theme="dark"] .hero-art::before {
+  background: #1a2b22;
+}
+
+:root[data-theme="dark"] .hero-art::after {
+  background: rgb(0 0 0 / 22%);
+}
+
+:root[data-theme="dark"] .art-orbit,
+:root[data-theme="dark"] .art-orbit--two {
+  border-color: rgb(127 212 168 / 18%);
+}
+
+:root[data-theme="dark"] .wellness-card,
+:root[data-theme="dark"] .product-card,
+:root[data-theme="dark"] .membership-card,
+:root[data-theme="dark"] .testimonial-card,
+:root[data-theme="dark"] .mission-card,
+:root[data-theme="dark"] .contact-form,
+:root[data-theme="dark"] .product-detail-sections section,
+:root[data-theme="dark"] .product-detail-warning,
+:root[data-theme="dark"] .product-detail-state,
+:root[data-theme="dark"] .catalog-unavailable,
+:root[data-theme="dark"] .marketplace-state,
+:root[data-theme="dark"] .marketplace-card,
+:root[data-theme="dark"] .float-note,
+:root[data-theme="dark"] .personalization-profile,
+:root[data-theme="dark"] .personalization-report,
+:root[data-theme="dark"] .membership-comparison,
+:root[data-theme="dark"] .subscription-plan-selector,
+:root[data-theme="dark"] .membership-trial-note {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+}
+
+:root[data-theme="dark"] .wellness-card h2,
+:root[data-theme="dark"] .wellness-score strong,
+:root[data-theme="dark"] .float-note strong,
+:root[data-theme="dark"] .product-title-row h3,
+:root[data-theme="dark"] .product-link,
+:root[data-theme="dark"] .text-link,
+:root[data-theme="dark"] .contact-details strong,
+:root[data-theme="dark"] .contact-form label,
+:root[data-theme="dark"] .detail-tabs h2,
+:root[data-theme="dark"] .value-item strong,
+:root[data-theme="dark"] .personalization-preferences li,
+:root[data-theme="dark"] .personalization-profile strong,
+:root[data-theme="dark"] .personalization-report h3,
+:root[data-theme="dark"] .process-step h2,
+:root[data-theme="dark"] .membership-card li,
+:root[data-theme="dark"] .membership-comparison__row span:first-child,
+:root[data-theme="dark"] .faq-item button span {
+  color: var(--text-heading);
+}
+
+:root[data-theme="dark"] .wellness-score,
+:root[data-theme="dark"] .product-visual,
+:root[data-theme="dark"] .detail-art,
+:root[data-theme="dark"] .step-icon,
+:root[data-theme="dark"] .mission-icon,
+:root[data-theme="dark"] .contact-details > a > span,
+:root[data-theme="dark"] .contact-details > div > span,
+:root[data-theme="dark"] .product-detail-image,
+:root[data-theme="dark"] .marketplace-card__image,
+:root[data-theme="dark"] .subscription-detail,
+:root[data-theme="dark"] .cart-item__image {
+  background: var(--surface-muted);
+  color: var(--accent-mint);
+}
+
+:root[data-theme="dark"] .card-progress,
+:root[data-theme="dark"] .ai-feature,
+:root[data-theme="dark"] .membership-comparison__row,
+:root[data-theme="dark"] .subscription-detail,
+:root[data-theme="dark"] .product-subscription-card,
+:root[data-theme="dark"] .subscription-history-row {
+  border-color: var(--card-border);
+}
+
+:root[data-theme="dark"] .card-progress span,
+:root[data-theme="dark"] .report-bar > span {
+  background: var(--accent-mint);
+}
+
+:root[data-theme="dark"] .products-more,
+:root[data-theme="dark"] .product-link,
+:root[data-theme="dark"] .text-link,
+:root[data-theme="dark"] .hero-bottom a,
+:root[data-theme="dark"] .not-found a {
+  color: var(--accent-mint);
+}
+
+:root[data-theme="dark"] .footer-links h3,
+:root[data-theme="dark"] .brand--footer,
+:root[data-theme="dark"] .entry-card h1 {
+  color: #f0f6f1;
+}
+
+:root[data-theme="dark"] .footer-brand-block > p,
+:root[data-theme="dark"] .footer-links a,
+:root[data-theme="dark"] .footer-bottom {
+  color: #b7c5bc;
+}
+
+:root[data-theme="dark"] .site-footer {
+  background: #0f1714;
+}
+
+:root[data-theme="dark"] .entry-page,
+:root[data-theme="dark"] .screen-loading,
+:root[data-theme="dark"] .app-error-screen {
+  background:
+    radial-gradient(ellipse at 50% 36%, rgb(40 74 55 / 18%), transparent 52%),
+    var(--app-bg);
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .entry-card,
+:root[data-theme="dark"] .auth-card {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--text);
+  box-shadow: var(--shadow-card);
+}
+
+:root[data-theme="dark"] .entry-card > p,
+:root[data-theme="dark"] .entry-back {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .auth-page {
+  background:
+    linear-gradient(90deg, rgb(11 28 21 / 88%), rgb(20 44 34 / 72%)),
+    radial-gradient(ellipse at 20% 30%, #2f4e3a, transparent 40%),
+    radial-gradient(ellipse at 80% 75%, #1f3428, transparent 43%),
+    #111916;
+}
+
+:root[data-theme="dark"] .auth-field,
+:root[data-theme="dark"] .contact-form input,
+:root[data-theme="dark"] .contact-form textarea,
+:root[data-theme="dark"] .catalog-filters button,
+:root[data-theme="dark"] .recommendations-tabs button,
+:root[data-theme="dark"] .social-login {
+  background: var(--input-bg);
+  color: var(--input-text);
+  border-color: var(--input-border);
+}
+
+:root[data-theme="dark"] .auth-field input::placeholder,
+:root[data-theme="dark"] .contact-form input::placeholder,
+:root[data-theme="dark"] .contact-form textarea::placeholder {
+  color: #7f9388;
+}
+
+:root[data-theme="dark"] .catalog-filters button:hover,
+:root[data-theme="dark"] .catalog-filters button.is-selected,
+:root[data-theme="dark"] .recommendations-tabs button.is-selected {
+  border-color: #4f7a63;
+  color: #fff;
+  background: #2f6a4b;
+}
+
+:root[data-theme="dark"] .quantity-picker {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+}
+
+:root[data-theme="dark"] .quantity-picker button,
+:root[data-theme="dark"] .quantity-picker span {
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .auth-divider,
+:root[data-theme="dark"] .auth-divider span {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .auth-divider::before,
+:root[data-theme="dark"] .auth-divider::after {
+  background: var(--card-border);
+}
+
+:root[data-theme="dark"] .membership-comparison__head,
+:root[data-theme="dark"] .detail-art__caption,
+:root[data-theme="dark"] .ai-flow-label,
+:root[data-theme="dark"] .ai-orbit-label {
+  color: var(--text-muted);
+}

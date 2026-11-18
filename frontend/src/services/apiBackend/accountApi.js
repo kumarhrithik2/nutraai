@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Section: Account and settings  (pages/DashboardExtraPages.jsx: SettingsPage)
  */
 import { apiClient, setAccessToken } from './core.js'
@@ -6,10 +6,9 @@ import { normalizeUser } from './authApi.js'
 
 function normalizePreferences(data) {
   return {
-    emailUpdates: data.email_updates,
-    reminders: data.reminders,
-    reminderTime: data.reminder_time || '',
-    reminderChannel: data.reminder_channel || '',
+    language: data.language || 'en',
+    emailUpdates: Boolean(data.email_updates),
+    inAppNotifications: data.in_app_notifications !== false,
   }
 }
 
@@ -53,10 +52,10 @@ export async function deleteAccount({ password }) {
 }
 
 /**
- * Purpose: communication preferences (Settings page, assessment "Preferences" step).
- * Endpoint: GET /settings/preferences/   [NOT IN BACKEND YET: fails with 404]
+ * Purpose: account and communication preferences (Settings page).
+ * Endpoint: GET /settings/preferences/
  * Params: none
- * Returns: Promise<{ emailUpdates, reminders, reminderTime, reminderChannel }>
+ * Returns: Promise<{ language, emailUpdates, inAppNotifications }>
  */
 export async function getPreferences() {
   const { data } = await apiClient.get('/settings/preferences/')
@@ -64,17 +63,16 @@ export async function getPreferences() {
 }
 
 /**
- * Purpose: save communication preferences.
- * Endpoint: PUT /settings/preferences/   [NOT IN BACKEND YET: fails with 404]
- * Params: { emailUpdates, reminders, reminderTime?, reminderChannel? }
- * Returns: Promise<{ emailUpdates, reminders, reminderTime, reminderChannel }>
+ * Purpose: save account and communication preferences.
+ * Endpoint: PUT /settings/preferences/
+ * Params: { language, emailUpdates, inAppNotifications }
+ * Returns: Promise<{ language, emailUpdates, inAppNotifications }>
  */
-export async function updatePreferences({ emailUpdates, reminders, reminderTime, reminderChannel }) {
+export async function updatePreferences({ language, emailUpdates, inAppNotifications }) {
   const { data } = await apiClient.put('/settings/preferences/', {
+    language: language || 'en',
     email_updates: Boolean(emailUpdates),
-    reminders: Boolean(reminders),
-    reminder_time: reminderTime || null,
-    reminder_channel: reminderChannel || null,
+    in_app_notifications: Boolean(inAppNotifications),
   })
   return normalizePreferences(data)
 }

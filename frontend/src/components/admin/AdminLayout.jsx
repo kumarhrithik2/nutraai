@@ -16,16 +16,17 @@ import {
 } from 'lucide-react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
+import ThemeToggle from '../common/ThemeToggle.jsx'
 
 const navItems = [
-  { to: '/admin/overview', label: 'Overview', icon: LayoutDashboard, planned: true },
-  { to: '/admin/products', label: 'Products Catalogue', icon: Package, planned: false },
-  { to: '/admin/inventory', label: 'Inventory', icon: Boxes, planned: true },
-  { to: '/admin/orders', label: 'Orders', icon: ShoppingBag, planned: true },
-  { to: '/admin/customers', label: 'Customers', icon: Users, planned: true },
-  { to: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard, planned: true },
-  { to: '/admin/analytics', label: 'Analytics', icon: BarChart3, planned: true },
-  { to: '/admin/settings', label: 'Settings', icon: Settings, planned: true },
+  { to: '/admin/overview', label: 'Overview', icon: LayoutDashboard },
+  { to: '/admin/products', label: 'Products Catalogue', icon: Package },
+  { to: '/admin/inventory', label: 'Inventory', icon: Boxes },
+  { to: '/admin/orders', label: 'Orders', icon: ShoppingBag },
+  { to: '/admin/customers', label: 'Customers', icon: Users },
+  { to: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard },
+  { to: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { to: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
 export default function AdminLayout() {
@@ -46,7 +47,7 @@ export default function AdminLayout() {
   )
 
   return (
-    <div className="min-h-screen bg-[#f8f7f2] text-[#1c3028] flex flex-col md:flex-row">
+    <div className="admin-shell min-h-screen bg-[#f8f7f2] text-[#1c3028] flex flex-col md:flex-row">
       {/* Mobile Top Bar */}
       <div className="md:hidden bg-[#122e26] text-white px-4 py-3.5 flex items-center justify-between border-b border-[#1c4438] sticky top-0 z-40">
         <div className="flex items-center gap-2.5">
@@ -57,14 +58,17 @@ export default function AdminLayout() {
             <span className="font-semibold text-sm">NutraAI Admin</span>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-1.5 rounded-lg bg-[#1a4437] text-[#d4a96a] hover:bg-[#235747] transition"
-          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-        >
-          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle variant="admin" className="theme-toggle--admin-mobile" />
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-1.5 rounded-lg bg-[#1a4437] text-[#d4a96a] hover:bg-[#235747] transition"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Sidebar (Desktop persistent, Mobile overlay) */}
@@ -119,11 +123,7 @@ export default function AdminLayout() {
                   <Icon size={16} className="shrink-0" />
                   <span>{item.label}</span>
                 </div>
-                {item.planned && (
-                  <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#16382f] text-[#8ea79d] border border-[#1f4e41]">
-                    Plan
-                  </span>
-                )}
+
               </NavLink>
             )
           })}
@@ -193,6 +193,7 @@ export default function AdminLayout() {
             </p>
           </div>
           <div className="flex items-center gap-4">
+            <ThemeToggle variant="admin" className="theme-toggle--admin-header" />
             <Link
               to="/dashboard/marketplace"
               target="_blank"

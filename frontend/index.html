@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,6 +8,24 @@
       content="Personalized preventive healthcare powered by AI. Discover wellness recommendations designed around your lifestyle and goals."
     />
     <meta name="theme-color" content="#f6f4ec" />
+    <script>
+      (() => {
+        try {
+          const storageKey = 'nutraai-theme';
+          const stored = localStorage.getItem(storageKey);
+          const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const preference = stored === 'dark' || stored === 'light' || stored === 'system' ? stored : 'system';
+          const theme = preference === 'system' ? (systemDark ? 'dark' : 'light') : preference;
+          const root = document.documentElement;
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme;
+          const meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#111916' : '#f6f4ec');
+        } catch {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
     <title>NutraAI Labs | Personalized Wellness, Thoughtfully</title>
   </head>
   <body>

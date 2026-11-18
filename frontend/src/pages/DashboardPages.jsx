@@ -1,9 +1,11 @@
-﻿import { useState, useEffect } from 'react'
-import { Activity, ArrowRight, Bot, FileHeart, ShoppingBag, Sparkles } from 'lucide-react'
+import { lazy, Suspense, useState, useEffect } from 'react'
+import { Activity, ArrowRight, FileHeart, ShoppingBag, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import IntegrationState from '../components/common/IntegrationState.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
-import { getDashboardSummary, getLatestRecommendation, getProgress, getWellnessPlan, getWellnessReport, logProgress, getErrorMessage } from '../services/apiBackend/index.js'
+import { getDashboardSummary, getLatestRecommendation, getWellnessPlan, getWellnessReport, getErrorMessage } from '../services/apiBackend/index.js'
+
+const OverviewDnaVisualization = lazy(() => import('../components/overview/OverviewDnaVisualization.jsx'))
 
 function PageTitle({ eyebrow, title, description, action }) {
   return (
@@ -11,6 +13,48 @@ function PageTitle({ eyebrow, title, description, action }) {
       <div><span className="eyebrow">{eyebrow}</span><h1>{title}</h1>{description && <p>{description}</p>}</div>
       {action}
     </header>
+  )
+}
+
+function useOverviewHeroVisual() {
+  const [state, setState] = useState(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return { reduced: false, mobile: false }
+    return {
+      reduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      mobile: window.matchMedia('(max-width: 767px), (pointer: coarse)').matches,
+    }
+  })
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const mobile = window.matchMedia('(max-width: 767px), (pointer: coarse)')
+    const update = () => setState({ reduced: motion.matches, mobile: mobile.matches })
+    update()
+    motion.addEventListener('change', update)
+    mobile.addEventListener('change', update)
+    return () => {
+      motion.removeEventListener('change', update)
+      mobile.removeEventListener('change', update)
+    }
+  }, [])
+
+  return state
+}
+
+function OverviewHeroVisual() {
+  const { reduced, mobile } = useOverviewHeroVisual()
+  const show3d = !reduced && !mobile
+  return (
+    <div className="overview-hero__visual" aria-hidden="true">
+      {show3d ? (
+        <Suspense fallback={<div className="overview-hero__visual-fallback" />}>
+          <OverviewDnaVisualization className="overview-dna-canvas" />
+        </Suspense>
+      ) : (
+        <div className="overview-hero__visual-fallback" />
+      )}
+    </div>
   )
 }
 
@@ -29,7 +73,11 @@ export function DashboardOverview() {
   if (isPreviewMode) {
     return (
       <div className="overview-experience">
-        <section className="overview-hero"><div className="overview-hero__copy"><span className="eyebrow">DEVELOPMENT PREVIEW</span><h1>Development Preview – Sample Data</h1><p>Visual-only preview. No customer identity or personal data is loaded; backend actions remain unavailable.</p></div></section>
+        <section className="overview-hero">
+          <div className="overview-hero__copy"><span className="eyebrow">DEVELOPMENT PREVIEW</span><h1>Development Preview – Sample Data</h1><p>Visual-only preview. No customer identity or personal data is loaded; backend actions remain unavailable.</p></div>
+          <OverviewHeroVisual />
+          <div className="overview-hero__foot"><span>PERSONAL, NOT PRESCRIPTIVE</span><span>ACCOUNT DATA</span></div>
+        </section>
         <IntegrationState title="Preview mode" description="Sign in to view real dashboard data from your account." />
       </div>
     )
@@ -49,6 +97,7 @@ export function DashboardOverview() {
           <p className="overview-hero__description">Review your profile, assessments, recommendations, and orders in one place.</p>
           <Link className="overview-hero__button" to="/dashboard/profile">Review profile <ArrowRight size={16} /></Link>
         </div>
+        <OverviewHeroVisual />
         <div className="overview-hero__foot"><span>PERSONAL, NOT PRESCRIPTIVE</span><span>ACCOUNT DATA</span></div>
       </section>
 
@@ -221,89 +270,6 @@ export function RecommendationsPage() {
           </article>
         ))}</div> : <IntegrationState title="No recommendations available" description={error || 'Complete an assessment to receive product suggestions from the catalogue.'} />
       )}
-    </>
-  )
-}
-
-export function ProgressPage() {
-  const { isPreviewMode } = useAuth()
-  const [range, setRange] = useState('30')
-  const [loading, setLoading] = useState(!isPreviewMode)
-  const [entries, setEntries] = useState([])
-  const [error, setError] = useState('')
-  const [form, setForm] = useState({ energyLevel: '', waterIntake: '', checkInWeight: '', tookSupplements: '' })
-  const [status, setStatus] = useState('')
-  const [saving, setSaving] = useState(false)
-
-  useEffect(() => {
-    if (isPreviewMode) return
-    let active = true
-    getProgress({ days: Number(range) })
-      .then((data) => { if (active) setEntries(Array.isArray(data) ? data : (data?.results || [])) })
-      .catch((e) => { if (active) setError(getErrorMessage(e, 'Could not load progress.')) })
-      .finally(() => { if (active) setLoading(false) })
-    return () => { active = false }
-  }, [isPreviewMode, range])
-
-  async function submit(e) {
-    e.preventDefault()
-    if (isPreviewMode) { setStatus('Progress cannot be saved in preview mode.'); return }
-    setSaving(true); setStatus('')
-    try {
-      await logProgress({ energyLevel: form.energyLevel || undefined, waterIntake: form.waterIntake || undefined, checkInWeight: form.checkInWeight || undefined, tookSupplements: form.tookSupplements || undefined })
-      setForm({ energyLevel: '', waterIntake: '', checkInWeight: '', tookSupplements: '' })
-      setStatus('Check-in saved.')
-      const data = await getProgress({ days: Number(range) })
-      setEntries(Array.isArray(data) ? data : (data?.results || []))
-    } catch (err) { setStatus(getErrorMessage(err, 'Could not save check-in.')) }
-    finally { setSaving(false) }
-  }
-
-  if (isPreviewMode) return <><PageTitle eyebrow="Your wellness journey" title="Wellness progress tracking" description="Track check-ins over time." /><IntegrationState title="Preview mode" description="Sign in to record and view progress." /></>
-  return (
-    <>
-      <PageTitle eyebrow="Your wellness journey" title="Wellness progress tracking" description="Review and record wellness check-ins." />
-      <section className="dashboard-panel progress-filter-panel"><label htmlFor="progress-range">Time period</label><select id="progress-range" value={range} onChange={(event) => setRange(event.target.value)}><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option></select></section>
-      <section className="dashboard-panel">
-        <h2>Log a check-in</h2>
-        <form onSubmit={submit} className="basic-profile-form">
-          <label>Energy level (1-5)<input type="number" min="1" max="5" value={form.energyLevel} onChange={(e) => setForm({ ...form, energyLevel: e.target.value })} /></label>
-          <label>Water intake (L)<input type="number" step="0.1" min="0" value={form.waterIntake} onChange={(e) => setForm({ ...form, waterIntake: e.target.value })} /></label>
-          <label>Weight (kg)<input type="number" step="0.1" min="0" value={form.checkInWeight} onChange={(e) => setForm({ ...form, checkInWeight: e.target.value })} /></label>
-          <label>Took supplements<select value={form.tookSupplements} onChange={(e) => setForm({ ...form, tookSupplements: e.target.value })}><option value="">Select</option><option value="Yes">Yes</option><option value="No">No</option></select></label>
-          <button className="button button--primary" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save check-in'}</button>
-          {status && <p className="form-status" role="status">{status}</p>}
-        </form>
-      </section>
-      <section className="dashboard-panel">
-        <h2>Recent check-ins</h2>
-        {loading ? <p>Loading...</p> : error ? <p role="alert">{error}</p> : entries.length ? <ul className="settings-list">{entries.map((e) => <li key={e.id}>{new Date(e.created_at).toLocaleString()} - Energy: {e.energy_level ?? '-'}, Water: {e.water_intake_l ?? '-'} L, Weight: {e.weight_kg ?? '-'} kg, Supplements: {e.took_supplements == null ? '-' : e.took_supplements ? 'Yes' : 'No'}</li>)}</ul> : <p>No check-ins recorded for this period.</p>}
-      </section>
-    </>
-  )
-}
-
-export function AssistantPage() {
-  const [question, setQuestion] = useState('')
-  const [status, setStatus] = useState('')
-  function submitQuestion(event) {
-    event.preventDefault()
-    if (!question.trim()) { setStatus('Enter a question before continuing.'); return }
-    setStatus('The assistant service is unavailable. Your question has not been sent. AI/LLM integration is deferred.')
-  }
-  return (
-    <>
-      <PageTitle eyebrow="Wellness support" title="AI wellness assistant" description="Ask general wellness questions when the assistant service is available." />
-      <section className="dashboard-panel assistant-panel">
-        <div className="assistant-panel__intro"><span><Bot size={20} /></span><div><h2>Start a conversation</h2><p>No AI model is connected. No response will be generated until the service is available.</p></div></div>
-        <form className="assistant-question-form" onSubmit={submitQuestion}>
-          <label htmlFor="assistant-question">Your question</label>
-          <textarea id="assistant-question" name="question" rows="4" value={question} onChange={(event) => { setQuestion(event.target.value); setStatus('') }} placeholder="Type your question" maxLength={2000} />
-          <button className="button button--primary" type="submit">Send message <ArrowRight size={15} /></button>
-          {status && <p className="form-status" role="status">{status}</p>}
-        </form>
-      </section>
-      <p className="dashboard-disclaimer">The assistant is not a medical service. For personal health advice, consult a qualified healthcare professional.</p>
     </>
   )
 }

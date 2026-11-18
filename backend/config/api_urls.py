@@ -1,4 +1,4 @@
-"""Everything under /api/v1/. A new module = one new line here (HLD section 6.4)."""
+﻿"""Everything under /api/v1/. A new module = one new line here (HLD section 6.4)."""
 from django.urls import include, path
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path("", include("apps.payments.urls")),
     path("", include("apps.recommendations.urls")),
     path("", include("apps.customer.urls")),
+    path("", include("apps.admin_portal.urls")),
 ]

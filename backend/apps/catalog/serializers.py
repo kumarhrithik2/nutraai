@@ -84,6 +84,7 @@ class ProductListSerializer(serializers.ModelSerializer):
             "price",
             "mrp",
             "discount_percent",
+            "stock",
             "in_stock",
             "low_stock",
             "is_vegan",

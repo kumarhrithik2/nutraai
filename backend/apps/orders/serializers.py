@@ -69,9 +69,56 @@ def validate_idempotency_key(value: str | None) -> str | None:
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    """Needs OrderItem instances with select_related('product') and prefetched product images when image data is shown."""
+
+    product_id = serializers.IntegerField(read_only=True)
+    product_slug = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
+    image_alt = serializers.SerializerMethodField()
+
     class Meta:
         model = OrderItem
-        fields = ["name", "sku", "unit_price", "quantity", "line_total"]
+        fields = [
+            "product_id",
+            "product_slug",
+            "name",
+            "sku",
+            "unit_price",
+            "quantity",
+            "line_total",
+            "image",
+            "image_alt",
+        ]
+
+    @staticmethod
+    def _primary_image(product):
+        if not product:
+            return None
+        try:
+            images = list(product.images.all())
+        except Exception:
+            return None
+        return images[0] if images else None
+
+    def get_product_slug(self, obj):
+        return getattr(obj.product, "slug", None)
+
+    def get_image(self, obj):
+        image = self._primary_image(getattr(obj, "product", None))
+        if not image:
+            return None
+        try:
+            url = image.image.url
+        except Exception:
+            return None
+        request = self.context.get("request")
+        return request.build_absolute_uri(url) if request and url.startswith("/") else url
+
+    def get_image_alt(self, obj):
+        image = self._primary_image(getattr(obj, "product", None))
+        if image and getattr(image, "alt_text", ""):
+            return image.alt_text
+        return obj.name
 
 
 class OrderEventSerializer(serializers.ModelSerializer):

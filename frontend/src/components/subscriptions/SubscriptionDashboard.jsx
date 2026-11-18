@@ -1,94 +1,255 @@
-import { useEffect, useState } from 'react'
-import { CreditCard, Package, ReceiptText } from 'lucide-react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
-import Membership from '../home/Membership.jsx'
+import { useEffect, useMemo, useState } from 'react'
+import { BadgeCheck, CalendarClock, Check, Crown, History, ReceiptText, ShieldCheck, Sparkles } from 'lucide-react'
 import IntegrationState from '../common/IntegrationState.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
-import { getBillingHistory, getErrorMessage, getMembership, listSupplementSubscriptions, selectMembershipPlan } from '../../services/apiBackend/index.js'
+import { getBillingHistory, getErrorMessage, getMembership, selectMembershipPlan } from '../../services/apiBackend/index.js'
+import { formatMembershipPrice, membershipPlans } from '../../services/membershipPlans.js'
 
-const subscriptionPages = [
-  { path: '/dashboard/subscriptions', label: 'Overview', end: true },
-  { path: '/dashboard/subscriptions/membership', label: 'Membership' },
-  { path: '/dashboard/subscriptions/supplements', label: 'Supplement deliveries' },
-  { path: '/dashboard/subscriptions/billing', label: 'Billing history' },
-]
+const SUPPORTED_PLAN_IDS = new Set(['free', 'monthly', 'yearly'])
+
+function formatDate(value) {
+  if (!value) return null
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? null : date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+}
+
+function formatMoney(value) {
+  if (value == null || value === '') return null
+  const num = typeof value === 'number' ? value : Number(String(value).replace(/[^0-9.-]/g, ''))
+  if (!Number.isFinite(num)) return String(value)
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(num)
+}
+
+function titleCase(value) {
+  if (!value) return '—'
+  return String(value).replace(/[_-]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
 
 function SubscriptionDashboard() {
-  const { pathname } = useLocation()
   const { isPreviewMode } = useAuth()
   const [membership, setMembership] = useState(null)
-  const [loading, setLoading] = useState(!isPreviewMode)
-  const [status, setStatus] = useState('')
-  const [supplements, setSupplements] = useState([])
   const [billing, setBilling] = useState(null)
-  const isMembership = pathname.endsWith('/membership')
-  const isSupplements = pathname.endsWith('/supplements')
-  const isBilling = pathname.endsWith('/billing')
+  const [loading, setLoading] = useState(!isPreviewMode)
+  const [error, setError] = useState('')
+  const [status, setStatus] = useState('')
+  const [busyPlan, setBusyPlan] = useState('')
 
   useEffect(() => {
     if (isPreviewMode) return
     let active = true
-    Promise.allSettled([getMembership(), listSupplementSubscriptions(), getBillingHistory({ page: 1, pageSize: 20 })])
-      .then(([m, s, b]) => {
+    Promise.allSettled([getMembership(), getBillingHistory({ page: 1, pageSize: 20 })])
+      .then(([membershipResult, billingResult]) => {
         if (!active) return
-        if (m.status === 'fulfilled') setMembership(m.value)
-        if (s.status === 'fulfilled') setSupplements(s.value || [])
-        if (b.status === 'fulfilled') setBilling(b.value)
+        if (membershipResult.status === 'fulfilled') {
+          setMembership(membershipResult.value && typeof membershipResult.value === 'object' ? membershipResult.value : null)
+        } else {
+          setMembership(null)
+          setError(getErrorMessage(membershipResult.reason, 'Could not load your membership details.'))
+        }
+        if (billingResult.status === 'fulfilled') {
+          setBilling(billingResult.value && typeof billingResult.value === 'object' ? billingResult.value : null)
+        } else {
+          setBilling(null)
+        }
       })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [isPreviewMode])
 
+  const availablePlans = useMemo(() => membershipPlans.filter((plan) => SUPPORTED_PLAN_IDS.has(plan.id)), [])
+  const currentPlanId = membership?.plan && SUPPORTED_PLAN_IDS.has(membership.plan) ? membership.plan : ''
+  const currentPlan = availablePlans.find((plan) => plan.id === currentPlanId) || null
+  const historyResults = Array.isArray(billing?.results) ? billing.results : []
+
   async function onSelectPlan(planId) {
-    if (isPreviewMode) { setStatus('Plan changes are not available in preview mode.'); return }
-    if (planId === 'monthly' || planId === 'yearly') {
-      setStatus('Paid plan activation requires payment credentials that are not configured. Your membership plan was not changed.')
+    if (isPreviewMode || !planId || busyPlan) return
+    setStatus('')
+    if (planId === currentPlanId) {
+      setStatus('This is your current membership plan.')
       return
     }
-    setStatus('')
+    if (planId === 'monthly' || planId === 'yearly') {
+      setStatus('Paid membership activation requires configured payment credentials. Your membership was not changed.')
+      return
+    }
+    setBusyPlan(planId)
     try {
       const updated = await selectMembershipPlan(planId)
-      setMembership(updated)
+      setMembership(updated && typeof updated === 'object' ? updated : membership)
       setStatus('Membership plan updated.')
     } catch (e) {
-      setStatus(getErrorMessage(e, 'Could not update membership plan.'))
+      setStatus(getErrorMessage(e, 'Could not update your membership plan.'))
+    } finally {
+      setBusyPlan('')
     }
   }
 
-  const selectedPlan = membership?.plan || ''
+  if (isPreviewMode) {
+    return (
+      <>
+        <header className="dashboard-page-title">
+          <div><span className="eyebrow">Your account</span><h1>Memberships</h1><p>View your membership plan, benefits, and history.</p></div>
+        </header>
+        <IntegrationState title="Preview mode" description="Sign in to view and manage your membership." />
+      </>
+    )
+  }
+
+  if (loading) {
+    return (
+      <>
+        <header className="dashboard-page-title">
+          <div><span className="eyebrow">Your account</span><h1>Memberships</h1><p>View your membership plan, benefits, and history.</p></div>
+        </header>
+        <IntegrationState state="loading" title="Loading membership" description="Fetching your membership details." />
+      </>
+    )
+  }
+
+  const showEmpty = !membership
+  const currentStatus = membership?.status || 'active'
+  const renewedLabel = formatDate(membership?.renewedAt)
 
   return (
-    <>
+    <div className="membership-page">
       <header className="dashboard-page-title">
-        <div><span className="eyebrow">Your account</span><h1>Subscriptions</h1><p>Manage your membership and supplement deliveries.</p></div>
+        <div>
+          <span className="eyebrow">Your account</span>
+          <h1>Memberships</h1>
+          <p>Premium wellness membership plans, benefits, and your current plan details.</p>
+        </div>
       </header>
-      <nav className="subscription-tabs" aria-label="Subscription settings">
-        {subscriptionPages.map(({ path, label, end }) => (
-          <NavLink key={path} to={path} end={end} className={({ isActive }) => isActive ? 'is-active' : ''}>{label}</NavLink>
-        ))}
-      </nav>
 
-      {isMembership && (isPreviewMode ? <IntegrationState title="Preview mode" description="Sign in to manage your membership." /> : loading ? <IntegrationState state="loading" title="Loading membership" description="Fetching membership details." /> : <>
-        {membership && <section className="dashboard-panel"><h2>Current membership</h2><p><strong>Plan:</strong> {membership.plan} - <strong>Status:</strong> {membership.status}{membership.renewedAt ? (' - Renews/ends: ' + new Date(membership.renewedAt).toLocaleDateString()) : ''}</p></section>}
-        <Membership selectedPlan={selectedPlan} onSelectPlan={onSelectPlan} />
-        {status && <p className="form-status" role="status">{status}</p>}
-      </>)}
+      {error ? <section className="dashboard-panel membership-inline-alert" role="alert"><p>{error}</p></section> : null}
 
-      {isSupplements && (isPreviewMode ? <IntegrationState icon={Package} title="Preview mode" description="Sign in to view supplement subscriptions." /> : loading ? <IntegrationState state="loading" title="Loading" description="Fetching supplement subscriptions." /> : supplements.length ? <section className="dashboard-panel"><ul className="settings-list">{supplements.map((s) => <li key={s.id}><strong>{s.name || s.product_name || 'Subscription'}</strong> - {s.status || 'active'}</li>)}</ul></section> : <IntegrationState icon={Package} title="No supplement subscriptions" description="Supplement delivery subscriptions are not configured for your account." />)}
-
-      {isBilling && (isPreviewMode ? <IntegrationState icon={ReceiptText} title="Preview mode" description="Sign in to view billing history." /> : loading ? <IntegrationState state="loading" title="Loading" description="Fetching billing history." /> : billing?.results?.length ? <section className="dashboard-panel"><ul className="settings-list">{billing.results.map((b, i) => <li key={b.id || i}>{b.description || 'Charge'} - {b.amount ?? ''} ({b.status || ''})</li>)}</ul></section> : <IntegrationState icon={ReceiptText} title="No billing history" description="No invoices or charges are recorded for this account." />)}
-
-      {!isMembership && !isSupplements && !isBilling && (
-        <>
-          {isPreviewMode ? <IntegrationState icon={CreditCard} title="Preview mode" description="Sign in to view subscription details." /> : loading ? <IntegrationState state="loading" title="Loading" description="Fetching subscription details." /> : <section className="dashboard-panel"><h2>Membership</h2><p><strong>Plan:</strong> {membership?.plan || 'free'} - <strong>Status:</strong> {membership?.status || 'active'}</p></section>}
-          <div className="subscription-shortcuts">
-            <Link to="/dashboard/subscriptions/membership"><span><strong>Membership</strong><small>Plans, benefits, and membership management</small></span><CreditCard size={17} /></Link>
-            <Link to="/dashboard/subscriptions/supplements"><span><strong>Supplement deliveries</strong><small>Manage delivery subscriptions</small></span><Package size={17} /></Link>
-            <Link to="/dashboard/subscriptions/billing"><span><strong>Billing history</strong><small>Review billing records</small></span><ReceiptText size={17} /></Link>
+      {showEmpty ? (
+        <section className="membership-empty-state" aria-label="No membership">
+          <span className="membership-empty-state__icon"><Crown size={28} /></span>
+          <h2>No membership yet</h2>
+          <p>Your membership details are not available right now. When a supported membership is active for your account, it will appear here with its plan, status, and benefits.</p>
+          <div className="membership-empty-state__actions">
+            {availablePlans.some((p) => p.id === 'free') ? (
+              <button className="button button--primary" type="button" onClick={() => onSelectPlan('free')} disabled={Boolean(busyPlan)}>
+                {busyPlan === 'free' ? 'Updating…' : 'Choose Free membership'}
+              </button>
+            ) : null}
           </div>
-        </>
+        </section>
+      ) : (
+        <section className="membership-current-card" aria-label="Current membership">
+          <div className="membership-current-card__glow" aria-hidden="true" />
+          <div className="membership-current-card__header">
+            <div>
+              <span className="membership-current-card__eyebrow"><Crown size={14} /> Current membership</span>
+              <h2>{currentPlan?.name || titleCase(currentPlanId || membership.plan)} plan</h2>
+              <p>{currentPlan ? `${formatMembershipPrice(currentPlan.price)} ${currentPlan.billingLabel}` : 'Plan details from your account'}</p>
+            </div>
+            <div className="membership-current-card__badges">
+              <span className={`membership-status-badge is-${String(currentStatus).toLowerCase()}`}>{titleCase(currentStatus)}</span>
+              {currentPlanId ? <span className="membership-status-badge is-plan"><BadgeCheck size={14} /> Active plan</span> : null}
+            </div>
+          </div>
+          <dl className="membership-current-card__meta">
+            <div><dt>Plan name</dt><dd>{currentPlan?.name || titleCase(membership.plan)}</dd></div>
+            <div><dt>Price</dt><dd>{currentPlan ? `${formatMembershipPrice(currentPlan.price)} ${currentPlan.billingLabel}` : '—'}</dd></div>
+            <div><dt>Status</dt><dd>{titleCase(currentStatus)}</dd></div>
+            <div><dt>Validity</dt><dd>{renewedLabel ? `Renews/valid until ${renewedLabel}` : (currentPlanId === 'free' ? 'No renewal date' : 'Not available')}</dd></div>
+          </dl>
+          <div className="membership-current-card__benefits">
+            <h3>Membership benefits</h3>
+            <ul>
+              {(currentPlan?.featureLabels || []).map((benefit) => (
+                <li key={benefit}><Check size={15} /> {benefit}</li>
+              ))}
+              {!currentPlan?.featureLabels?.length ? <li><Check size={15} /> Benefits are not available for this membership record.</li> : null}
+            </ul>
+          </div>
+        </section>
       )}
-    </>
+
+      <section className="membership-plans-section" aria-label="Available membership plans">
+        <div className="membership-section-heading">
+          <span className="eyebrow">Plans</span>
+          <h2>Available membership plans</h2>
+          <p>Only plans supported by your NutraAI account are shown here.</p>
+        </div>
+        <div className="membership-plan-grid">
+          {availablePlans.map((plan) => {
+            const isCurrent = plan.id === currentPlanId
+            const isPaid = plan.id === 'monthly' || plan.id === 'yearly'
+            const isBusy = busyPlan === plan.id
+            return (
+              <article key={plan.id} className={`membership-plan-card${plan.id === 'yearly' ? ' is-featured' : ''}${isCurrent ? ' is-current' : ''}`}>
+                {plan.id === 'yearly' ? <span className="membership-plan-card__badge">Best value</span> : null}
+                {isCurrent ? <span className="membership-plan-card__badge membership-plan-card__badge--current"><Sparkles size={13} /> Current</span> : null}
+                <div className="membership-plan-card__top">
+                  <h3>{plan.name}</h3>
+                  <p className="membership-plan-card__price"><strong>{formatMembershipPrice(plan.price)}</strong><span>{plan.billingLabel}</span></p>
+                </div>
+                <ul className="membership-plan-card__benefits">
+                  {plan.featureLabels.map((benefit) => <li key={benefit}><Check size={14} /> <span>{benefit}</span></li>)}
+                </ul>
+                <div className="membership-plan-card__actions">
+                  {isCurrent ? (
+                    <button className="button button--outline" type="button" disabled>Current plan</button>
+                  ) : isPaid ? (
+                    <div className="membership-plan-card__note-wrap">
+                      <button className="button button--outline" type="button" disabled>Upgrade unavailable</button>
+                      <small>Paid activation requires configured payment credentials.</small>
+                    </div>
+                  ) : (
+                    <button className="button button--primary" type="button" onClick={() => onSelectPlan(plan.id)} disabled={Boolean(busyPlan)}>
+                      {isBusy ? 'Updating…' : (currentPlanId && currentPlanId !== 'free' ? 'Switch to Free' : 'Select Free plan')}
+                    </button>
+                  )}
+                </div>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
+      {status ? <p className="form-status membership-status-message" role="status">{status}</p> : null}
+
+      <section className="membership-history-section" aria-label="Membership history and payment status">
+        <div className="membership-section-heading">
+          <span className="eyebrow"><History size={13} /> Records</span>
+          <h2>Membership history &amp; payment status</h2>
+          <p>Real account records are shown below when available.</p>
+        </div>
+        {historyResults.length ? (
+          <div className="membership-history-list">
+            {historyResults.map((record, index) => {
+              const amount = formatMoney(record.amount ?? record.total ?? record.price)
+              const paymentStatus = record.payment_status || record.paymentStatus || record.status
+              const when = formatDate(record.created_at || record.createdAt || record.date || record.renewed_at || record.renewedAt)
+              return (
+                <article key={record.id || `${index}-${record.description || 'record'}`} className="membership-history-card">
+                  <div className="membership-history-card__icon"><ReceiptText size={18} /></div>
+                  <div className="membership-history-card__body">
+                    <div className="membership-history-card__head">
+                      <h3>{record.description || record.title || record.plan ? `${titleCase(record.plan || 'Membership')} record` : 'Membership record'}</h3>
+                      {paymentStatus ? <span className={`membership-payment-badge is-${String(paymentStatus).toLowerCase().replace(/[^a-z0-9_-]/g, '')}`}>{titleCase(paymentStatus)}</span> : null}
+                    </div>
+                    <dl className="membership-history-card__meta">
+                      {record.plan ? <div><dt>Plan</dt><dd>{titleCase(record.plan)}</dd></div> : null}
+                      {amount ? <div><dt>Amount</dt><dd>{amount}</dd></div> : null}
+                      {when ? <div><dt>Date</dt><dd><CalendarClock size={13} /> {when}</dd></div> : null}
+                    </dl>
+                    {record.note || record.message ? <p className="membership-history-card__note">{record.note || record.message}</p> : null}
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        ) : (
+          <div className="membership-history-empty">
+            <span><ShieldCheck size={18} /></span>
+            <p>No membership payment or history records are available for this account.</p>
+          </div>
+        )}
+      </section>
+    </div>
   )
 }
 

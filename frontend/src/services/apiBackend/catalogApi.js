@@ -22,6 +22,7 @@ export function normalizeProduct(p) {
     price: money(p.price),
     mrp: money(p.mrp),
     discountPercent: p.discount_percent,
+    stock: typeof p.stock === 'number' ? p.stock : null,
     inStock: p.in_stock,
     lowStock: p.low_stock,
     isVegan: p.is_vegan,

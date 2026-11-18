@@ -107,6 +107,14 @@ class OrderCancelView(APIView):
         return Response(OrderDetailSerializer(order).data)
 
 
+class OrderArchiveView(APIView):
+    @extend_schema(tags=ORD, request=None, responses={204: None},
+                   summary="Remove an eligible order from the customer's order list")
+    async def post(self, request, number: str):
+        await services.archive_order_for_customer(request.user, number, request=request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 class OrderPayView(APIView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = "checkout"

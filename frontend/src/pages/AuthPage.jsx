@@ -4,6 +4,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import AmbientParticles from '../components/effects/AmbientParticles.jsx'
 import { getErrorMessage, getFieldErrors } from '../services/apiBackend/index.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import ThemeToggle from '../components/common/ThemeToggle.jsx'
 
 function AuthPage({ mode }) {
   const isRegister = mode === 'register'
@@ -100,6 +101,7 @@ function AuthPage({ mode }) {
   return (
     <main className="auth-page">
       <AmbientParticles />
+      <div className="auth-theme-anchor"><ThemeToggle /></div>
       <div className="auth-botanical" aria-hidden="true"><i /><i /><i /><i /></div>
       <div className="auth-card">
         <Link className="brand auth-brand" to="/"><span className="brand-mark"><Leaf size={19} /></span><span>NutraAI <strong>Labs</strong></span></Link>

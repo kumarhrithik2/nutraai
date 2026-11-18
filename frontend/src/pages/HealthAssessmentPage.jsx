@@ -1,16 +1,14 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
-import { getErrorMessage, getFieldErrors, logProgress, submitAssessment, updatePreferences } from '../services/apiBackend/index.js'
+import { getErrorMessage, getFieldErrors, submitAssessment } from '../services/apiBackend/index.js'
 
 const steps = [
   { title: 'About you', short: 'About you', description: 'Share only the information you are comfortable entering.' },
   { title: 'Lifestyle', short: 'Lifestyle', description: 'Share a little about your day-to-day routines.' },
   { title: 'Diet and goals', short: 'Goals', description: 'Choose a diet preference and up to three areas of interest.' },
-  { title: 'Health history', short: 'History', description: 'Share only what you are comfortable recording; choose None or I don’t know where appropriate.' },
+  { title: 'Health history', short: 'History', description: 'Share only what you are comfortable recording; choose None or I donÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢t know where appropriate.' },
   { title: 'Consent', short: 'Consent', description: 'Review how your entries would be handled before continuing.' },
-  { title: 'Monthly check-in', short: 'Check-in', description: 'Optional reflection. You can skip this step.' },
-  { title: 'Preferences', short: 'Preferences', description: 'Optional reminder preferences.' },
   { title: 'Review', short: 'Review', description: 'Check your entries before submitting.' },
 ]
 
@@ -98,45 +96,35 @@ function MultiSelect({ name, options, values = [], onToggle, disabledOptions = [
 function AssessmentReview({ answers, onEdit }) {
   const rows = [
     ['About you', [
-      ['Age', answers.age ? `${answers.age} years` : '—'],
-      ['Gender', answers.gender || '—'],
-      ['Height', answers.height ? `${answers.height} cm` : '—'],
-      ['Weight', answers.weight ? `${answers.weight} kg` : '—'],
-      ...(answers.gender === 'Female' ? [['Pregnancy', answers.pregnant || '—']] : []),
+      ['Age', answers.age ? `${answers.age} years` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Gender', answers.gender || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Height', answers.height ? `${answers.height} cm` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Weight', answers.weight ? `${answers.weight} kg` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ...(answers.gender === 'Female' ? [['Pregnancy', answers.pregnant || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â']] : []),
     ]],
     ['Lifestyle', [
-      ['Work type', answers.workType || '—'],
-      ['Sleep', answers.sleepHours ? `${answers.sleepHours} hours per night` : '—'],
-      ['Exercise', answers.exerciseDays === '' || answers.exerciseDays == null ? '—' : `${answers.exerciseDays} days per week`],
-      ['Stress', answers.stressLevel ? `${answers.stressLevel} / 5` : '—'],
+      ['Work type', answers.workType || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Sleep', answers.sleepHours ? `${answers.sleepHours} hours per night` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Exercise', answers.exerciseDays === '' || answers.exerciseDays == null ? 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â' : `${answers.exerciseDays} days per week`],
+      ['Stress', answers.stressLevel ? `${answers.stressLevel} / 5` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
       ['Sun exposure', answers.sunExposure || 'Not provided'],
     ]],
     ['Diet and goals', [
-      ['Diet type', answers.dietType || '—'],
-      ['Goals', answers.healthGoals?.join(', ') || '—'],
+      ['Diet type', answers.dietType || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Goals', answers.healthGoals?.join(', ') || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
     ]],
     ['Health history', [
-      ['Conditions', answers.conditions?.join(', ') || '—'],
+      ['Conditions', answers.conditions?.join(', ') || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
       ['Other condition', answers.conditions?.includes('Other') ? answers.conditionOther || 'Not provided' : 'Not provided'],
-      ['Regular medicines', answers.regularMedicines || '—'],
+      ['Regular medicines', answers.regularMedicines || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
       ['Medicine names', answers.regularMedicines === 'Yes' ? answers.medicineNames || 'Not provided' : 'Not provided'],
-      ['Allergies', answers.allergies?.join(', ') || '—'],
+      ['Allergies', answers.allergies?.join(', ') || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
       ['Other allergy', answers.allergies?.includes('Other') ? answers.allergyOther || 'Not provided' : 'Not provided'],
       ['Past deficiencies', answers.deficiencies?.join(', ') || 'Not provided'],
     ]],
     ['Consent', [
       ['Health data consent', answers.healthDataConsent ? 'Accepted' : 'Not accepted'],
       ['Wellness disclaimer', answers.disclaimerConsent ? 'Accepted' : 'Not accepted'],
-    ]],
-    ['Monthly check-in · optional', [
-      ['Energy', answers.energyLevel || 'Not provided'],
-      ['Water intake', answers.waterIntakeUnknown ? "I don't know" : answers.waterIntake ? `${answers.waterIntake} L` : 'Not provided'],
-      ['Check-in weight', answers.checkInWeight ? `${answers.checkInWeight} kg` : 'Not provided'],
-      ['Took supplements today', answers.tookSupplements || 'Not provided'],
-    ]],
-    ['Preferences · optional', [
-      ['Reminder time', answers.reminderTime || 'Not provided'],
-      ['Reminder channel', answers.reminderChannel || 'Not provided'],
     ]],
   ]
 
@@ -158,7 +146,7 @@ function AssessmentReview({ answers, onEdit }) {
         </section>
       ))}
       <p className="assessment-review__consent">
-        Health data consent: {answers.healthDataConsent ? 'Accepted' : 'Not accepted'} ·
+        Health data consent: {answers.healthDataConsent ? 'Accepted' : 'Not accepted'} ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·
         {' '}Wellness disclaimer: {answers.disclaimerConsent ? 'Accepted' : 'Not accepted'}
       </p>
     </div>
@@ -246,9 +234,9 @@ export function HealthAssessmentPage() {
       if (!Array.isArray(answers.healthGoals) || answers.healthGoals.length < 1) nextErrors.healthGoals = 'Choose at least one goal.'
     }
     if (stepIndex === 3) {
-      if (!answers.conditions?.length) nextErrors.conditions = 'Select at least one option, including None or I don’t know if applicable.'
-      if (!answers.regularMedicines) nextErrors.regularMedicines = 'Select Yes, No or I don’t know.'
-      if (!answers.allergies?.length) nextErrors.allergies = 'Select at least one option, including None or I don’t know if applicable.'
+      if (!answers.conditions?.length) nextErrors.conditions = 'Select at least one option, including None or I donÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t know if applicable.'
+      if (!answers.regularMedicines) nextErrors.regularMedicines = 'Select Yes, No or I donÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t know.'
+      if (!answers.allergies?.length) nextErrors.allergies = 'Select at least one option, including None or I donÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t know if applicable.'
     }
     if (stepIndex === 4) {
       if (!answers.healthDataConsent) nextErrors.healthDataConsent = 'Please accept the health data consent to continue.'
@@ -285,14 +273,6 @@ export function HealthAssessmentPage() {
       setSubmissionStatus('')
       try {
         const result = await submitAssessment(answers)
-        // Best-effort: save optional check-in/preferences if provided (non-blocking, ignore not-implemented)
-        const checkIn = { energyLevel: answers.energyLevel, waterIntake: answers.waterIntake, waterIntakeUnknown: answers.waterIntakeUnknown, checkInWeight: answers.checkInWeight, tookSupplements: answers.tookSupplements }
-        if (answers.energyLevel || answers.waterIntake || answers.checkInWeight || answers.tookSupplements) {
-          logProgress(checkIn).catch(() => {})
-        }
-        if (answers.reminderTime || answers.reminderChannel) {
-          updatePreferences({ emailUpdates: false, reminders: Boolean(answers.reminderTime || answers.reminderChannel), reminderTime: answers.reminderTime || '', reminderChannel: answers.reminderChannel || '' }).catch(() => {})
-        }
         setSubmitted(result)
         setSubmissionStatus(`Assessment submitted successfully. BMI: ${result.bmi}, Age band: ${result.ageBand}.`)
       } catch (error) {
@@ -314,7 +294,7 @@ export function HealthAssessmentPage() {
   function renderAboutYou() {
     return (
       <div className="assessment-fields-grid">
-        <Field label="Age" hint="18–90 years" error={fieldError('age')}>
+        <Field label="Age" hint="18ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ90 years" error={fieldError('age')}>
           <input aria-label="Age" type="number" min="18" max="90" step="1" value={answers.age ?? ''} onChange={(event) => setAnswer('age', event.target.value)} />
         </Field>
         <Field label="Gender" error={fieldError('gender')}>
@@ -352,10 +332,10 @@ export function HealthAssessmentPage() {
           <input className="assessment-range" aria-label="Sleep hours per night" type="range" min="3" max="12" step="1" value={answers.sleepHours ?? 7} onChange={(event) => setAnswer('sleepHours', event.target.value)} />
           <span className="assessment-range__ends"><span>3 hours</span><span>12 hours</span></span>
         </Field>
-        <Field label="Exercise days per week" hint="0–7 days" error={fieldError('exerciseDays')}>
+        <Field label="Exercise days per week" hint="0ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ7 days" error={fieldError('exerciseDays')}>
           <input aria-label="Exercise days per week" type="number" min="0" max="7" step="1" value={answers.exerciseDays ?? ''} onChange={(event) => setAnswer('exerciseDays', event.target.value)} />
         </Field>
-        <Field label="Stress level" hint={answers.stressLevel ? stressLabels[Number(answers.stressLevel) - 1] : 'Choose 1–5'} error={fieldError('stressLevel')} className="assessment-field--full">
+        <Field label="Stress level" hint={answers.stressLevel ? stressLabels[Number(answers.stressLevel) - 1] : 'Choose 1ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ5'} error={fieldError('stressLevel')} className="assessment-field--full">
           <div className="assessment-scale" role="group" aria-label="Stress level from very low to very high">
             {stressLabels.map((label, index) => {
               const value = String(index + 1)
@@ -398,7 +378,7 @@ export function HealthAssessmentPage() {
           <MultiSelect name="conditions" options={conditions} values={answers.conditions} onToggle={(value) => toggleMulti('conditions', value)} />
         </Field>
         {answers.conditions?.includes('Other') && (
-          <Field label="Other condition" hint="Optional · if known" className="assessment-field--full">
+          <Field label="Other condition" hint="Optional ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· if known" className="assessment-field--full">
             <input aria-label="Other condition" type="text" maxLength="160" value={answers.conditionOther ?? ''} onChange={(event) => setAnswer('conditionOther', event.target.value)} />
           </Field>
         )}
@@ -406,7 +386,7 @@ export function HealthAssessmentPage() {
           <ChoiceList name="regularMedicines" options={['Yes', 'No', "I don't know"]} value={answers.regularMedicines} onChange={(value) => setAnswer('regularMedicines', value)} />
         </Field>
         {answers.regularMedicines === 'Yes' && (
-          <Field label="Medicine names" hint="Optional · list names as you know them, including blood thinners if applicable." className="assessment-field--full">
+          <Field label="Medicine names" hint="Optional ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· list names as you know them, including blood thinners if applicable." className="assessment-field--full">
             <textarea aria-label="Medicine names" rows="3" maxLength="500" value={answers.medicineNames ?? ''} onChange={(event) => setAnswer('medicineNames', event.target.value)} />
           </Field>
         )}
@@ -414,11 +394,11 @@ export function HealthAssessmentPage() {
           <MultiSelect name="allergies" options={allergies} values={answers.allergies} onToggle={(value) => toggleMulti('allergies', value)} />
         </Field>
         {answers.allergies?.includes('Other') && (
-          <Field label="Other allergy" hint="Optional · if known" className="assessment-field--full">
+          <Field label="Other allergy" hint="Optional ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· if known" className="assessment-field--full">
             <input aria-label="Other allergy" type="text" maxLength="160" value={answers.allergyOther ?? ''} onChange={(event) => setAnswer('allergyOther', event.target.value)} />
           </Field>
         )}
-        <Field label="Past deficiencies" hint="Optional · select all that apply" className="assessment-field--full">
+        <Field label="Past deficiencies" hint="Optional ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· select all that apply" className="assessment-field--full">
           <MultiSelect name="deficiencies" options={deficiencies} values={answers.deficiencies} onToggle={(value) => toggleMulti('deficiencies', value)} />
         </Field>
       </div>
@@ -445,51 +425,12 @@ export function HealthAssessmentPage() {
     )
   }
 
-  function renderCheckIn() {
-    return (
-      <div className="assessment-fields-grid">
-        <Field label="Energy level" hint="Optional · 1–5 or I don't know" className="assessment-field--full">
-          <ChoiceList name="energyLevel" options={['1', '2', '3', '4', '5', "I don't know"]} value={answers.energyLevel} onChange={(value) => setAnswer('energyLevel', value)} />
-        </Field>
-        <Field label="Water intake" hint="Litres (L) · optional">
-          <input aria-label="Water intake in litres" type="number" min="0" step="0.1" value={answers.waterIntake ?? ''} disabled={Boolean(answers.waterIntakeUnknown)} onChange={(event) => setAnswer('waterIntake', event.target.value)} />
-        </Field>
-        <label className="assessment-inline-check"><input type="checkbox" checked={Boolean(answers.waterIntakeUnknown)} onChange={(event) => setAnswer('waterIntakeUnknown', event.target.checked)} /> I don't know</label>
-        <Field label="Weight" hint="Kilograms (kg) · optional">
-          <input aria-label="Check-in weight in kilograms" type="number" min="0.1" step="0.1" value={answers.checkInWeight ?? ''} onChange={(event) => setAnswer('checkInWeight', event.target.value)} />
-        </Field>
-        <Field label="Took supplements today?" className="assessment-field--full">
-          <ChoiceList name="tookSupplements" options={['Yes', 'No', "I don't know"]} value={answers.tookSupplements} onChange={(value) => setAnswer('tookSupplements', value)} />
-        </Field>
-      </div>
-    )
-  }
-
-  function renderPreferences() {
-    return (
-      <div className="assessment-fields-grid">
-        <Field label="Reminder time" hint="Optional">
-          <input aria-label="Reminder time" type="time" value={answers.reminderTime ?? ''} onChange={(event) => setAnswer('reminderTime', event.target.value)} />
-        </Field>
-        <Field label="Reminder channel" hint="Saved as a preference only">
-          <SelectField aria-label="Reminder channel" value={answers.reminderChannel} onChange={(value) => setAnswer('reminderChannel', value)}>
-            <option value="">No preference</option>
-            {['Email', 'SMS', 'Push notification'].map((option) => <option key={option}>{option}</option>)}
-          </SelectField>
-        </Field>
-        <p className="assessment-privacy-note assessment-field--full">These preferences are not saved and no reminders will be sent until the relevant services are connected.</p>
-      </div>
-    )
-  }
-
   const stepContent = [
     renderAboutYou,
     renderLifestyle,
     renderDietAndGoals,
     renderHealthHistory,
     renderConsent,
-    renderCheckIn,
-    renderPreferences,
     () => <AssessmentReview answers={answers} onEdit={moveTo} />,
   ]
 
@@ -513,7 +454,7 @@ export function HealthAssessmentPage() {
               ))}
             </ol>
             <div className="assessment-structured-body">
-              <span className="eyebrow">Step {step + 1} · {currentStep.short}</span>
+              <span className="eyebrow">Step {step + 1} ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {currentStep.short}</span>
               <h2>{currentStep.title}</h2>
               <p className="assessment-helper">{currentStep.description}</p>
               {stepContent[step]()}
@@ -522,7 +463,7 @@ export function HealthAssessmentPage() {
                   <ArrowLeft size={15} /> Previous
                 </button>
                 <div>
-                  {(step === 5 || step === 6) && <button className="button button--text" type="button" onClick={() => moveTo(step + 1)}>Skip this optional step</button>}
+                  
                   <button className="button button--primary" type="button" onClick={continueAssessment} disabled={isSubmitting || Boolean(submitted)}>
                     {isSubmitting ? 'Submitting...' : step === steps.length - 1 ? (submitted ? 'Submitted' : 'Submit assessment') : 'Continue'} <ArrowRight size={15} />
                   </button>
@@ -536,3 +477,7 @@ export function HealthAssessmentPage() {
     </>
   )
 }
+
+
+
+

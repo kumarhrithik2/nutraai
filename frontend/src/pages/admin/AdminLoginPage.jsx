@@ -3,6 +3,7 @@ import { ArrowRight, Eye, EyeOff, Lock, Mail, Shield, ShieldAlert } from 'lucide
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { getErrorMessage } from '../../services/apiBackend/index.js'
+import ThemeToggle from '../../components/common/ThemeToggle.jsx'
 
 export default function AdminLoginPage() {
   const { login, logout, user, isAuthenticated } = useAuth()
@@ -59,7 +60,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#11241e] text-[#f6f4ec] flex flex-col justify-between selection:bg-[#d4a96a] selection:text-[#11241e]">
+    <div className="admin-login-page min-h-screen bg-[#11241e] text-[#f6f4ec] flex flex-col justify-between selection:bg-[#d4a96a] selection:text-[#11241e]">
       {/* Top Header */}
       <header className="px-6 py-5 flex items-center justify-between border-b border-[#213f35]">
         <div className="flex items-center gap-3">
@@ -73,12 +74,15 @@ export default function AdminLoginPage() {
             </span>
           </div>
         </div>
-        <Link
-          to="/"
-          className="text-xs text-[#a0b0a8] hover:text-[#d4a96a] transition-colors flex items-center gap-1.5"
-        >
-          Customer store <ArrowRight size={13} />
-        </Link>
+        <div className="flex items-center gap-3">
+          <ThemeToggle variant="admin" className="theme-toggle--admin-login" />
+          <Link
+            to="/"
+            className="text-xs text-[#a0b0a8] hover:text-[#d4a96a] transition-colors flex items-center gap-1.5"
+          >
+            Customer store <ArrowRight size={13} />
+          </Link>
+        </div>
       </header>
 
       {/* Main Login Card */}

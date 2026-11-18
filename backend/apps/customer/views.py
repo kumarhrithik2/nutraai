@@ -1,4 +1,4 @@
-from adrf.views import APIView
+﻿from adrf.views import APIView
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
@@ -8,8 +8,6 @@ from .serializers import (
     MembershipSerializer,
     NotificationSerializer,
     PreferencesSerializer,
-    ProgressCreateSerializer,
-    ProgressEntrySerializer,
     SelectPlanSerializer,
 )
 
@@ -33,7 +31,24 @@ class MembershipView(APIView):
 class SupplementSubscriptionsView(APIView):
     @extend_schema(tags=TAG)
     async def get(self, request):
-        return Response([])
+        from apps.admin_portal.models import SupplementSubscription
+        items = [s async for s in SupplementSubscription.objects.filter(user=request.user).select_related("product").order_by("-created_at")]
+        data = []
+        for s in items:
+            data.append({
+                "id": s.id,
+                "name": s.product.name if s.product else (s.product_name or "Subscription"),
+                "product_name": s.product.name if s.product else s.product_name,
+                "product_slug": getattr(s.product, "slug", None),
+                "status": s.status,
+                "frequency": s.frequency,
+                "quantity": s.quantity,
+                "next_delivery_date": s.next_delivery_date,
+                "started_at": s.started_at,
+                "cancelled_at": s.cancelled_at,
+                "notes": s.notes,
+            })
+        return Response(data)
 
 
 class SubscriptionDetailView(APIView):
@@ -47,24 +62,6 @@ class BillingHistoryView(APIView):
     @extend_schema(tags=TAG)
     async def get(self, request):
         return Response({"count": 0, "page": 1, "page_size": 20, "total_pages": 1, "next": None, "previous": None, "results": []})
-
-
-class ProgressListCreateView(APIView):
-    @extend_schema(tags=TAG, responses=ProgressEntrySerializer(many=True))
-    async def get(self, request):
-        try:
-            days = int(request.query_params.get("days", 30))
-        except (TypeError, ValueError):
-            days = 30
-        items = await services.list_progress(request.user, days)
-        return Response(ProgressEntrySerializer(items, many=True).data)
-
-    @extend_schema(tags=TAG, request=ProgressCreateSerializer, responses=ProgressEntrySerializer)
-    async def post(self, request):
-        s = ProgressCreateSerializer(data=request.data)
-        s.is_valid(raise_exception=True)
-        obj = await services.log_progress(request.user, s.validated_data)
-        return Response(ProgressEntrySerializer(obj).data, status=status.HTTP_201_CREATED)
 
 
 class NotificationListView(APIView):
@@ -160,14 +157,12 @@ class WellnessReportView(APIView):
         goals = answers.get("goals") or []
         goal_labels = [GOAL_LABELS.get(g, g.replace("_", " ").title()) for g in goals]
 
-        # History (all assessments for this user)
         history_qs = Assessment.objects.filter(user=request.user).order_by("-created_at", "-id")
         history = [
             {"id": a.pk, "created_at": a.created_at, "bmi": str(a.bmi), "age_band": a.age_band}
             async for a in history_qs[:10]
         ]
 
-        # Calculated/derived (deterministic, non-clinical)
         bmi_cat = _bmi_category(assessment.bmi)
         calculated = [
             {"label": "BMI", "value": str(assessment.bmi), "explanation": "Calculated from the height and weight you provided (weight kg / height m²)."},
@@ -175,7 +170,6 @@ class WellnessReportView(APIView):
             {"label": "Age band", "value": assessment.age_band, "explanation": "Derived from the age you provided at assessment time."},
         ]
 
-        # Lifestyle indicators (from submitted answers)
         indicators = []
         if answers.get("sleep_hours") is not None:
             indicators.append({"label": "Sleep", "value": f"{answers.get('sleep_hours')} hours/night"})
@@ -190,7 +184,6 @@ class WellnessReportView(APIView):
         if answers.get("diet_type"):
             indicators.append({"label": "Diet type", "value": DIET_LABELS.get(answers.get("diet_type"), str(answers.get("diet_type")))})
 
-        # Strengths / areas to watch (conservative, based on inputs only)
         strengths = []
         areas = []
         ex = answers.get("exercise_days")
@@ -216,7 +209,6 @@ class WellnessReportView(APIView):
         if not areas:
             areas.append("No specific areas needing attention were inferred from the available inputs.")
 
-        # Personalized general wellness recommendations (educational, non-clinical)
         general = []
         if goal_labels:
             general.append(f"Focus on your selected goals: {', '.join(goal_labels)}.")
@@ -228,8 +220,6 @@ class WellnessReportView(APIView):
             general.append("Complete all assessment steps to receive more tailored general wellness suggestions.")
         general.append("These suggestions are educational and not medical advice.")
 
-        # Product recommendations from real pipeline
-        rec_payload = None
         rec_items = []
         try:
             rec = await rec_services.get_latest(request.user)
@@ -243,12 +233,12 @@ class WellnessReportView(APIView):
                     "note": item.get("note") or "",
                 })
         except Exception:
-            rec_payload = None
+            rec_items = []
 
         next_steps = [
             "Review your assessment overview and retake the assessment if your information changes.",
             "Explore recommended products and review their details before purchasing.",
-            "Track your progress with regular check-ins.",
+            "Review your wellness plan and recommendations in your dashboard.",
             "Consult a qualified healthcare professional for personal medical advice or concerns.",
         ]
 

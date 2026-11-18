@@ -2,12 +2,11 @@
 
 from datetime import timedelta
 
-from asgiref.sync import sync_to_async
 from django.utils import timezone
 
 from apps.core.exceptions import ApiError
 
-from .models import Membership, Notification, ProgressEntry, UserPreferences
+from .models import Membership, Notification, UserPreferences
 
 
 async def get_or_create_membership(user):
@@ -29,15 +28,6 @@ async def select_plan(user, plan: str):
         obj.renewed_at = None
     await obj.asave()
     return obj
-
-
-async def list_progress(user, days: int = 30):
-    since = timezone.now() - timedelta(days=max(1, min(days, 365)))
-    return [e async for e in ProgressEntry.objects.filter(user=user, created_at__gte=since)]
-
-
-async def log_progress(user, data: dict):
-    return await ProgressEntry.objects.acreate(user=user, **data)
 
 
 async def list_notifications(user):

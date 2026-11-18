@@ -8,52 +8,79 @@ import { createAddress, getCart, getErrorMessage, getFieldErrors, listAddresses,
 const money = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 })
 
 function CartPage() {
-  const { isPreviewMode, refreshCartCount } = useAuth()
+  const { isPreviewMode, cart, refreshCart, applyCart } = useAuth()
   const [loading, setLoading] = useState(!isPreviewMode)
-  const [cart, setCart] = useState(null)
   const [error, setError] = useState('')
   const [busyId, setBusyId] = useState(null)
 
   useEffect(() => {
     if (isPreviewMode) return
     let active = true
-    getCart()
-      .then((data) => { if (active) { setCart(data); refreshCartCount() } })
+    refreshCart()
       .catch((e) => { if (active) setError(getErrorMessage(e, 'Could not load your cart.')) })
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
-  }, [isPreviewMode, refreshCartCount])
+  }, [isPreviewMode, refreshCart])
 
-  async function changeQty(productId, qty) {
+  function optimisticCart(productId, desiredQty) {
+    const previous = cart || { items: [], itemCount: 0, subtotal: 0, shippingFee: 0, total: 0, freeShippingRemaining: null }
+    let items = (previous.items || []).map((item) => ({ ...item, product: { ...item.product } }))
+    const index = items.findIndex((item) => item.product?.id === productId)
+    if (desiredQty <= 0) {
+      if (index !== -1) items = items.filter((item) => item.product?.id !== productId)
+    } else if (index !== -1) {
+      const item = items[index]
+      const unit = item.unitPrice ?? item.product?.price ?? 0
+      items[index] = { ...item, quantity: desiredQty, lineTotal: typeof unit === 'number' ? unit * desiredQty : item.lineTotal }
+    }
+    const itemCount = items.reduce((sum, item) => sum + (item.quantity || 0), 0)
+    return { ...previous, items, itemCount }
+  }
+
+  async function changeQty(productId, qty, currentItem) {
+    if (busyId != null) return
+    const desired = Math.max(0, Number(qty) || 0)
+    const maxStock = typeof currentItem?.product?.stock === 'number' ? currentItem.product.stock : null
+    if (desired > 0 && maxStock !== null && desired > maxStock) {
+      setError(`Only ${maxStock} available in stock.`)
+      return
+    }
+    const previous = cart
     setBusyId(productId)
     setError('')
+    applyCart(optimisticCart(productId, desired))
     try {
-      const next = await updateCartItem(productId, qty)
-      setCart(next)
-      await refreshCartCount()
+      const next = desired <= 0 ? await removeCartItem(productId) : await updateCartItem(productId, desired)
+      applyCart(next)
     } catch (e) {
+      applyCart(previous || null)
       setError(getErrorMessage(e, 'Could not update item.'))
+      refreshCart()
     } finally {
       setBusyId(null)
     }
   }
 
   async function remove(productId) {
+    if (busyId != null) return
+    const previous = cart
     setBusyId(productId)
     setError('')
+    applyCart(optimisticCart(productId, 0))
     try {
       const next = await removeCartItem(productId)
-      setCart(next)
-      await refreshCartCount()
+      applyCart(next)
     } catch (e) {
+      applyCart(previous || null)
       setError(getErrorMessage(e, 'Could not remove item.'))
+      refreshCart()
     } finally {
       setBusyId(null)
     }
   }
 
   if (isPreviewMode) return <><header className="dashboard-page-title"><div><span className="eyebrow">Marketplace</span><h1>Your cart</h1><p>Sign in to view and manage your cart.</p></div><Link className="button button--outline" to="/dashboard/marketplace">Continue shopping</Link></header><IntegrationState icon={ShoppingCart} title="Preview mode" description="Cart is available after sign-in." /></>
-  if (loading) return <><header className="dashboard-page-title"><div><span className="eyebrow">Marketplace</span><h1>Your cart</h1></div></header><IntegrationState state="loading" title="Loading cart" description="Fetching your cart." /></>
+  if (loading && !cart) return <><header className="dashboard-page-title"><div><span className="eyebrow">Marketplace</span><h1>Your cart</h1></div></header><IntegrationState state="loading" title="Loading cart" description="Fetching your cart." /></>
   if (error && !cart) return <><header className="dashboard-page-title"><div><span className="eyebrow">Marketplace</span><h1>Your cart</h1></div></header><section className="dashboard-panel" role="alert"><p>{error}</p><Link className="button button--outline" to="/dashboard/marketplace">Browse products</Link></section></>
 
   const items = cart?.items || []
@@ -69,6 +96,8 @@ function CartPage() {
           <ul className="cart-items-list">
             {items.map((item) => {
               const img = item.product?.image
+              const maxStock = typeof item.product?.stock === 'number' ? item.product.stock : null
+              const atMax = maxStock !== null && item.quantity >= maxStock
               return (
                 <li className="cart-item" key={item.product.id}>
                   <div className="cart-item__image" aria-hidden="true">{img ? <img src={img} alt="" /> : <Package size={22} />}</div>
@@ -76,12 +105,13 @@ function CartPage() {
                     <h3><Link to={'/products/' + encodeURIComponent(item.product.slug)}>{item.product.name}</Link></h3>
                     <p>{money.format(item.unitPrice || 0)} each</p>
                     {!item.available && <p className="dashboard-disclaimer">This item is currently unavailable or out of stock.</p>}
+                    {atMax && <p className="dashboard-disclaimer">Maximum available quantity reached.</p>}
                   </div>
                   <div className="cart-item__actions">
                     <div className="cart-qty" aria-label={'Quantity for ' + item.product.name}>
-                      <button type="button" disabled={busyId === item.product.id || item.quantity <= 1} onClick={() => changeQty(item.product.id, item.quantity - 1)} aria-label="Decrease quantity"><Minus size={14} /></button>
-                      <span>{item.quantity}</span>
-                      <button type="button" disabled={busyId === item.product.id} onClick={() => changeQty(item.product.id, item.quantity + 1)} aria-label="Increase quantity"><Plus size={14} /></button>
+                      <button type="button" disabled={busyId === item.product.id} onClick={() => changeQty(item.product.id, item.quantity - 1, item)} aria-label="Decrease quantity"><Minus size={14} /></button>
+                      <span aria-live="polite">{busyId === item.product.id ? '…' : item.quantity}</span>
+                      <button type="button" disabled={busyId === item.product.id || atMax || item.available === false} onClick={() => changeQty(item.product.id, item.quantity + 1, item)} aria-label="Increase quantity"><Plus size={14} /></button>
                     </div>
                     <button className="button button--outline" type="button" disabled={busyId === item.product.id} onClick={() => remove(item.product.id)} aria-label={'Remove ' + item.product.name}><Trash2 size={14} /></button>
                   </div>

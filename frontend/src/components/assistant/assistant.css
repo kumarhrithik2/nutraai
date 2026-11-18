@@ -590,7 +590,120 @@
   .ai-companion__form { animation-delay: 250ms; }
 }
 
-@keyframes companion-content-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Dark theme */
+:root[data-theme="dark"] .ai-companion__trigger-label,
+:root[data-theme="dark"] .ai-companion__trigger-status {
+  border-color: var(--card-border);
+  color: var(--text);
+  background: var(--surface-elevated);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 28%);
+}
+
+:root[data-theme="dark"] .ai-companion__trigger-status {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .ai-companion__trigger-status svg {
+  color: var(--accent-mint);
+}
+
+:root[data-theme="dark"] .ai-companion__dialog {
+  border-color: var(--card-border);
+  color: var(--text);
+  background: rgb(24 34 29 / 98%);
+  box-shadow: 0 22px 70px rgb(0 0 0 / 45%), 0 4px 14px rgb(0 0 0 / 24%);
+}
+
+:root[data-theme="dark"] .ai-companion__header {
+  border-bottom-color: var(--card-border);
+  background: linear-gradient(115deg, #1c2822, #18221d);
+}
+
+:root[data-theme="dark"] .ai-companion__avatar {
+  border-color: var(--border-strong);
+  background: radial-gradient(ellipse at 50% 42%, #24332b, #18221d 75%);
+}
+
+:root[data-theme="dark"] .ai-companion__identity strong {
+  color: var(--text-heading);
+}
+
+:root[data-theme="dark"] .ai-companion__identity span {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .ai-companion__controls button {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .ai-companion__controls button:hover {
+  color: var(--text-heading);
+  background: var(--surface-muted);
+}
+
+:root[data-theme="dark"] .ai-companion__welcome-mark {
+  border-color: #355243;
+  color: var(--accent-mint);
+  background: #1d3328;
+}
+
+:root[data-theme="dark"] .ai-companion__welcome strong {
+  color: var(--text-heading);
+}
+
+:root[data-theme="dark"] .ai-companion__welcome p,
+:root[data-theme="dark"] .ai-companion__disclaimer,
+:root[data-theme="dark"] .ai-companion__message > span,
+:root[data-theme="dark"] .ai-companion__suggestions > span,
+:root[data-theme="dark"] .ai-companion__loading {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .ai-companion__suggestions button {
+  border-color: var(--border-strong);
+  color: var(--text);
+  background: var(--surface-elevated);
+}
+
+:root[data-theme="dark"] .ai-companion__suggestions button:hover {
+  border-color: #4a6857;
+  background: #203029;
+}
+
+:root[data-theme="dark"] .ai-companion__message p {
+  border-color: #355243;
+  color: #e6efe8;
+  background: #20362b;
+}
+
+:root[data-theme="dark"] .ai-companion__service-note {
+  border-color: #4a3d24;
+  color: #ecd9a8;
+  background: #221d14;
+}
+
+:root[data-theme="dark"] .ai-companion__form {
+  border-color: var(--border-strong);
+  background: var(--input-bg);
+}
+
+:root[data-theme="dark"] .ai-companion__form:focus-within {
+  border-color: #4f7a63;
+  box-shadow: 0 0 0 3px rgb(127 212 168 / 12%);
+}
+
+:root[data-theme="dark"] .ai-companion__form textarea {
+  color: var(--input-text);
+}
+
+:root[data-theme="dark"] .ai-companion__form textarea::placeholder {
+  color: #7f9388;
+}
+
+:root[data-theme="dark"] .ai-companion__form button {
+  background: #2f6a4b;
+}
+
+:root[data-theme="dark"] .ai-companion__form button:hover:not(:disabled) {
+  background: #3b7d58;
 }

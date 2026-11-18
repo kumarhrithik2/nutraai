@@ -21,6 +21,7 @@ function AIChatPanel({
   RobotCharacter,
   value,
   onChange,
+  disabled = false,
 }) {
   const conversationRef = useRef(null)
 
@@ -63,7 +64,7 @@ function AIChatPanel({
         {messages.length === 0 && <div className="ai-companion__suggestions" aria-label="Suggested questions">
           <span>YOU COULD ASK</span>
           {suggestedQuestions.map((question) => (
-            <button type="button" key={question} onClick={() => onDraftQuestion(question)}>
+            <button type="button" key={question} onClick={() => onDraftQuestion(question)} disabled={disabled}>
               <Sparkles size={13} />{question}
             </button>
           ))}
@@ -90,8 +91,9 @@ function AIChatPanel({
           onChange={onChange}
           placeholder="Write a wellness question..."
           rows={2}
+          disabled={disabled}
         />
-        <button type="submit" aria-label="Send message"><ArrowUp size={18} /></button>
+        <button type="submit" aria-label="Send message" disabled={disabled}><ArrowUp size={18} /></button>
       </form>
       <p className="ai-companion__disclaimer">General wellness information is not medical advice.</p>
     </section>

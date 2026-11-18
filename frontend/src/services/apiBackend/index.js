@@ -12,7 +12,6 @@
  *   cartApi.js          cart                                                (CommercePages)
  *   orderApi.js         checkout, payment, orders                           (CommercePages, OrdersPage, OrderDetailsPage)
  *   wellnessApi.js      dashboard summary, report, plan, recommendations    (DashboardPages, WellnessPlanPage)
- *   progressApi.js      progress and check-ins                              (ProgressPage)
  *   assistantApi.js     AI assistant                                        (AssistantPage)
  *   subscriptionApi.js  membership, supplement subscriptions, billing       (SubscriptionDashboard, Membership)
  *   notificationApi.js  notifications                                       (NotificationsPage, DashboardLayout)
@@ -39,10 +38,10 @@ export * from './profileApi.js'
 export * from './assessmentApi.js'
 export * from './catalogApi.js'
 export * from './adminCatalogApi.js'
+export * from './adminPortalApi.js'
 export * from './cartApi.js'
 export * from './orderApi.js'
 export * from './wellnessApi.js'
-export * from './progressApi.js'
 export * from './assistantApi.js'
 export * from './subscriptionApi.js'
 export * from './notificationApi.js'

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { ArrowLeft, ArrowRight, Eye, Leaf, Mail, Package, Target } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import Membership from '../components/home/Membership.jsx'
@@ -30,7 +30,7 @@ export function AboutPage() {
           <div className="value-item" key={title}><span className="value-item__number">0{index + 1}</span><strong>{title}</strong><span>{detail}</span></div>
         ))}
       </section>
-      <section className="editorial-note"><span className="eyebrow">Our point of view</span><h2>Prevention is personal. Progress can be, too.</h2><p>Technology can support informed choices, but it does not replace professional healthcare or clinical judgment.</p></section>
+      <section className="editorial-note"><span className="eyebrow">Our point of view</span><h2>Prevention is personal.</h2><p>Technology can support informed choices, but it does not replace professional healthcare or clinical judgment.</p></section>
     </PublicPageFrame>
   )
 }
@@ -54,17 +54,17 @@ export function ProductsPage() {
 
 export function HowItWorksPage() {
   const steps = [
-    { number: '01', title: 'Create your profile', description: 'Account services will help you securely manage your details and preferences.', icon: '◉' },
-    { number: '02', title: 'Complete an assessment', description: 'A connected assessment service can collect your responses with clear consent.', icon: '▤' },
-    { number: '03', title: 'Review your information', description: 'Verified reports and recommendations will appear when services are available.', icon: '✳' },
-    { number: '04', title: 'Track your progress', description: 'Connected tracking tools can help you review your wellness journey over time.', icon: '▥' },
+    { number: '01', title: 'Create your profile', description: 'Account services will help you securely manage your details and preferences.', icon: 'â—‰' },
+    { number: '02', title: 'Complete an assessment', description: 'A connected assessment service can collect your responses with clear consent.', icon: 'â–¤' },
+    { number: '03', title: 'Review your information', description: 'Verified reports and recommendations will appear when services are available.', icon: 'âœ³' },
+    { number: '04', title: 'Review your wellness journey', description: 'Use your dashboard to review your assessment, wellness plan, recommendations, and orders when services are available.', icon: '✦' },
   ]
   return (
     <PublicPageFrame>
       <section className="process-page">
         <div className="catalog-heading"><span className="eyebrow">A considered journey</span><h1>How NutraAI <em>works.</em></h1><p>Designed to make wellness information easier to navigate. Account and wellness services are still being connected.</p></div>
         <div className="process-steps">{steps.map((step) => <article className="process-step" key={step.number}><div className="process-step__top"><span>{step.icon}</span><i /><small>{step.number}</small></div><h2>{step.title}</h2><p>{step.description}</p></article>)}</div>
-        <div className="process-note"><Leaf size={18} /><span>Wellness tools are intended to support—not replace—professional care.</span></div>
+        <div className="process-note"><Leaf size={18} /><span>Wellness tools are intended to supportâ€”not replaceâ€”professional care.</span></div>
         <Link className="button button--primary" to="/register">Create an account <ArrowRight size={16} /></Link>
       </section>
     </PublicPageFrame>
@@ -186,7 +186,7 @@ export function ProductDetailsPage() {
                     {product.servingSize && <div><dt>Serving size</dt><dd>{product.servingSize}</dd></div>}
                     {product.servingsPerPack && <div><dt>Servings per pack</dt><dd>{product.servingsPerPack}</dd></div>}
                   </dl>
-                  <div className="product-detail-actions"><button className="button button--primary" type="button" disabled={!product.inStock || adding} onClick={handleAddToCart}>{adding ? 'Adding…' : 'Add to cart'}</button><Link className="button button--outline" to="/dashboard/marketplace">View marketplace <ArrowRight size={14} /></Link></div>
+                  <div className="product-detail-actions"><button className="button button--primary" type="button" disabled={!product.inStock || adding} onClick={handleAddToCart}>{adding ? 'Addingâ€¦' : 'Add to cart'}</button><Link className="button button--outline" to="/dashboard/marketplace">View marketplace <ArrowRight size={14} /></Link></div>
                   {cartStatus && <p className="form-status" role="status">{cartStatus}</p>}
                 </div>
               </div>
@@ -194,7 +194,7 @@ export function ProductDetailsPage() {
                 {Array.isArray(product.benefits) && product.benefits.length > 0 && <section><h2>Benefits</h2><ul>{product.benefits.map((benefit, index) => <li key={`${benefit}-${index}`}>{benefit}</li>)}</ul></section>}
                 {typeof product.benefits === 'string' && product.benefits && <section><h2>Benefits</h2><p>{product.benefits}</p></section>}
                 {product.usageDirections && <section><h2>Usage directions</h2><p>{product.usageDirections}</p></section>}
-                {product.ingredients?.length > 0 && <section><h2>Ingredients</h2><ul>{product.ingredients.map((ingredient, index) => <li key={`${ingredient.name}-${index}`}>{ingredient.name}{ingredient.amount ? ` — ${ingredient.amount}` : ''}</li>)}</ul></section>}
+                {product.ingredients?.length > 0 && <section><h2>Ingredients</h2><ul>{product.ingredients.map((ingredient, index) => <li key={`${ingredient.name}-${index}`}>{ingredient.name}{ingredient.amount ? ` â€” ${ingredient.amount}` : ''}</li>)}</ul></section>}
                 {product.allergens?.length > 0 && <section><h2>Allergens</h2><p>{product.allergens.map((allergen) => allergen.name).join(', ')}</p></section>}
                 {product.warnings && <section><h2>Warnings</h2><p>{product.warnings}</p></section>}
                 {product.requiresDoctorApproval && <p className="product-detail-warning">Consult a doctor before using this product.</p>}

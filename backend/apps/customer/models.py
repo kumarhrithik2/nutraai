@@ -19,18 +19,6 @@ class Membership(models.Model):
         return f"{self.user_id}:{self.plan}"
 
 
-class ProgressEntry(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="progress_entries")
-    energy_level = models.PositiveSmallIntegerField(null=True, blank=True)
-    water_intake_l = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
-    weight_kg = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
-    took_supplements = models.BooleanField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at", "-id"]
-
-
 class Notification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="notifications")
     title = models.CharField(max_length=160)
@@ -43,9 +31,10 @@ class Notification(models.Model):
 
 
 class UserPreferences(models.Model):
+    LANGUAGE_CHOICES = [("en", "English")]
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="preferences")
+    language = models.CharField(max_length=8, choices=LANGUAGE_CHOICES, default="en")
     email_updates = models.BooleanField(default=False)
-    reminders = models.BooleanField(default=False)
-    reminder_time = models.TimeField(null=True, blank=True)
-    reminder_channel = models.CharField(max_length=32, blank=True, default="")
+    in_app_notifications = models.BooleanField(default=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -1,4 +1,4 @@
-"""Settings shared by every environment. Environment files import * from here."""
+﻿"""Settings shared by every environment. Environment files import * from here."""
 from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "apps.payments",
     "apps.recommendations",
     "apps.customer",
+    "apps.admin_portal",
 ]
 
 MIDDLEWARE = [
