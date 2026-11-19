@@ -10,7 +10,7 @@
 
 :root {
   color-scheme: light;
-  font-family: Inter, "Segoe UI", sans-serif;
+  font-family: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
   color: #20342d;
   background: #f6f4ec;
   font-synthesis: none;
@@ -39,6 +39,20 @@
   --focus-ring: 0 0 0 3px rgb(212 169 106 / 36%);
   --ease-ui: cubic-bezier(0.2, 0.7, 0.2, 1);
   --duration-ui: 180ms;
+
+  /* Typography scale (Source Sans 3) */
+  --font-sans: "Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --fs-page: 30px;
+  --fs-section: 22px;
+  --fs-card: 17px;
+  --fs-body: 15px;
+  --fs-body-lg: 16px;
+  --fs-nav: 14px;
+  --fs-table: 14px;
+  --fs-label: 13px;
+  --fs-micro: 12px;
+  --lh-body: 1.55;
+  --lh-heading: 1.25;
   --dashboard-forest: #173d32;
   --dashboard-sage: #e8f0e5;
   --dashboard-ivory: #f6f4ec;
@@ -75,6 +89,23 @@
   --chart-grid: #e5eae3;
   --chart-tooltip-bg: #ffffff;
   --chart-tooltip-border: #e5eae3;
+
+  /* Approved admin palette (light: charcoal + deep forest) */
+  --admin-sidebar: #dce7e0;
+  --admin-workspace: #f4f7f4;
+  --admin-header: #ffffff;
+  --admin-card: #ffffff;
+  --admin-input: #edf3ef;
+  --admin-border: #cedbd2;
+  --admin-text: #19352a;
+  --admin-text-secondary: #60756a;
+  --admin-accent: #237a53;
+  --admin-button: #237a53;
+  --admin-button-text: #ffffff;
+  --admin-active-nav: #c6ded0;
+  --admin-sidebar-text: #19352a;
+  --admin-sidebar-muted: #52685c;
+  --admin-badge-bg: #edf3ef;
 }
 
 :root[data-theme="dark"] {
@@ -84,42 +115,42 @@
 
   --forest: #dcebdd;
   --sage: #22332b;
-  --ivory: #111916;
+  --ivory: #0b1712;
   --gold: #d4b06a;
   --white: #18221d;
   --ink: #e6efe8;
   --muted: #9fb0a5;
-  --line: #2a3831;
-  --surface: #18221d;
-  --surface-soft: #1c2822;
-  --border-subtle: #2a3831;
+  --line: #2b3d33;
+  --surface: #14251d;
+  --surface-soft: #172820;
+  --border-subtle: #2b3d33;
   --shadow-card: 0 10px 28px rgb(0 0 0 / 28%);
   --shadow-card-hover: 0 16px 36px rgb(0 0 0 / 34%);
   --focus-ring: 0 0 0 3px rgb(212 176 106 / 32%);
   --dashboard-forest: #e6efe8;
   --dashboard-sage: #22332b;
-  --dashboard-ivory: #111916;
+  --dashboard-ivory: #0b1712;
   --dashboard-gold: #d4b06a;
   --dashboard-ink: #e6efe8;
   --dashboard-muted: #9fb0a5;
 
-  --app-bg: #111916;
-  --app-bg-alt: #141d18;
+  --app-bg: #0b1712;
+  --app-bg-alt: #0b1712;
   --text: #e6efe8;
   --text-heading: #edf6ef;
   --text-muted: #9fb0a5;
   --text-subtle: #b7c5bc;
-  --surface-elevated: #18221d;
-  --surface-raised: #1c2822;
-  --surface-muted: #16201b;
-  --card-bg: #18221d;
-  --card-border: #2a3831;
-  --border-color: #2a3831;
-  --border-strong: #34453d;
-  --input-bg: #141d18;
-  --input-border: #34453d;
+  --surface-elevated: #14251d;
+  --surface-raised: #172820;
+  --surface-muted: #0f1d18;
+  --card-bg: #14251d;
+  --card-border: #2b3d33;
+  --border-color: #2b3d33;
+  --border-strong: #34493d;
+  --input-bg: #0f1d18;
+  --input-border: #34493d;
   --input-text: #e6efe8;
-  --header-bg: rgb(17 25 22 / 88%);
+  --header-bg: rgb(11 23 18 / 92%);
   --overlay-bg: rgb(4 8 6 / 62%);
   --accent-mint: #7fd4a8;
   --accent-mint-soft: #1d3328;
@@ -130,7 +161,24 @@
   --chart-text: #b7c5bc;
   --chart-grid: #304038;
   --chart-tooltip-bg: #1c2822;
-  --chart-tooltip-border: #34453d;
+  --chart-tooltip-border: #34493d;
+
+  /* Approved admin palette (dark: charcoal + deep forest) */
+  --admin-sidebar: #202b27;
+  --admin-workspace: #071a13;
+  --admin-header: #17221d;
+  --admin-card: #14251c;
+  --admin-input: #1b3025;
+  --admin-border: #35483d;
+  --admin-text: #f4f7f4;
+  --admin-text-secondary: #aabbb0;
+  --admin-accent: #42b883;
+  --admin-button: #237a53;
+  --admin-button-text: #f4f7f4;
+  --admin-active-nav: #345345;
+  --admin-sidebar-text: #f4f7f4;
+  --admin-sidebar-muted: #aabbb0;
+  --admin-badge-bg: #1b3025;
 }
 
 * {

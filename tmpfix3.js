@@ -1,0 +1,25 @@
+﻿const fs=require('fs');
+const p='frontend/src/services/apiBackend/adminPortalApi.js';
+let s=fs.readFileSync(p,'utf8');
+// normalize backslash-escapes in the source text seen in the bad state
+s = s.replace(/apiClient\.post\(\\\\\/admin\\\/inventory\\\\\/\\\\\/adjust\\\\\/,/g, "apiClient.post(/admin/inventory//adjust/,");
+s = s.replace(/apiClient\.post\(\\\/admin\\\/inventory\\\/\\\/adjust\\\/,/g, "apiClient.post(/admin/inventory//adjust/,");
+s = s.replace(/apiClient\.post\(\/admin\/inventory\/\/adjust\/,/g, "apiClient.post(/admin/inventory//adjust/,");
+s = s.replace(/apiClient\.get\(\\\/admin\\\/orders\\\/\\\/\)/g, "apiClient.get(/admin/orders//)");
+s = s.replace(/apiClient\.get\(\/admin\/orders\/\/\)/g, "apiClient.get(/admin/orders//)");
+s = s.replace(/apiClient\.patch\(\\\/admin\\\/orders\\\/\\\/status\\\/,/g, "apiClient.patch(/admin/orders//status/,");
+s = s.replace(/apiClient\.patch\(\/admin\/orders\/\/status\/,/g, "apiClient.patch(/admin/orders//status/,");
+s = s.replace(/apiClient\.post\(\\\/admin\\\/orders\\\/\\\/collect-cod\\\/,/g, "apiClient.post(/admin/orders//collect-cod/,");
+s = s.replace(/apiClient\.post\(\/admin\/orders\/\/collect-cod\/,/g, "apiClient.post(/admin/orders//collect-cod/,");
+s = s.replace(/apiClient\.post\(\\\/admin\\\/orders\\\/\\\/cancel\\\/,/g, "apiClient.post(/admin/orders//cancel/,");
+s = s.replace(/apiClient\.post\(\/admin\/orders\/\/cancel\/,/g, "apiClient.post(/admin/orders//cancel/,");
+s = s.replace(/apiClient\.get\(\\\/admin\\\/customers\\\/\\\/\)/g, "apiClient.get(/admin/customers//)");
+s = s.replace(/apiClient\.get\(\/admin\/customers\/\/\)/g, "apiClient.get(/admin/customers//)");
+s = s.replace(/apiClient\.patch\(\\\/admin\\\/customers\\\/\\\/status\\\/,/g, "apiClient.patch(/admin/customers//status/,");
+s = s.replace(/apiClient\.patch\(\/admin\/customers\/\/status\/,/g, "apiClient.patch(/admin/customers//status/,");
+s = s.replace(/apiClient\.patch\(\\\/admin\\\/subscriptions\\\/supplements\\\/\\\/,/g, "apiClient.patch(/admin/subscriptions/supplements//,");
+s = s.replace(/apiClient\.patch\(\/admin\/subscriptions\/supplements\/\/,/g, "apiClient.patch(/admin/subscriptions/supplements//,");
+s = s.replace(/apiClient\.delete\(\\\/admin\\\/subscriptions\\\/supplements\\\/\\\/\)/g, "apiClient.delete(/admin/subscriptions/supplements//)");
+s = s.replace(/apiClient\.delete\(\/admin\/subscriptions\/supplements\/\/\)/g, "apiClient.delete(/admin/subscriptions/supplements//)");
+fs.writeFileSync(p,s);
+console.log('ok');

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DNA particle storm</title>
+<style>
+:root{--bg:#0b211a;--fg:#e9f3ee;--muted:#8fb3a3;--gold:#d9b97c;--line:#2a5a47;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:20px}
+h1{font-size:20px;margin:0 0 4px;font-weight:600}
+p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.stage{position:relative;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#0b211a;height:min(78vh,620px)}
+.stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(5,15,11,.75))}
+canvas{width:100%;height:100%;display:block;touch-action:none}
+.lab{position:absolute;left:0;top:0;pointer-events:none;font-size:12px;font-weight:600;text-shadow:0 1px 6px #000;white-space:nowrap;will-change:transform;z-index:2}
+.tip{position:absolute;left:0;top:0;pointer-events:none;background:rgba(10,30,22,.94);border:1px solid var(--gold);border-radius:10px;padding:8px 12px;font-size:12px;opacity:0;transition:opacity .15s;will-change:transform;z-index:3}
+.tip b{display:block;color:var(--gold);font-size:13px}
+.hint{position:absolute;left:14px;bottom:10px;font-size:12px;color:var(--muted);z-index:2}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+button{background:transparent;color:var(--fg);border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;cursor:pointer}
+button.on,button:active{background:var(--gold);color:#1a2a22;border-color:var(--gold)}
+label{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;margin-left:8px}
+input[type=range]{accent-color:var(--gold)}
+#err{color:#ffb4a8;font-size:13px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>DNA particle storm</h1>
+<p>About 25,000 GPU particles. The helix assembles from chaos, your mouse acts as a force field, the strands unzip, and nutrients explode on contact.</p>
+<div class="stage" id="stage"><div class="tip" id="tip"></div><div class="hint">Move the mouse through it · hover a nutrient · click for a shockwave</div></div>
+<div class="bar" id="bar"></div>
+<div id="err"></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script>
+(function(){
+if(!window.THREE){document.getElementById('err').textContent='Could not load Three.js.';return}
+const stage=document.getElementById('stage'),bar=document.getElementById('bar'),tip=document.getElementById('tip');
+let energy=1,bloomOn=true,introT=0,zipT=-1,shock=-1,nextZip=9;
+function btn(txt,fn){const b=document.createElement('button');b.textContent=txt;b.onclick=()=>fn(b);bar.appendChild(b);return b}
+btn('Replay intro',()=>{introT=0});
+btn('Unzip DNA',()=>{if(zipT<0)zipT=-.2});
+btn('Burst all',()=>{for(const b of bursts)b.y=1.4});
+const bb=btn('Bloom glow',b=>{bloomOn=!bloomOn;b.classList.toggle('on',bloomOn)});bb.classList.add('on');
+const lb=document.createElement('label');lb.innerHTML='Energy <input type="range" min="0.2" max="3" step="0.1" value="1">';
+lb.querySelector('input').oninput=e=>energy=+e.target.value;bar.appendChild(lb);
+
+const renderer=new THREE.WebGLRenderer({antialias:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.setClearColor(0x0b211a,1);
+stage.insertBefore(renderer.domElement,stage.firstChild);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(38,1,.1,100);camera.position.set(0,0,17);
+const root=new THREE.Group();scene.add(root);
+let composer,bloom;
+if(THREE.EffectComposer&&THREE.UnrealBloomPass){composer=new THREE.EffectComposer(renderer);
+composer.addPass(new THREE.RenderPass(scene,camera));bloom=new THREE.UnrealBloomPass(new THREE.Vector2(256,256),.3,.4,.7);composer.addPass(bloom)}
+let baseZ=17;
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h);baseZ=w/h<1?27:17;
+camera.aspect=w/h;camera.updateProjectionMatrix();if(composer)composer.setSize(w,h)}
+new ResizeObserver(resize).observe(stage);resize();
+
+// particles
+const NS=9000,NR=3200,NH=2600,NT=NS*2+NR+NH,RUNGS=56;
+const aData=new Float32Array(NT*4),aRand=new Float32Array(NT*3),pos0=new Float32Array(NT*3);
+let n=0;const rnd=()=>Math.random(),rs=()=>rnd()*2-1;
+function put(k,t,s,w,sc){aData.set([k,t,s,w],n*4);aRand.set([rs()*sc,rs()*sc,rs()*sc],n*3);n++}
+for(let k=0;k<2;k++)for(let i=0;i<NS;i++)put(k,rnd(),rnd(),0,1);
+for(let i=0;i<NR;i++)put(2,(Math.floor(rnd()*RUNGS)+.5)/RUNGS,rnd(),rnd(),.5);
+for(let i=0;i<NH;i++)put(3,rnd(),rnd(),0,1);
+const geo=new THREE.BufferGeometry();
+geo.setAttribute('position',new THREE.BufferAttribute(pos0,3));
+geo.setAttribute('aData',new THREE.BufferAttribute(aData,4));
+geo.setAttribute('aRand',new THREE.BufferAttribute(aRand,3));
+const bursts=[0,1,2,3,4].map(()=>({t:0,y:0}));
+const U={uTime:{value:0},uRot:{value:0},uAssemble:{value:0},uZip:{value:-1},uShock:{value:-1},
+uSize:{value:5},uPix:{value:renderer.getPixelRatio()},uP:{value:new THREE.Vector3()},
+uBurst:{value:[0,1,2,3,4].map(()=>new THREE.Vector3())},uMouse:{value:new THREE.Vector3()},uMouseOn:{value:0}};
+const mat=new THREE.ShaderMaterial({uniforms:U,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+vertexShader:`
+attribute vec4 aData;attribute vec3 aRand;
+uniform float uTime,uRot,uAssemble,uZip,uShock,uSize,uPix,uMouseOn;
+uniform vec3 uP,uMouse;uniform vec3 uBurst[5];
+varying vec3 vCol;varying float vA;
+#define PI 3.14159265
+const float H=11.,TURNS=3.,R=1.35;
+vec3 helix(float k,float t,float rr){float a=t*TURNS*2.*PI+uRot+k*PI;return vec3(cos(a)*rr,(t-.5)*H,sin(a)*rr);}
+float gp(float t,float p){float d=t-(1.-p);return exp(-d*d/.0012);}
+void main(){
+ float kind=aData.x,t=aData.y,seed=aData.z,w=aData.w;
+ float taper=.5+.5*pow(max(sin(PI*t),0.),.6);
+ float rr=R*taper*(1.+.08*sin(uTime*1.4+t*6.));
+ float dz=uZip-t;
+ float sep=smoothstep(0.,.18,dz)*(1.-smoothstep(.18,.5,dz))*1.6;
+ float ds=t-uShock;float shk=uShock>=0.?exp(-ds*ds/.004):0.;
+ float g=gp(t,uP.x)+gp(t,uP.y)+gp(t,uP.z)+1.6*shk;
+ float burst=0.;
+ for(int i=0;i<5;i++){float d=(t-uBurst[i].x)*7.;burst+=exp(-d*d)*uBurst[i].y;}
+ vec3 p;vec3 col;float al=.6;
+ if(kind<1.5){
+  p=helix(kind,t,rr+sep+shk*.6);p.xz+=aRand.xy*.14;p.y+=aRand.z*.08;
+  col=mix(vec3(.12,.95,.8),vec3(.4,.7,1.),t*.8+.1*sin(uTime+t*5.));
+  if(kind>.5)col=mix(col,vec3(.85,.55,1.),.4);
+ }else if(kind<2.5){
+  vec3 A=helix(0.,t,rr+sep),B=helix(1.,t,rr+sep);p=mix(A,B,w)+aRand*.05;
+  float q=floor(seed*4.);
+  col=q<1.?vec3(1.,.8,.4):q<2.?vec3(.5,1.,.9):q<3.?vec3(1.,.5,.7):vec3(.5,.7,1.);
+  al=.65*(1.-smoothstep(.1,1.,sep/1.6));
+ }else{
+  float rad=2.4+fract(seed*7.3)*6.;float a=seed*6.2831+uTime*(.1+.25*fract(seed*13.))/(.4+rad*.25);
+  float y=(fract(seed*3.7+uTime*.015*(1.+fract(seed*9.)))-.5)*H*1.25;
+  p=vec3(cos(a)*rad,y,sin(a)*rad);col=vec3(.2,.7,.6)*.7;al=.22;g=0.;burst=0.;
+ }
+ if(kind<2.5){
+  float a=smoothstep(0.,1.,uAssemble*1.6-seed*.5-t*.35);
+  vec3 s0=aRand*vec3(12.,8.,10.);float sa=(1.-a)*5.;
+  s0.xz=mat2(cos(sa),-sin(sa),sin(sa),cos(sa))*s0.xz;
+  p=mix(s0,p,a);al*=.3+.7*a;
+ }
+ p.xz*=1.+burst*.8;p+=aRand*burst*1.2;
+ col+=vec3(1.,.8,.3)*burst*.7;col*=1.+g*1.1;
+ vec4 wp=modelMatrix*vec4(p,1.);
+ vec2 dm=wp.xy-uMouse.xy;float dd=dot(dm,dm);float f=exp(-dd/2.4)*uMouseOn;
+ vec2 nn=dm*inversesqrt(dd+.001);
+ wp.xy+=nn*f*1.5+vec2(-nn.y,nn.x)*f*.9;wp.z+=f*1.5;col+=vec3(.3,.5,.4)*f;
+ vec4 mv=viewMatrix*wp;gl_Position=projectionMatrix*mv;
+ gl_PointSize=uSize*uPix*(1.+g*1.2+burst*2.)*(.6+.8*fract(seed*5.))*(10./-mv.z);
+ vCol=col;vA=al;
+}`,
+fragmentShader:`
+varying vec3 vCol;varying float vA;
+void main(){float d=length(gl_PointCoord-.5);float s=smoothstep(.5,.05,d);gl_FragColor=vec4(vCol*vA*.8,s*.5);}`});
+const pts=new THREE.Points(geo,mat);pts.frustumCulled=false;root.add(pts);
+
+// nutrients
+function glow(c){const k=document.createElement('canvas');k.width=k.height=64;const x=k.getContext('2d');
+const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'#fff');g.addColorStop(.18,c);g.addColorStop(.45,c+'22');g.addColorStop(1,c+'00');
+x.fillStyle=g;x.fillRect(0,0,64,64);return new THREE.CanvasTexture(k)}
+const NUT=[{n:'Zinc',d:'Immune support',c:'#cfe8ff',a:0,s:.5,y:-.5,r:2.0,sz:1.5,ph:0},
+{n:'C',d:'Vitamin C, antioxidant',c:'#ffc04d',a:1.3,s:.7,y:-2.4,r:2.5,sz:1.1,ph:1.6},
+{n:'B12',d:'Energy and nerves',c:'#ff6fa0',a:2.6,s:.4,y:2.2,r:2.3,sz:1.1,ph:3.2},
+{n:'D3',d:'Bones and mood',c:'#ffe566',a:3.9,s:.6,y:.9,r:1.9,sz:1.2,ph:4.8},
+{n:'E',d:'Cell protection',c:'#7dff8a',a:5.2,s:.45,y:3.4,r:2.6,sz:1,ph:6}];
+const dot=glow('#ffffff'),TR=36,orbs=[];
+NUT.forEach((nu,i)=>{
+const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:glow(nu.c),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));
+sp.userData=nu;scene.add(sp);
+const tp=new Float32Array(TR*3),tc=new Float32Array(TR*3);const col=new THREE.Color(nu.c);
+for(let j=0;j<TR;j++){const f=Math.pow(1-j/TR,2);tc.set([col.r*f,col.g*f,col.b*f],j*3)}
+const tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.BufferAttribute(tp,3));tg.setAttribute('color',new THREE.BufferAttribute(tc,3));
+const tl=new THREE.Points(tg,new THREE.PointsMaterial({size:.2,map:dot,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+tl.frustumCulled=false;scene.add(tl);
+const el=document.createElement('div');el.className='lab';el.textContent=nu.n;el.style.color=nu.c;stage.appendChild(el);
+orbs.push({sp,nu,tp,tg,el,dock:0,prev:0,i})});
+
+// input
+const mouse=new THREE.Vector2(9,9);let mx=0,my=0,hover=null;
+const ray=new THREE.Raycaster(),plane=new THREE.Plane(new THREE.Vector3(0,0,1),0),hitP=new THREE.Vector3(),cvs=renderer.domElement;
+cvs.addEventListener('pointermove',e=>{const r=cvs.getBoundingClientRect();mouse.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1)});
+cvs.addEventListener('pointerleave',()=>mouse.set(9,9));
+cvs.addEventListener('click',()=>{shock=0});
+
+const v=new THREE.Vector3();let last=performance.now(),time=0,rot=0;const pulses=[0,.45,.8];
+function ease(x){x=Math.min(1,Math.max(0,x));return 1-Math.pow(1-x,3)}
+function loop(now){
+const dt=Math.min((now-last)/1000,.05);last=now;time+=dt;introT+=dt;
+const asm=Math.min(1,introT/4.2);U.uAssemble.value=asm;
+rot+=dt*(.5*energy+(1-ease(asm))*3);U.uRot.value=rot;U.uTime.value=time;
+for(let i=0;i<3;i++){pulses[i]+=dt*.16*energy;if(pulses[i]>1.15)pulses[i]=-.15}
+U.uP.value.set(pulses[0],pulses[1],pulses[2]);
+if(asm>=1){nextZip-=dt;if(nextZip<=0&&zipT<0){zipT=-.2;nextZip=14}}
+if(zipT>=-.2){zipT+=dt*.28*energy;if(zipT>1.3)zipT=-1}U.uZip.value=zipT;
+if(shock>=0){shock+=dt*.9;if(shock>1.2)shock=-1}U.uShock.value=shock;
+const tx=mouse.x>8?0:mouse.x,ty=mouse.x>8?0:mouse.y;mx+=(tx-mx)*.05;my+=(ty-my)*.05;
+const e=ease(asm);camera.position.set(mx*2.2+Math.sin(time*.2)*.6,my*1.2,baseZ-(1-e)*8);camera.lookAt(0,0,0);
+root.rotation.z=.2+mx*.05;root.rotation.x=my*.1;root.updateMatrixWorld();
+ray.setFromCamera(mouse,camera);
+if(ray.ray.intersectPlane(plane,hitP)){U.uMouse.value.copy(hitP)}
+U.uMouseOn.value+=((mouse.x>8?0:1)-U.uMouseOn.value)*.1;
+const hit=ray.intersectObjects(orbs.map(o=>o.sp))[0];hover=hit?hit.object.userData:null;
+for(const o of orbs){const nu=o.nu;
+const ang=nu.a+time*nu.s*energy;
+o.dock=Math.pow(Math.max(0,Math.sin(time*.45*energy+nu.ph)),10);
+if(o.dock>.7&&o.prev<=.7&&asm>=1){bursts[o.i].y=1.2}
+o.prev=o.dock;
+const rr=1.35*(nu.r-(nu.r-.95)*o.dock);
+o.sp.position.set(Math.cos(ang)*rr,nu.y+Math.sin(time*.8+nu.ph)*.25,Math.sin(ang)*rr);
+o.sp.position.applyMatrix4(root.matrixWorld);
+const hv=hover===nu;o.sp.scale.setScalar(nu.sz*(1+o.dock*.9)*(hv?1.5:1)*(.4+.6*e));
+const tp=o.tp;tp.copyWithin(3,0,TR*3-3);const pw=o.sp.position;tp[0]=pw.x;tp[1]=pw.y;tp[2]=pw.z;o.tg.attributes.position.needsUpdate=true;
+v.copy(o.sp.position).project(camera);
+o.el.style.transform=`translate(${(v.x*.5+.5)*stage.clientWidth+12}px,${(-v.y*.5+.5)*stage.clientHeight-22}px)`;
+o.el.style.opacity=e;
+const b=bursts[o.i];U.uBurst.value[o.i].set(Math.min(1,Math.max(0,(nu.y+5.5)/11)),b.y,0);b.y*=Math.exp(-dt*1.8)}
+if(hover){const o=orbs.find(q=>q.nu===hover);v.copy(o.sp.position).project(camera);
+tip.innerHTML=`<b>${hover.n}</b>${hover.d}`;
+tip.style.transform=`translate(${Math.min((v.x*.5+.5)*stage.clientWidth+22,stage.clientWidth-170)}px,${(-v.y*.5+.5)*stage.clientHeight-50}px)`;
+tip.style.opacity=1;cvs.style.cursor='pointer'}else{tip.style.opacity=0;cvs.style.cursor='default'}
+if(composer&&bloomOn){bloom.strength=.25+.08*energy;composer.render()}else renderer.render(scene,camera);
+requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+.bio-neural-background {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bio-neural-background__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Keep dashboard content above the animated background layer. */
+.dashboard-main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Remove the previous botanical leaf pattern layer from the dashboard shell. */
+.dashboard-shell::before,
+.dashboard-shell::after {
+  content: none !important;
+  display: none !important;
+}

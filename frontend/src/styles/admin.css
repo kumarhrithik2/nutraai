@@ -1,0 +1,374 @@
+/* NutraAI Admin Portal — centralized theme palette (Combination C: Charcoal + Deep Forest)
+   Driven by --admin-* tokens defined in index.css (light + dark). No per-theme overrides here. */
+
+/* ---------- Shell ---------- */
+.admin-shell {
+  background: var(--admin-workspace);
+  color: var(--admin-text);
+}
+
+.admin-shell h1,
+.admin-shell h2,
+.admin-shell h3,
+.admin-shell h4 {
+  color: var(--admin-text);
+}
+
+/* ---------- Sidebar ---------- */
+.admin-shell > aside {
+  background: var(--admin-sidebar);
+  color: var(--admin-sidebar-text);
+  border-color: var(--admin-border);
+}
+
+.admin-shell > aside .text-white {
+  color: var(--admin-sidebar-text);
+}
+
+.admin-shell > aside .text-\[\#d4a96a\] {
+  color: var(--admin-accent);
+}
+
+.admin-shell > aside .text-\[\#6b857a\],
+.admin-shell > aside .text-\[\#a3b8af\],
+.admin-shell > aside .text-\[\#c4d4cc\],
+.admin-shell > aside .text-\[\#8ea79d\],
+.admin-shell > aside .text-\[\#82998f\],
+.admin-shell > aside .text-\[\#9bb0a6\],
+.admin-shell > aside .text-\[\#9cb0a6\] {
+  color: var(--admin-sidebar-muted);
+}
+
+.admin-shell > aside .border-\[\#1c4438\],
+.admin-shell > aside .border-\[\#266250\],
+.admin-shell > aside .border-\[\#296452\] {
+  border-color: var(--admin-border);
+}
+
+/* Sidebar brand/icon tiles */
+.admin-shell > aside .bg-\[\#1a4437\],
+.admin-shell > aside .bg-\[\#0e241e\] {
+  background-color: var(--admin-active-nav);
+}
+
+/* Sidebar active nav link */
+.admin-shell > aside a.bg-\[\#1a4437\] {
+  background-color: var(--admin-active-nav);
+  color: var(--admin-sidebar-text);
+  border-color: var(--admin-border);
+}
+
+/* Sidebar hover */
+.admin-shell > aside .hover\:bg-\[\#16382f\]:hover,
+.admin-shell > aside .hover\:bg-\[\#1a382e\]:hover {
+  background-color: var(--admin-active-nav);
+  color: var(--admin-sidebar-text);
+}
+
+/* Sidebar logout hover */
+.admin-shell > aside .hover\:text-\[\#f87171\]:hover {
+  color: var(--danger);
+}
+
+/* Mobile top bar */
+.admin-shell > div:first-child {
+  background: var(--admin-sidebar) !important;
+  color: var(--admin-sidebar-text) !important;
+  border-color: var(--admin-border) !important;
+}
+
+/* ---------- Desktop header ---------- */
+.admin-shell > div > header {
+  background: var(--admin-header) !important;
+  border-color: var(--admin-border) !important;
+}
+
+.admin-shell > div > header h1 {
+  color: var(--admin-text);
+}
+
+.admin-shell > div > header .text-\[\#173d32\] {
+  color: var(--admin-text);
+}
+
+.admin-shell > div > header .text-\[\#718078\] {
+  color: var(--admin-text-secondary);
+}
+
+.admin-shell > div > header .border-\[\#d6ded5\],
+.admin-shell > div > header .border-\[\#e5eae3\],
+.admin-shell > div > header .bg-\[\#e5eae3\] {
+  border-color: var(--admin-border);
+  background-color: transparent;
+}
+
+.admin-shell > div > header a {
+  color: var(--admin-text);
+  border-color: var(--admin-border);
+}
+
+.admin-shell > div > header a:hover {
+  background: var(--admin-input);
+  border-color: var(--admin-accent);
+}
+
+.admin-shell > div > header .text-\[\#173d32\] {
+  color: var(--admin-text);
+}
+
+/* ---------- Cards / surfaces (map hardcoded utilities) ---------- */
+.admin-shell .bg-white,
+.admin-shell .bg-\[\#fbfaf6\],
+.admin-shell .bg-\[\#f6f4ec\],
+.admin-shell .bg-\[\#fcfbf7\],
+.admin-shell .bg-\[\#f8f7f2\],
+.admin-shell .bg-\[\#f5f5f5\],
+.admin-shell .bg-\[\#f0f3ef\],
+.admin-shell .bg-\[\#f6f8f5\],
+.admin-shell .bg-\[\#e8f0e5\],
+.admin-shell .bg-\[\#e8f5e9\],
+.admin-shell .bg-\[\#f0f4ed\],
+.admin-shell .bg-\[\#f6f9f4\] {
+  background-color: var(--admin-card);
+}
+
+/* Secondary/muted fills (badges, icon tiles, table headers) */
+.admin-shell .bg-\[\#f6f4ec\],
+.admin-shell .bg-\[\#f5f5f5\],
+.admin-shell .bg-\[\#f0f3ef\],
+.admin-shell .bg-\[\#e8f0e5\],
+.admin-shell .bg-\[\#fbfaf6\],
+.admin-shell .bg-\[\#fcfbf7\],
+.admin-shell .bg-\[\#f6f8f5\],
+.admin-shell .bg-\[\#edf3ef\] {
+  background-color: var(--admin-input);
+}
+
+/* Hover surfaces */
+.admin-shell .hover\:bg-\[\#f6f4ec\]:hover,
+.admin-shell .hover\:bg-\[\#fcfbf7\]:hover,
+.admin-shell .hover\:bg-\[\#f6f8f5\]:hover,
+.admin-shell .hover\:bg-\[\#fbfaf6\]:hover {
+  background-color: var(--admin-input);
+}
+
+/* ---------- Borders ---------- */
+.admin-shell .border-\[\#e5eae3\],
+.admin-shell .border-\[\#d6ded5\],
+.admin-shell .border-\[\#e2e7df\],
+.admin-shell .border-\[\#f0f3ef\],
+.admin-shell .border-\[\#d9e0d7\],
+.admin-shell .divide-\[\#f0f3ef\] > :not([hidden]) ~ :not([hidden]),
+.admin-shell .divide-\[\#e5eae3\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--admin-border);
+}
+
+/* ---------- Text ---------- */
+.admin-shell .text-\[\#173d32\],
+.admin-shell .text-\[\#20342d\],
+.admin-shell .text-\[\#486358\],
+.admin-shell .text-\[\#1c3028\] {
+  color: var(--admin-text);
+}
+
+.admin-shell .text-\[\#718078\],
+.admin-shell .text-\[\#616161\],
+.admin-shell .text-\[\#486358\] {
+  color: var(--admin-text-secondary);
+}
+
+.admin-shell .hover\:text-\[\#173d32\]:hover {
+  color: var(--admin-accent);
+}
+
+/* ---------- Inputs / selects / textareas ---------- */
+.admin-shell input,
+.admin-shell select,
+.admin-shell textarea {
+  background-color: var(--admin-input) !important;
+  color: var(--admin-text) !important;
+  border-color: var(--admin-border) !important;
+}
+
+.admin-shell input::placeholder,
+.admin-shell textarea::placeholder {
+  color: var(--admin-text-secondary) !important;
+  opacity: 1;
+}
+
+.admin-shell select option {
+  background-color: var(--admin-input);
+  color: var(--admin-text);
+}
+
+.admin-shell input:focus,
+.admin-shell select:focus,
+.admin-shell textarea:focus {
+  border-color: var(--admin-accent);
+  outline-color: var(--admin-accent);
+}
+
+/* Input focus ring utilities */
+.admin-shell .focus\:border-\[\#173d32\]:focus,
+.admin-shell .focus\:border-\[\#237a53\]:focus {
+  border-color: var(--admin-accent);
+}
+
+.admin-shell .focus\:ring-\[\#173d32\]:focus,
+.admin-shell .focus\:ring-\[\#237a53\]:focus {
+  --tw-ring-color: var(--admin-accent);
+}
+
+/* ---------- Tables ---------- */
+.admin-shell table thead tr {
+  background-color: var(--admin-input);
+  color: var(--admin-text-secondary);
+}
+
+.admin-shell table tbody tr:hover {
+  background-color: var(--admin-input);
+}
+
+.admin-shell table td,
+.admin-shell table th {
+  border-color: var(--admin-border);
+}
+
+/* ---------- Primary buttons ---------- */
+.admin-shell .bg-\[\#173d32\],
+.admin-shell .bg-\[\#237a53\] {
+  background-color: var(--admin-button);
+  color: var(--admin-button-text);
+}
+
+.admin-shell .hover\:bg-\[\#11241e\]:hover,
+.admin-shell .hover\:bg-\[\#0d1d18\]:active,
+.admin-shell .hover\:bg-\[\#1d5c3d\]:hover {
+  background-color: var(--admin-accent);
+}
+
+/* Gold accent buttons (login submit) */
+.admin-shell .bg-\[\#d4a96a\],
+.admin-login-page .bg-\[\#d4a96a\] {
+  background-color: var(--admin-button);
+  color: var(--admin-button-text);
+}
+
+.admin-shell .hover\:bg-\[\#e2b97c\]:hover,
+.admin-login-page .hover\:bg-\[\#e2b97c\]:hover {
+  background-color: var(--admin-accent);
+}
+
+/* ---------- Status badges ---------- */
+.admin-shell .bg-\[\#dcfce7\],
+.admin-shell .bg-\[\#e8f5e9\],
+.admin-shell .bg-\[\#e0f2fe\],
+.admin-shell .bg-\[\#f0f9ff\] {
+  background-color: var(--admin-badge-bg);
+  border-color: var(--admin-border);
+}
+
+.admin-shell .bg-\[\#fef3c7\],
+.admin-shell .bg-\[\#fdf6e3\],
+.admin-shell .bg-\[\#fee2e2\],
+.admin-shell .bg-\[\#fef2f2\] {
+  background-color: var(--admin-badge-bg);
+  border-color: var(--admin-border);
+}
+
+.admin-shell .text-\[\#1b5e20\],
+.admin-shell .text-\[\#15803d\],
+.admin-shell .text-\[\#0369a1\],
+.admin-shell .text-\[\#075985\] {
+  color: var(--admin-accent);
+}
+
+.admin-shell .text-\[\#b45309\],
+.admin-shell .text-\[\#92400e\],
+.admin-shell .text-\[\#dc2626\],
+.admin-shell .text-\[\#991b1b\] {
+  color: var(--admin-text);
+}
+
+/* ---------- Shadows ---------- */
+.admin-shell .shadow-xs,
+.admin-shell .shadow-sm,
+.admin-shell .shadow-md,
+.admin-shell .shadow-xl,
+.admin-shell .shadow-2xl {
+  box-shadow: 0 10px 24px rgb(0 0 0 / 14%);
+}
+
+/* ---------- Modals / dialogs / overlays ---------- */
+.admin-shell [role="dialog"] > div {
+  background-color: var(--admin-card);
+  border-color: var(--admin-border);
+  color: var(--admin-text);
+}
+
+.admin-shell .bg-black\/50,
+.admin-shell .bg-black\/60 {
+  background-color: rgb(4 8 6 / 62%);
+}
+
+/* ---------- Theme toggles ---------- */
+.admin-shell .theme-toggle--admin-header,
+.admin-shell .theme-toggle--admin-mobile,
+.admin-login-page .theme-toggle--admin-login {
+  background: var(--admin-card);
+  border-color: var(--admin-border);
+  color: var(--admin-accent);
+}
+
+/* ---------- Admin login ---------- */
+.admin-login-page {
+  background: var(--admin-workspace);
+  color: var(--admin-text);
+}
+
+.admin-login-page header,
+.admin-login-page footer {
+  border-color: var(--admin-border);
+  background: transparent;
+}
+
+.admin-login-page .bg-\[\#173d32\],
+.admin-login-page .bg-\[\#11241e\],
+.admin-login-page .bg-\[\#213f35\] {
+  background-color: var(--admin-card);
+}
+
+.admin-login-page .border-\[\#244f41\],
+.admin-login-page .border-\[\#213f35\],
+.admin-login-page .border-\[\#2d5849\] {
+  border-color: var(--admin-border);
+}
+
+.admin-login-page .text-white {
+  color: var(--admin-text);
+}
+
+.admin-login-page .text-\[\#9eb2a8\],
+.admin-login-page .text-\[\#a0b0a8\],
+.admin-login-page .text-\[\#71857c\] {
+  color: var(--admin-text-secondary);
+}
+
+.admin-login-page .bg-\[\#d4a96a\] {
+  background-color: var(--admin-button);
+  color: var(--admin-button-text);
+}
+
+.admin-login-page .text-\[\#d4a96a\] {
+  color: var(--admin-accent);
+}
+
+.admin-login-page input {
+  background-color: var(--admin-input);
+  color: var(--admin-text);
+  border-color: var(--admin-border);
+}
+
+.admin-login-page input::placeholder {
+  color: var(--admin-text-secondary);
+}

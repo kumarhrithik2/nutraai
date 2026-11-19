@@ -3775,3 +3775,77 @@
 :root[data-theme="dark"] .ai-orbit-label {
   color: var(--text-muted);
 }
+
+/* Dark theme contrast corrections for branded marketing surfaces */
+:root[data-theme="dark"] .button--primary:hover {
+  background: #2f6a4b;
+  color: #f2fbf5;
+}
+
+:root[data-theme="dark"] .ai-section {
+  background: #14231b;
+}
+
+:root[data-theme="dark"] .ai-content h2,
+:root[data-theme="dark"] .public-page .ai-content h2 {
+  color: var(--text-heading);
+}
+
+:root[data-theme="dark"] .ai-intro,
+:root[data-theme="dark"] .public-page .ai-intro,
+:root[data-theme="dark"] .eyebrow--light {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .plan-badge {
+  background: #2f6a4b;
+  color: #f2fbf5;
+}
+
+:root[data-theme="dark"] .membership-card--featured {
+  background: linear-gradient(180deg, #1d2a22 0%, #18221d 100%);
+  border-color: #4c6b55;
+}
+
+:root[data-theme="dark"] .plan-price,
+:root[data-theme="dark"] .plan-includes {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .plan-price strong {
+  color: var(--text-heading);
+}
+
+:root[data-theme="dark"] .plan-price > span {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .membership-card li {
+  color: var(--text-subtle);
+}
+
+:root[data-theme="dark"] .membership-comparison__head {
+  background: var(--surface-muted);
+}
+
+:root[data-theme="dark"] .journey-visual__surface {
+  border-color: var(--card-border);
+  background:
+    radial-gradient(ellipse at 50% 46%, rgb(40 74 55 / 32%), transparent 43%),
+    var(--surface-muted);
+  color: var(--text);
+}
+
+:root[data-theme="dark"] .journey-visual__surface::before {
+  border-color: var(--card-border);
+}
+
+:root[data-theme="dark"] .journey-visual__eyebrow,
+:root[data-theme="dark"] .journey-visual__caption,
+:root[data-theme="dark"] .journey-visual__surface > p {
+  color: var(--text-muted);
+}
+
+:root[data-theme="dark"] .journey-visual__surface > p em {
+  color: var(--text-heading);
+}

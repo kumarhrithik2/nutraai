@@ -1,0 +1,198 @@
+﻿const fs=require('fs');
+const p='frontend/src/services/apiBackend/adminPortalApi.js';
+const s=String.raw
+import { apiClient, compact, money, normalizePage } from './core.js'
+
+function normalizeOrder(o) {
+  return {
+    number: o.number,
+    status: o.status,
+    statusLabel: o.status_label,
+    paymentMethod: o.payment_method,
+    paymentMethodLabel: o.payment_method_label,
+    subtotal: money(o.subtotal),
+    shippingFee: money(o.shipping_fee),
+    total: money(o.total),
+    currency: o.currency,
+    itemCount: o.item_count,
+    createdAt: o.created_at,
+    paidAt: o.paid_at,
+    cancelledAt: o.cancelled_at,
+    expiresAt: o.expires_at,
+    trackingNote: o.tracking_note,
+    notes: o.notes,
+    customerEmail: o.customer_email,
+    customerName: o.customer_name,
+    contactEmail: o.contact_email,
+    shipFullName: o.ship_full_name,
+    shipPhone: o.ship_phone,
+    shipCity: o.ship_city,
+    shipState: o.ship_state,
+    shipLine1: o.ship_line1,
+    shipLine2: o.ship_line2,
+    shipPincode: o.ship_pincode,
+    shippingAddress: o.shipping_address || null,
+    items: (o.items || []).map((i) => ({ id: i.id, productId: i.product_id, name: i.name, sku: i.sku, unitPrice: money(i.unit_price), quantity: i.quantity, lineTotal: money(i.line_total) })),
+    events: (o.events || []).map((e) => ({ status: e.status, note: e.note, createdAt: e.created_at })),
+    payments: (o.payments || []).map((p) => ({ id: p.id, gateway: p.gateway, gatewayOrderId: p.gateway_order_id, gatewayPaymentId: p.gateway_payment_id, status: p.status, amountPaise: p.amount_paise, currency: p.currency, createdAt: p.created_at, failureReason: p.failure_reason })),
+  }
+}
+
+function normalizeAdjustment(a) {
+  return {
+    id: a.id,
+    productId: a.product,
+    productName: a.product_name,
+    productSku: a.product_sku,
+    adjustedByEmail: a.adjusted_by_email,
+    delta: a.delta,
+    previousStock: a.previous_stock,
+    newStock: a.new_stock,
+    reason: a.reason,
+    reasonLabel: a.reason_label,
+    note: a.note,
+    createdAt: a.created_at,
+  }
+}
+
+export async function adminGetOverview() {
+  const { data } = await apiClient.get('/admin/overview/')
+  return {
+    kpis: data.kpis || {},
+    recentOrders: (data.recent_orders || []).map(normalizeOrder),
+    lowStockProducts: (data.low_stock_products || []).map((p) => ({
+      id: p.id, name: p.name, slug: p.slug, sku: p.sku, category: p.category, categorySlug: p.category_slug,
+      price: money(p.price), mrp: money(p.mrp), stock: p.stock, isActive: p.is_active, inStock: p.in_stock, lowStock: p.low_stock, updatedAt: p.updated_at,
+    })),
+    recentActivity: (data.recent_activity || []).map((a) => ({ id: a.id, action: a.action, actorEmail: a.actor_email, targetType: a.target_type, targetId: a.target_id, metadata: a.metadata, createdAt: a.created_at })),
+    charts: data.charts || { daily: [], status_breakdown: [] },
+    generatedAt: data.generated_at,
+  }
+}
+
+export async function adminListInventory(params = {}) {
+  const { data } = await apiClient.get('/admin/inventory/', { params: compact({ q: params.q, category: params.category, stock_status: params.stockStatus, is_active: params.isActive, ordering: params.ordering, page: params.page, page_size: params.pageSize }) })
+  return normalizePage(data, (p) => ({ id: p.id, name: p.name, slug: p.slug, sku: p.sku, category: p.category, categorySlug: p.category_slug, price: money(p.price), mrp: money(p.mrp), stock: p.stock, isActive: p.is_active, inStock: p.in_stock, lowStock: p.low_stock, updatedAt: p.updated_at }))
+}
+
+export async function adminGetInventoryAlerts() {
+  const { data } = await apiClient.get('/admin/inventory/alerts/')
+  const mapP = (p) => ({ id: p.id, name: p.name, slug: p.slug, sku: p.sku, category: p.category, price: money(p.price), stock: p.stock, isActive: p.is_active, lowStock: p.low_stock })
+  return { threshold: data.threshold, lowStock: (data.low_stock || []).map(mapP), outOfStock: (data.out_of_stock || []).map(mapP) }
+}
+
+export async function adminAdjustStock(productId, payload) {
+  const { data } = await apiClient.post('/admin/inventory/' + productId + '/adjust/', { delta: payload.delta, reason: payload.reason, note: payload.note || '' })
+  return { adjustment: normalizeAdjustment(data.adjustment) }
+}
+
+export async function adminListStockAdjustments(params = {}) {
+  const { data } = await apiClient.get('/admin/inventory/adjustments/', { params: compact({ product_id: params.productId, reason: params.reason, page: params.page, page_size: params.pageSize }) })
+  return normalizePage(data, normalizeAdjustment)
+}
+
+export async function adminListOrders(params = {}) {
+  const { data } = await apiClient.get('/admin/orders/', { params: compact({ q: params.q, status: params.status, payment_method: params.paymentMethod, date_from: params.dateFrom, date_to: params.dateTo, ordering: params.ordering, page: params.page, page_size: params.pageSize }) })
+  return normalizePage(data, normalizeOrder)
+}
+
+export async function adminGetOrder(number) {
+  const { data } = await apiClient.get('/admin/orders/' + number + '/')
+  return normalizeOrder(data)
+}
+
+export async function adminUpdateOrderStatus(number, payload) {
+  const { data } = await apiClient.patch('/admin/orders/' + number + '/status/', { status: payload.status, note: payload.note || '', tracking_note: payload.trackingNote })
+  return normalizeOrder(data)
+}
+
+export async function adminCollectCod(number, note = '') {
+  const { data } = await apiClient.post('/admin/orders/' + number + '/collect-cod/', { note })
+  return normalizeOrder(data)
+}
+
+export async function adminCancelOrder(number, note = '') {
+  const { data } = await apiClient.post('/admin/orders/' + number + '/cancel/', { note })
+  return normalizeOrder(data)
+}
+
+function normalizeCustomer(c) {
+  return {
+    id: c.id, email: c.email, role: c.role, isActive: c.is_active, dateJoined: c.date_joined, lastLogin: c.last_login,
+    name: c.name, phone: c.phone, orderCount: c.order_count || 0, totalSpent: money(c.total_spent),
+    membership: c.membership ? { plan: c.membership.plan, status: c.membership.status, renewedAt: c.membership.renewed_at } : null,
+    profile: c.profile || null, preferences: c.preferences || null, orders: (c.orders || []).map(normalizeOrder), assessments: c.assessments || [], membershipDetail: c.membership_detail || null,
+  }
+}
+
+export async function adminListCustomers(params = {}) {
+  const { data } = await apiClient.get('/admin/customers/', { params: compact({ q: params.q, is_active: params.isActive, plan: params.plan, ordering: params.ordering, page: params.page, page_size: params.pageSize }) })
+  return normalizePage(data, normalizeCustomer)
+}
+
+export async function adminGetCustomer(id) {
+  const { data } = await apiClient.get('/admin/customers/' + id + '/')
+  return normalizeCustomer(data)
+}
+
+export async function adminUpdateCustomerStatus(id, isActive) {
+  const { data } = await apiClient.patch('/admin/customers/' + id + '/status/', { is_active: isActive })
+  return normalizeCustomer(data)
+}
+
+export async function adminListMemberships(params = {}) {
+  const { data } = await apiClient.get('/admin/subscriptions/memberships/', { params: compact({ q: params.q, plan: params.plan, status: params.status, page: params.page, page_size: params.pageSize }) })
+  return normalizePage(data, (m) => ({ userId: m.user_id, userEmail: m.user_email, userName: m.user_name, plan: m.plan, planLabel: m.plan_label, status: m.status, renewedAt: m.renewed_at, createdAt: m.created_at, updatedAt: m.updated_at }))
+}
+
+function normalizeSupplementSub(s) {
+  return { id: s.id, userId: s.user, userEmail: s.user_email, userName: s.user_name, productId: s.product_id, productName: s.product_name, productDisplayName: s.product_display_name, status: s.status, statusLabel: s.status_label, frequency: s.frequency, frequencyLabel: s.frequency_label, quantity: s.quantity, nextDeliveryDate: s.next_delivery_date, startedAt: s.started_at, cancelledAt: s.cancelled_at, notes: s.notes, createdAt: s.created_at, updatedAt: s.updated_at }
+}
+
+export async function adminListSupplementSubscriptions(params = {}) {
+  const { data } = await apiClient.get('/admin/subscriptions/supplements/', { params: compact({ q: params.q, status: params.status, page: params.page, page_size: params.pageSize }) })
+  return normalizePage(data, normalizeSupplementSub)
+}
+
+export async function adminCreateSupplementSubscription(payload) {
+  const { data } = await apiClient.post('/admin/subscriptions/supplements/', { user_id: payload.userId, product_id: payload.productId || null, product_name: payload.productName || '', status: payload.status || 'active', frequency: payload.frequency || 'monthly', quantity: payload.quantity || 1, next_delivery_date: payload.nextDeliveryDate || null, started_at: payload.startedAt || null, notes: payload.notes || '' })
+  return normalizeSupplementSub(data)
+}
+
+export async function adminUpdateSupplementSubscription(id, payload) {
+  const body = compact({ status: payload.status, frequency: payload.frequency, quantity: payload.quantity, next_delivery_date: payload.nextDeliveryDate, started_at: payload.startedAt, notes: payload.notes, product_id: payload.productId, product_name: payload.productName })
+  const { data } = await apiClient.patch('/admin/subscriptions/supplements/' + id + '/', body)
+  return normalizeSupplementSub(data)
+}
+
+export async function adminDeleteSupplementSubscription(id) {
+  await apiClient.delete('/admin/subscriptions/supplements/' + id + '/')
+}
+
+export async function adminGetAnalytics(params = {}) {
+  const { data } = await apiClient.get('/admin/analytics/', { params: compact({ date_from: params.dateFrom, date_to: params.dateTo }) })
+  return data
+}
+
+export async function adminGetStoreSettings() {
+  const { data } = await apiClient.get('/admin/settings/store/')
+  return data
+}
+
+export async function adminUpdateStoreSettings(payload) {
+  const { data } = await apiClient.patch('/admin/settings/store/', payload)
+  return data
+}
+
+export async function adminGetAdminProfile() {
+  const { data } = await apiClient.get('/admin/settings/profile/')
+  return data
+}
+
+export async function adminUpdateAdminProfile(payload) {
+  const { data } = await apiClient.patch('/admin/settings/profile/', payload)
+  return data
+}
+;
+fs.writeFileSync(p,s.trimStart(),'utf8');
+console.log('wrote');

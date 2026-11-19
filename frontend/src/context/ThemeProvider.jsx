@@ -31,7 +31,7 @@ function applyTheme(theme) {
   root.dataset.theme = theme
   root.style.colorScheme = theme
   const meta = document.querySelector('meta[name="theme-color"]')
-  if (meta) meta.setAttribute('content', theme === 'dark' ? '#111916' : '#f6f4ec')
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0b1712' : '#f6f4ec')
 }
 
 export function ThemeProvider({ children }) {
@@ -41,6 +41,18 @@ export function ThemeProvider({ children }) {
   useEffect(() => {
     applyTheme(resolvedTheme)
   }, [resolvedTheme])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const onStorage = (event) => {
+      if (event.key !== STORAGE_KEY) return
+      const value = normalizePreference(event.newValue)
+      setPreferenceState(value)
+      setResolvedTheme(resolveTheme(value))
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return undefined
@@ -70,17 +82,9 @@ export function ThemeProvider({ children }) {
   }, [setThemePreference])
 
   const toggleTheme = useCallback(() => {
-    setPreferenceState((current) => {
-      const resolved = resolveTheme(current)
-      const value = resolved === 'dark' ? 'light' : 'dark'
-      try {
-        localStorage.setItem(STORAGE_KEY, value)
-      } catch {
-        /* ignore */
-      }
-      return value
-    })
-  }, [])
+    const value = resolveTheme(preference) === 'dark' ? 'light' : 'dark'
+    setThemePreference(value)
+  }, [preference, setThemePreference])
 
   const value = useMemo(() => ({
     theme: resolvedTheme,

@@ -1,396 +1,392 @@
-﻿import { useMemo, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+﻿import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 
-const VITAMINS = [
-  { label: 'A', color: '#e7c96b', glow: '#fff0c2', orbit: 2.85, y: 1.7, speed: 0.26, phase: 0.1, tiltX: 0.55, tiltZ: 0.15, size: 0.22 },
-  { label: 'B12', color: '#34e0b0', glow: '#b9fff0', orbit: 3.25, y: 0.8, speed: -0.21, phase: 1.0, tiltX: -0.35, tiltZ: 0.5, size: 0.24 },
-  { label: 'C', color: '#f7f3e8', glow: '#ffffff', orbit: 2.55, y: 0.0, speed: 0.31, phase: 2.1, tiltX: 0.75, tiltZ: -0.25, size: 0.21 },
-  { label: 'D3', color: '#d4b05a', glow: '#ffe6a6', orbit: 3.05, y: -0.7, speed: -0.27, phase: 3.3, tiltX: -0.65, tiltZ: -0.35, size: 0.23 },
-  { label: 'E', color: '#49d89a', glow: '#c9ffe8', orbit: 2.7, y: -1.6, speed: 0.23, phase: 4.2, tiltX: 0.4, tiltZ: -0.55, size: 0.2 },
-  { label: 'Zinc', color: '#8de7ff', glow: '#e6fbff', orbit: 3.35, y: -0.1, speed: -0.18, phase: 5.1, tiltX: -0.2, tiltZ: 0.7, size: 0.22 },
+// Nutrient orbs carried over from the reference "DNA particle storm" scene.
+const NUTRIENTS = [
+  { name: 'Zinc', color: '#cfe8ff', angle: 0, speed: 0.5, y: -0.5, radius: 2.0, size: 1.5, phase: 0 },
+  { name: 'C', color: '#ffc04d', angle: 1.3, speed: 0.7, y: -2.4, radius: 2.5, size: 1.1, phase: 1.6 },
+  { name: 'B12', color: '#ff6fa0', angle: 2.6, speed: 0.4, y: 2.2, radius: 2.3, size: 1.1, phase: 3.2 },
+  { name: 'D3', color: '#ffe566', angle: 3.9, speed: 0.6, y: 0.9, radius: 1.9, size: 1.2, phase: 4.8 },
+  { name: 'E', color: '#7dff8a', angle: 5.2, speed: 0.45, y: 3.4, radius: 2.6, size: 1.0, phase: 6.0 },
 ]
 
-const RINGS = [
-  { radius: 3.5, tube: 0.018, tiltX: 1.12, tiltZ: 0.25, speed: 0.16, color: '#34d6b0', opacity: 0.22 },
-  { radius: 3.9, tube: 0.014, tiltX: 0.55, tiltZ: -0.85, speed: -0.12, color: '#d8c078', opacity: 0.18 },
-  { radius: 4.25, tube: 0.012, tiltX: 1.38, tiltZ: 0.95, speed: 0.09, color: '#7feee0', opacity: 0.14 },
-]
+const PARTICLE_VERTEX = `
+attribute vec4 aData;attribute vec3 aRand;
+uniform float uTime,uRot,uAssemble,uZip,uShock,uSize,uPix,uMouseOn,uScaleY,uBaseRadius;
+uniform vec3 uP,uMouse;uniform vec3 uBurst[5];
+varying vec3 vCol;varying float vA;
+#define PI 3.14159265
+const float H=11.,TURNS=3.;
+vec3 helix(float k,float t,float rr){float a=t*TURNS*2.*PI+uRot+k*PI;return vec3(cos(a)*rr,(t-.5)*H*uScaleY,sin(a)*rr);}
+float gp(float t,float p){float d=t-(1.-p);return exp(-d*d/.0012);}
+void main(){
+ float kind=aData.x,t=aData.y,seed=aData.z,w=aData.w;
+ float taper=.5+.5*pow(max(sin(PI*t),0.),.6);
+ float rr=uBaseRadius*taper*(1.+.08*sin(uTime*1.4+t*6.));
+ float dz=uZip-t;
+ float sep=smoothstep(0.,.18,dz)*(1.-smoothstep(.18,.5,dz))*1.6;
+ float ds=t-uShock;float shk=uShock>=0.?exp(-ds*ds/.004):0.;
+ float g=gp(t,uP.x)+gp(t,uP.y)+gp(t,uP.z)+1.6*shk;
+ float burst=0.;
+ for(int i=0;i<5;i++){float d=(t-uBurst[i].x)*7.;burst+=exp(-d*d)*uBurst[i].y;}
+ vec3 p;vec3 col;float al=.6;
+ if(kind<1.5){
+  p=helix(kind,t,rr+sep+shk*.6);p.xz+=aRand.xy*.14;p.y+=aRand.z*.08;
+  col=mix(vec3(.03,.78,.5),vec3(.05,.9,.82),t*.8+.1*sin(uTime+t*5.));
+  if(kind>.5)col=mix(col,vec3(.12,.98,.9),.38);
+ }else if(kind<2.5){
+  vec3 A=helix(0.,t,rr+sep),B=helix(1.,t,rr+sep);p=mix(A,B,w)+aRand*.05;
+  float q=floor(seed*4.);
+  col=q<1.?vec3(.55,.9,.62):q<2.?vec3(.1,.8,.72):q<3.?vec3(.62,.58,.3):vec3(.3,.62,.66);
+  al=.65*(1.-smoothstep(.1,1.,sep/1.6));
+ }else{
+  float rad=1.5+fract(seed*7.3)*12.;float a=seed*6.2831+uTime*(.1+.25*fract(seed*13.))/(.4+rad*.25);
+  float y=(fract(seed*3.7+uTime*.015*(1.+fract(seed*9.)))-.5)*H*3.4;
+  p=vec3(cos(a)*rad,y,sin(a)*rad);col=vec3(.06,.34,.26)*.5;al=.1;g=0.;burst=0.;
+ }
+ if(kind<2.5){
+  float a=smoothstep(0.,1.,uAssemble*1.6-seed*.5-t*.35);
+  vec3 s0=aRand*vec3(12.,8.,10.);float sa=(1.-a)*5.;
+  s0.xz=mat2(cos(sa),-sin(sa),sin(sa),cos(sa))*s0.xz;
+  p=mix(s0,p,a);al*=.3+.7*a;
+ }
+ p.xz*=1.+burst*.8;p+=aRand*burst*1.2;
+ col+=vec3(.1,.6,.35)*burst*.55;col*=1.+g*1.1;
+ vec4 wp=modelMatrix*vec4(p,1.);
+ vec2 dm=wp.xy-uMouse.xy;float dd=dot(dm,dm);float f=exp(-dd/2.4)*uMouseOn;
+ vec2 nn=dm*inversesqrt(dd+.001);
+ wp.xy+=nn*f*1.5+vec2(-nn.y,nn.x)*f*.9;wp.z+=f*1.5;col+=vec3(.3,.5,.4)*f;
+ vec4 mv=viewMatrix*wp;gl_Position=projectionMatrix*mv;
+ gl_PointSize=uSize*uPix*(1.+g*1.2+burst*2.)*(.6+.8*fract(seed*5.))*(18./-mv.z);
+ vCol=col;vA=al;
+}`
 
-function useGlowTexture() {
-  return useMemo(() => {
-    const size = 128
-    const canvas = document.createElement('canvas')
-    canvas.width = size
-    canvas.height = size
-    const ctx = canvas.getContext('2d')
-    const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2)
-    g.addColorStop(0, 'rgba(255,255,255,1)')
-    g.addColorStop(0.18, 'rgba(255,255,255,0.75)')
-    g.addColorStop(0.45, 'rgba(255,255,255,0.22)')
-    g.addColorStop(1, 'rgba(255,255,255,0)')
-    ctx.fillStyle = g
-    ctx.fillRect(0, 0, size, size)
-    const tex = new THREE.CanvasTexture(canvas)
-    tex.needsUpdate = true
-    tex.minFilter = THREE.LinearFilter
-    return tex
-  }, [])
+const PARTICLE_FRAGMENT = `
+varying vec3 vCol;varying float vA;
+void main(){float d=length(gl_PointCoord-.5);float s=smoothstep(.5,.05,d);gl_FragColor=vec4(vCol*vA*.62,s*.42);}`
+
+function makeGlowTexture(hex) {
+  const size = 64
+  const canvas = document.createElement('canvas')
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext('2d')
+  const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2)
+  gradient.addColorStop(0, '#ffffff')
+  gradient.addColorStop(0.18, hex)
+  gradient.addColorStop(0.45, `${hex}22`)
+  gradient.addColorStop(1, `${hex}00`)
+  ctx.fillStyle = gradient
+  ctx.fillRect(0, 0, size, size)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.minFilter = THREE.LinearFilter
+  return texture
 }
 
-function createHelixCurve({ turns = 2.9, height = 7.8, radius = 1.08, points = 120, phase = 0, waveAmp = 0.11, waveFreq = 2.0, twist = 0 }) {
-  const pts = []
-  for (let i = 0; i < points; i += 1) {
-    const t = i / (points - 1)
-    const y = (t - 0.5) * height
-    const angle = t * Math.PI * 2 * turns + phase + twist * Math.sin(t * Math.PI)
-    const flow = Math.sin(t * Math.PI * waveFreq) * waveAmp
-    const breathe = 1 + Math.sin(t * Math.PI * 2) * 0.03
-    const r = (radius + flow) * breathe
-    pts.push(new THREE.Vector3(Math.cos(angle) * r, y, Math.sin(angle) * r))
-  }
-  return new THREE.CatmullRomCurve3(pts)
-}
-
-function makeHelixGeometry(params) {
-  const curve = createHelixCurve(params)
-  return new THREE.TubeGeometry(curve, params.points || 120, params.tubeRadius || 0.155, 10, false)
-}
-
-function DnaEnergyCore() {
-  const group = useRef(null)
-  const strandA = useRef(null)
-  const strandB = useRef(null)
-  const coreA = useRef(null)
-  const coreB = useRef(null)
-  const baseA = useMemo(() => makeHelixGeometry({ phase: 0 }), [])
-  const baseB = useMemo(() => makeHelixGeometry({ phase: Math.PI }), [])
-
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime()
-    if (group.current) {
-      group.current.rotation.y = t * 0.14
-      group.current.rotation.z = Math.sin(t * 0.28) * 0.04
-      group.current.rotation.x = Math.sin(t * 0.22) * 0.02
-      group.current.position.y = Math.sin(t * 0.45) * 0.08
-      const s = 1 + Math.sin(t * 0.6) * 0.015
-      group.current.scale.set(s, 1 + Math.sin(t * 0.5 + 0.7) * 0.012, s)
-    }
-    const wave = 0.1 + Math.sin(t * 0.7) * 0.04
-    const twist = Math.sin(t * 0.35) * 0.35
-    const flowPhase = Math.sin(t * 0.5) * 0.22
-    const geoA = makeHelixGeometry({ phase: flowPhase, waveAmp: wave, waveFreq: 2.1, twist, tubeRadius: 0.155 })
-    const geoB = makeHelixGeometry({ phase: Math.PI + flowPhase * 0.85, waveAmp: wave, waveFreq: 2.1, twist: -twist * 0.9, tubeRadius: 0.155 })
-    const geoCA = makeHelixGeometry({ phase: flowPhase, waveAmp: wave * 0.85, waveFreq: 2.1, twist, tubeRadius: 0.075 })
-    const geoCB = makeHelixGeometry({ phase: Math.PI + flowPhase * 0.85, waveAmp: wave * 0.85, waveFreq: 2.1, twist: -twist * 0.9, tubeRadius: 0.075 })
-
-    const swap = (mesh, next, fallback) => {
-      if (!mesh) { next.dispose(); return }
-      const prev = mesh.geometry
-      mesh.geometry = next
-      if (prev && prev !== fallback) prev.dispose()
-    }
-    swap(strandA.current, geoA, baseA)
-    swap(strandB.current, geoB, baseB)
-    swap(coreA.current, geoCA, null)
-    swap(coreB.current, geoCB, null)
-
-    if (strandA.current?.material) strandA.current.material.emissiveIntensity = 0.95 + Math.sin(t * 1.2) * 0.18
-    if (strandB.current?.material) strandB.current.material.emissiveIntensity = 0.85 + Math.sin(t * 1.1 + 0.8) * 0.16
-  })
-
-  return (
-    <group ref={group} position={[0.25, 0.05, 0]} scale={1.12}>
-      <mesh ref={strandA} geometry={baseA}>
-        <meshStandardMaterial color="#23b07a" emissive="#0fe6a0" emissiveIntensity={0.95} roughness={0.18} metalness={0.35} />
-      </mesh>
-      <mesh ref={strandB} geometry={baseB.clone()}>
-        <meshStandardMaterial color="#16c9c1" emissive="#39fff1" emissiveIntensity={0.85} roughness={0.16} metalness={0.38} />
-      </mesh>
-      <mesh ref={coreA}>
-        <tubeGeometry args={[createHelixCurve({ phase: 0 }), 120, 0.075, 8, false]} />
-        <meshBasicMaterial color="#dfffee" transparent opacity={0.35} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </mesh>
-      <mesh ref={coreB}>
-        <tubeGeometry args={[createHelixCurve({ phase: Math.PI }), 120, 0.075, 8, false]} />
-        <meshBasicMaterial color="#f8eec2" transparent opacity={0.28} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </mesh>
-      <BasePairs />
-      <HelixEnergyParticles />
-      <CoreAura />
-    </group>
-  )
-}
-
-function BasePairs() {
-  const group = useRef(null)
-  const glowTex = useGlowTexture()
-  const pairs = useMemo(() => {
-    const items = []
-    const turns = 2.9
-    const height = 7.8
-    const radius = 1.08
-    const count = 28
-    for (let i = 0; i < count; i += 1) {
-      const t = (i + 0.5) / count
-      const y = (t - 0.5) * height
-      const angle = t * Math.PI * 2 * turns
-      const a = new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius)
-      const b = new THREE.Vector3(Math.cos(angle + Math.PI) * radius, y, Math.sin(angle + Math.PI) * radius)
-      const mid = a.clone().add(b).multiplyScalar(0.5)
-      const dir = b.clone().sub(a)
-      const len = dir.length()
-      const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize())
-      items.push({ pos: [mid.x, mid.y, mid.z], quat, len, color: i % 3 === 0 ? '#e9d08a' : i % 3 === 1 ? '#8fffe0' : '#ecfff7' })
-    }
-    return items
-  }, [])
-
-  useFrame(({ clock }) => {
-    if (!group.current) return
-    const t = clock.getElapsedTime()
-    group.current.children.forEach((child, i) => {
-      const rung = child.children?.[0]
-      const glow = child.children?.[1]
-      const pulse = 0.92 + Math.sin(t * 1.6 + i * 0.45) * 0.1
-      if (rung) {
-        rung.scale.set(1, pulse, 1)
-        if (rung.material) rung.material.opacity = 0.38 + Math.sin(t * 1.3 + i * 0.4) * 0.12
-      }
-      if (glow?.material) glow.material.opacity = 0.12 + Math.sin(t * 1.4 + i * 0.5) * 0.06
-    })
-  })
-
-  return (
-    <group ref={group}>
-      {pairs.map((p, i) => (
-        <group key={i} position={p.pos} quaternion={p.quat}>
-          <mesh>
-            <cylinderGeometry args={[0.028, 0.028, p.len, 8]} />
-            <meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={0.25} transparent opacity={0.4} roughness={0.25} metalness={0.2} />
-          </mesh>
-          <sprite scale={[p.len * 0.55, 0.42, 1]}>
-            <spriteMaterial map={glowTex} color={p.color} transparent opacity={0.14} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-          </sprite>
-        </group>
-      ))}
-    </group>
-  )
-}
-
-function HelixEnergyParticles() {
-  const count = 72
-  const refA = useRef(null)
-  const refB = useRef(null)
-  const seeds = useMemo(() => Array.from({ length: count }, (_, i) => (i * 0.618033988749895) % 1), [])
-  const dummy = useMemo(() => new THREE.Object3D(), [])
-  const glowTex = useGlowTexture()
-
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime()
-    const turns = 2.9
-    const height = 7.8
-    const baseRadius = 1.08
-    const wave = 0.1 + Math.sin(t * 0.7) * 0.04
-    const twist = Math.sin(t * 0.35) * 0.35
-    const flowPhase = Math.sin(t * 0.5) * 0.22
-    const update = (mesh, phaseOffset) => {
-      if (!mesh) return
-      for (let i = 0; i < count; i += 1) {
-        const prog = (seeds[i] + t * 0.045) % 1
-        const y = (prog - 0.5) * height
-        const angle = prog * Math.PI * 2 * turns + phaseOffset + flowPhase + twist * Math.sin(prog * Math.PI)
-        const flow = Math.sin(prog * Math.PI * 2.1) * wave
-        const r = (baseRadius + flow) * (1 + Math.sin(prog * Math.PI * 2) * 0.03)
-        dummy.position.set(Math.cos(angle) * r, y, Math.sin(angle) * r)
-        const s = 0.032 + Math.sin(t * 3 + i * 0.7) * 0.012
-        dummy.scale.setScalar(s)
-        dummy.updateMatrix()
-        mesh.setMatrixAt(i, dummy.matrix)
-      }
-      mesh.instanceMatrix.needsUpdate = true
-    }
-    update(refA.current, 0)
-    update(refB.current, Math.PI)
-  })
-
-  return (
-    <group>
-      <instancedMesh ref={refA} args={[undefined, undefined, count]}>
-        <sphereGeometry args={[1, 10, 10]} />
-        <meshBasicMaterial color="#baffea" transparent opacity={0.9} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </instancedMesh>
-      <instancedMesh ref={refB} args={[undefined, undefined, count]}>
-        <sphereGeometry args={[1, 10, 10]} />
-        <meshBasicMaterial color="#ffeab0" transparent opacity={0.85} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </instancedMesh>
-      <sprite position={[0, 0, -0.2]} scale={[5.5, 8.5, 1]}>
-        <spriteMaterial map={glowTex} color="#1fd9a1" transparent opacity={0.08} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </sprite>
-    </group>
-  )
-}
-
-function CoreAura() {
-  const glowTex = useGlowTexture()
-  const ref = useRef(null)
-  useFrame(({ clock }) => {
-    if (!ref.current) return
-    const t = clock.getElapsedTime()
-    ref.current.material.opacity = 0.1 + Math.sin(t * 0.9) * 0.03
-    ref.current.scale.setScalar(1 + Math.sin(t * 0.7) * 0.04)
-  })
-  return (
-    <sprite ref={ref} position={[0.1, 0, -0.6]} scale={[7.5, 9.5, 1]}>
-      <spriteMaterial map={glowTex} color="#2ce8b2" transparent opacity={0.1} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-    </sprite>
-  )
-}
-
-function VitaminNode({ label, color, glow, orbit, y, speed, phase, tiltX, tiltZ, size }) {
-  const orbitRef = useRef(null)
-  const bobRef = useRef(null)
-  const glowTex = useGlowTexture()
-
-  useFrame(({ clock }) => {
-    const t = clock.getElapsedTime()
-    if (orbitRef.current) orbitRef.current.rotation.y = t * speed + phase
-    if (bobRef.current) {
-      bobRef.current.position.y = y + Math.sin(t * 0.9 + phase) * 0.18
-      bobRef.current.rotation.y = t * 0.6
-    }
-  })
-
-  return (
-    <group rotation={[tiltX, 0, tiltZ]}>
-      <group ref={orbitRef}>
-        <group ref={bobRef} position={[orbit, y, 0]}>
-          <mesh>
-            <sphereGeometry args={[size, 28, 28]} />
-            <meshStandardMaterial color={color} emissive={glow} emissiveIntensity={1.15} roughness={0.12} metalness={0.45} />
-          </mesh>
-          <sprite scale={[size * 4.6, size * 4.6, 1]}>
-            <spriteMaterial map={glowTex} color={glow} transparent opacity={0.28} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-          </sprite>
-          <LabelSprite text={label} color={color} />
-          <pointLight color={glow} intensity={0.35} distance={2.2} decay={2} />
-        </group>
-      </group>
-    </group>
-  )
-}
-
-function LabelSprite({ text, color = '#ffffff' }) {
-  const texture = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = 256
-    canvas.height = 128
-    const ctx = canvas.getContext('2d')
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.shadowColor = color
-    ctx.shadowBlur = 18
-    ctx.fillStyle = 'rgba(250, 252, 248, 0.98)'
-    ctx.font = '700 58px Inter, Arial, sans-serif'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(text, 128, 64)
-    const tex = new THREE.CanvasTexture(canvas)
-    tex.needsUpdate = true
-    tex.minFilter = THREE.LinearFilter
-    return tex
-  }, [text, color])
-
-  return (
-    <sprite position={[0, sizeOffset(text), 0]} scale={[0.72, 0.36, 1]}>
-      <spriteMaterial map={texture} transparent opacity={0.98} depthWrite={false} toneMapped={false} />
-    </sprite>
-  )
-}
-
-function sizeOffset(text) {
-  return text.length > 2 ? 0.44 : 0.42
-}
-
-function HolographicRings() {
-  return (
-    <group>
-      {RINGS.map((ring, i) => <Ring key={i} {...ring} index={i} />)}
-    </group>
-  )
-}
-
-function Ring({ radius, tube, tiltX, tiltZ, speed, color, opacity, index }) {
-  const ref = useRef(null)
-  useFrame(({ clock }) => {
-    if (!ref.current) return
-    const t = clock.getElapsedTime()
-    ref.current.rotation.z = t * speed
-    ref.current.rotation.y = Math.sin(t * 0.3 + index) * 0.08
-    if (ref.current.material) ref.current.material.opacity = opacity + Math.sin(t * 0.8 + index) * 0.05
-  })
-  return (
-    <mesh ref={ref} rotation={[tiltX, 0, tiltZ]}>
-      <torusGeometry args={[radius, tube, 16, 140]} />
-      <meshBasicMaterial color={color} transparent opacity={opacity} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-    </mesh>
-  )
-}
-
-function CinematicLights() {
-  return (
-    <>
-      <ambientLight intensity={0.5} color="#eafff6" />
-      <directionalLight position={[5, 7, 6]} intensity={1.05} color="#fff7df" />
-      <directionalLight position={[-4, -2, 4]} intensity={0.35} color="#a7ffe1" />
-      <pointLight position={[0, 3.5, 3]} intensity={1.1} distance={12} decay={2} color="#38e6b5" />
-      <pointLight position={[0, -3.5, 3]} intensity={0.8} distance={12} decay={2} color="#20d0c8" />
-      <pointLight position={[3, 0, 2]} intensity={0.55} distance={10} decay={2} color="#e4c978" />
-      <pointLight position={[-3, 0.5, 2]} intensity={0.45} distance={10} decay={2} color="#f4fbf7" />
-    </>
-  )
-}
-
-function BackgroundDepth() {
-  const glowTex = useGlowTexture()
-  return (
-    <group>
-      <sprite position={[0.3, 0.2, -2.5]} scale={[10, 11, 1]}>
-        <spriteMaterial map={glowTex} color="#1fa97a" transparent opacity={0.12} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </sprite>
-      <sprite position={[-1.2, -0.8, -3.2]} scale={[7, 7, 1]}>
-        <spriteMaterial map={glowTex} color="#0fd2b8" transparent opacity={0.08} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </sprite>
-      <sprite position={[1.8, 1.4, -3.5]} scale={[6, 6, 1]}>
-        <spriteMaterial map={glowTex} color="#d8c078" transparent opacity={0.07} blending={THREE.AdditiveBlending} depthWrite={false} toneMapped={false} />
-      </sprite>
-    </group>
-  )
-}
-
-function Scene() {
-  return (
-    <group scale={1.08}>
-      <CinematicLights />
-      <BackgroundDepth />
-      <DnaEnergyCore />
-      <HolographicRings />
-      <group>
-        {VITAMINS.map((v) => <VitaminNode key={v.label} {...v} />)}
-      </group>
-    </group>
-  )
+function easeOutCubic(x) {
+  const clamped = Math.min(1, Math.max(0, x))
+  return 1 - Math.pow(1 - clamped, 3)
 }
 
 export default function OverviewDnaVisualization({ className = '' }) {
-  return (
-    <div className={className} aria-hidden="true">
-      <Canvas
-        dpr={[1, 1.5]}
-        camera={{ position: [0.15, 0.05, 8.7], fov: 41 }}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      >
-        <Scene />
-      </Canvas>
-    </div>
-  )
+  const hostRef = useRef(null)
+
+  useEffect(() => {
+    const host = hostRef.current
+    if (!host) return undefined
+
+    let renderer
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' })
+    } catch {
+      return undefined
+    }
+
+    renderer.setClearColor(0x061a14, 1)
+    renderer.domElement.style.display = 'block'
+    renderer.domElement.style.width = '100%'
+    renderer.domElement.style.height = '100%'
+    renderer.domElement.style.pointerEvents = 'none'
+    host.appendChild(renderer.domElement)
+
+    const scene = new THREE.Scene()
+    const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100)
+    camera.position.set(0, 0, 17)
+    const root = new THREE.Group()
+    scene.add(root)
+
+    let composer = null
+    let bloom = null
+    try {
+      composer = new EffectComposer(renderer)
+      composer.addPass(new RenderPass(scene, camera))
+      bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.22, 0.35, 0.82)
+      composer.addPass(bloom)
+    } catch {
+      composer = null
+      bloom = null
+    }
+
+    // GPU particle field: two strands, connecting rungs and a drifting halo.
+    const STRANDS = 6500
+    const RUNGS_COUNT = 2600
+    const HALO = 9000
+    const RUNGS = 56
+    const TOTAL = STRANDS * 2 + RUNGS_COUNT + HALO
+    const aData = new Float32Array(TOTAL * 4)
+    const aRand = new Float32Array(TOTAL * 3)
+    const positions = new Float32Array(TOTAL * 3)
+    const random = () => Math.random()
+    const signed = () => random() * 2 - 1
+    let cursor = 0
+    const push = (kind, t, seed, weight, spread) => {
+      aData.set([kind, t, seed, weight], cursor * 4)
+      aRand.set([signed() * spread, signed() * spread, signed() * spread], cursor * 3)
+      cursor += 1
+    }
+    for (let strand = 0; strand < 2; strand += 1) {
+      for (let i = 0; i < STRANDS; i += 1) push(strand, random(), random(), 0, 1)
+    }
+    for (let i = 0; i < RUNGS_COUNT; i += 1) {
+      push(2, (Math.floor(random() * RUNGS) + 0.5) / RUNGS, random(), random(), 0.5)
+    }
+    for (let i = 0; i < HALO; i += 1) push(3, random(), random(), 0, 1)
+
+    const geometry = new THREE.BufferGeometry()
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    geometry.setAttribute('aData', new THREE.BufferAttribute(aData, 4))
+    geometry.setAttribute('aRand', new THREE.BufferAttribute(aRand, 3))
+
+    const bursts = [0, 1, 2, 3, 4].map(() => ({ y: 0 }))
+    const uniforms = {
+      uTime: { value: 0 },
+      uRot: { value: 0 },
+      uAssemble: { value: 0 },
+      uZip: { value: -1 },
+      uShock: { value: -1 },
+      uSize: { value: 4.6 },
+      uPix: { value: renderer.getPixelRatio() },
+      uP: { value: new THREE.Vector3() },
+      uBurst: { value: [0, 1, 2, 3, 4].map(() => new THREE.Vector3()) },
+      uMouse: { value: new THREE.Vector3() },
+      uMouseOn: { value: 0 },
+      uScaleY: { value: 1.3 },
+      uBaseRadius: { value: 1.35 },
+    }
+
+    const material = new THREE.ShaderMaterial({
+      uniforms,
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      vertexShader: PARTICLE_VERTEX,
+      fragmentShader: PARTICLE_FRAGMENT,
+    })
+
+    const points = new THREE.Points(geometry, material)
+    points.frustumCulled = false
+    root.add(points)
+
+    // Floating nutrient orbs with additive trails.
+    const dotTexture = makeGlowTexture('#ffffff')
+    const TRAIL = 36
+    const orbs = []
+    NUTRIENTS.forEach((nutrient, index) => {
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: makeGlowTexture(nutrient.color),
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        transparent: true,
+      }))
+      scene.add(sprite)
+
+      const trailPositions = new Float32Array(TRAIL * 3)
+      const trailColors = new Float32Array(TRAIL * 3)
+      const color = new THREE.Color(nutrient.color)
+      for (let j = 0; j < TRAIL; j += 1) {
+        const fade = Math.pow(1 - j / TRAIL, 2)
+        trailColors.set([color.r * fade, color.g * fade, color.b * fade], j * 3)
+      }
+      const trailGeometry = new THREE.BufferGeometry()
+      trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3))
+      trailGeometry.setAttribute('color', new THREE.BufferAttribute(trailColors, 3))
+      const trail = new THREE.Points(trailGeometry, new THREE.PointsMaterial({
+        size: 0.2,
+        map: dotTexture,
+        vertexColors: true,
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }))
+      trail.frustumCulled = false
+      scene.add(trail)
+
+      orbs.push({ sprite, trail, nutrient, trailPositions, trailGeometry, dock: 0, previous: 0, index })
+    })
+
+    let baseZ = 17
+    let targetBaseZ = 17
+    const resize = () => {
+      const width = Math.max(1, host.clientWidth)
+      const height = Math.max(1, host.clientHeight)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+      renderer.setSize(width, height, false)
+      uniforms.uPix.value = renderer.getPixelRatio()
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+      targetBaseZ = width / height < 1 ? 27 : 17
+      if (composer) {
+        composer.setPixelRatio(renderer.getPixelRatio())
+        composer.setSize(width, height)
+      }
+    }
+    const resizeObserver = new ResizeObserver(resize)
+    resizeObserver.observe(host)
+    resize()
+
+    const pulses = [0, 0.45, 0.8]
+    let time = 0
+    let rotation = 0
+    let intro = 0
+    let zip = -1
+    let nextZip = 9
+    let last = performance.now()
+    let frameId = 0
+    let visible = true
+
+    const BASE_ROTATION = -Math.PI / 4
+    const HALF_FOV = (38 * Math.PI) / 360
+
+    const frame = (now) => {
+      const delta = Math.min((now - last) / 1000, 0.05)
+      last = now
+      time += delta
+      intro += delta
+      const assembled = Math.min(1, intro / 4.2)
+      uniforms.uAssemble.value = assembled
+      rotation += delta * (0.5 + (1 - easeOutCubic(assembled)) * 3)
+      uniforms.uRot.value = rotation
+      uniforms.uTime.value = time
+
+      for (let i = 0; i < 3; i += 1) {
+        pulses[i] += delta * 0.16
+        if (pulses[i] > 1.15) pulses[i] = -0.15
+      }
+      uniforms.uP.value.set(pulses[0], pulses[1], pulses[2])
+
+      if (assembled >= 1) {
+        nextZip -= delta
+        if (nextZip <= 0 && zip < 0) {
+          zip = -0.2
+          nextZip = 14
+        }
+      }
+      if (zip >= -0.2) {
+        zip += delta * 0.28
+        if (zip > 1.3) zip = -1
+      }
+      uniforms.uZip.value = zip
+
+      const eased = easeOutCubic(assembled)
+      baseZ += (targetBaseZ - baseZ) * Math.min(1, delta * 2.5)
+      camera.position.set(Math.sin(time * 0.2) * 0.6, 0, baseZ - (1 - eased) * 8)
+      camera.lookAt(0, 0, 0)
+      // Diagonal composition: helix spans bottom-left -> top-right at 45 degrees.
+      // Solve the uniform scale so the rotated helix covers ~88% of the hero width.
+      const viewHeight = 2 * baseZ * Math.tan(HALF_FOV)
+      const viewWidth = viewHeight * camera.aspect
+      const span = 0.88 * viewWidth
+      const chord = Math.SQRT2 * 11 // vertical helix length projected on the diagonal
+      const scaleY = chord > 0 ? span / chord : 1.3
+      const radius = Math.min(1.55, Math.max(1.0, scaleY * 1.05))
+      uniforms.uScaleY.value = scaleY
+      uniforms.uBaseRadius.value = radius
+      root.rotation.set(0, 0, BASE_ROTATION)
+      root.position.set(0, 0, 0)
+      root.scale.set(1, 1, 1)
+      root.updateMatrixWorld()
+
+      for (const orb of orbs) {
+        const nutrient = orb.nutrient
+        const angle = nutrient.angle + time * nutrient.speed
+        orb.dock = Math.pow(Math.max(0, Math.sin(time * 0.45 + nutrient.phase)), 10)
+        if (orb.dock > 0.7 && orb.previous <= 0.7 && assembled >= 1) bursts[orb.index].y = 1.2
+        orb.previous = orb.dock
+        const radius = uniforms.uBaseRadius.value * (nutrient.radius - (nutrient.radius - 0.95) * orb.dock)
+        orb.sprite.position.set(
+          Math.cos(angle) * radius,
+          nutrient.y * (uniforms.uScaleY.value / 1.3) + Math.sin(time * 0.8 + nutrient.phase) * 0.25,
+          Math.sin(angle) * radius,
+        )
+        orb.sprite.position.applyMatrix4(root.matrixWorld)
+        orb.sprite.scale.setScalar(nutrient.size * (1 + orb.dock * 0.9) * (0.4 + 0.6 * eased))
+
+        const positionsAttr = orb.trailPositions
+        positionsAttr.copyWithin(3, 0, TRAIL * 3 - 3)
+        positionsAttr[0] = orb.sprite.position.x
+        positionsAttr[1] = orb.sprite.position.y
+        positionsAttr[2] = orb.sprite.position.z
+        orb.trailGeometry.attributes.position.needsUpdate = true
+
+        const burst = bursts[orb.index]
+        uniforms.uBurst.value[orb.index].set(
+          Math.min(1, Math.max(0, (nutrient.y + 5.5) / 11)),
+          burst.y,
+          0,
+        )
+        burst.y *= Math.exp(-delta * 1.8)
+      }
+
+      if (composer && bloom) {
+        bloom.strength = 0.24
+        composer.render()
+      } else {
+        renderer.render(scene, camera)
+      }
+      frameId = requestAnimationFrame(frame)
+    }
+
+    const visibilityObserver = new IntersectionObserver((entries) => {
+      const nowVisible = entries[0]?.isIntersecting ?? true
+      if (nowVisible === visible) return
+      visible = nowVisible
+      if (visible) {
+        last = performance.now()
+        cancelAnimationFrame(frameId)
+        frameId = requestAnimationFrame(frame)
+      } else {
+        cancelAnimationFrame(frameId)
+      }
+    }, { threshold: 0.01 })
+    visibilityObserver.observe(host)
+
+    frameId = requestAnimationFrame(frame)
+
+    return () => {
+      cancelAnimationFrame(frameId)
+      resizeObserver.disconnect()
+      visibilityObserver.disconnect()
+      if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement)
+      geometry.dispose()
+      material.dispose()
+      dotTexture.dispose()
+      orbs.forEach((orb) => {
+        orb.sprite.material.map?.dispose()
+        orb.sprite.material.dispose()
+        orb.trailGeometry.dispose()
+        orb.trail.material.dispose()
+      })
+      if (composer) {
+        composer.passes.forEach((pass) => pass.dispose?.())
+        composer.dispose?.()
+      }
+      renderer.dispose()
+    }
+  }, [])
+
+  return <div ref={hostRef} className={className} aria-hidden="true" />
 }

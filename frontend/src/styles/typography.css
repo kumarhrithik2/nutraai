@@ -1,0 +1,211 @@
+/* NutraAI — professional typography layer (Source Sans 3)
+   Establishes a consistent scale and raises text that was too small.
+   Loaded after site/screens/admin styles; no new dependencies. */
+
+:root {
+  font-family: var(--font-sans);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  letter-spacing: 0;
+}
+
+/* Natural heading tracking */
+h1, h2, h3, h4 {
+  letter-spacing: -0.2px;
+}
+
+/* ============================================================
+   CUSTOMER DASHBOARD
+   ============================================================ */
+.dashboard-shell {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+
+/* Sidebar navigation */
+.dashboard-nav__link {
+  font-size: var(--fs-nav);
+  line-height: 1.4;
+}
+
+.sidebar-bottom > a:not(.sidebar-profile),
+.sidebar-bottom > button:not(.sidebar-profile) {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.sidebar-profile strong { font-size: 13px; }
+.sidebar-profile small { font-size: 11px; }
+
+.sidebar-caption {
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.dashboard-brand { font-size: 16px; }
+
+/* Bottom navigation (mobile/tablet) */
+.dashboard-bottom-nav__link {
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+/* Top bar */
+.dashboard-breadcrumb { font-size: 13px; }
+.topbar-user__name { font-size: 13px; }
+
+/* Page heading block */
+.dashboard-page-title .eyebrow { font-size: 12px; }
+.dashboard-page-title h1 {
+  font-size: var(--fs-page);
+  line-height: var(--lh-heading);
+  letter-spacing: -0.2px;
+}
+.dashboard-page-title p {
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+.dashboard-page-title > .button { font-size: 14px; }
+
+/* Section headings */
+.overview-section__heading h2 {
+  font-size: var(--fs-section);
+  line-height: 1.3;
+  letter-spacing: -0.2px;
+}
+
+.panel-heading h2 {
+  font-size: var(--fs-section);
+  line-height: 1.3;
+}
+.panel-heading .eyebrow { font-size: 12px; }
+
+/* Cards */
+.dashboard-panel h2,
+.dashboard-panel h3 {
+  font-size: var(--fs-card);
+  line-height: 1.35;
+}
+.dashboard-panel p,
+.dashboard-panel li {
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+
+/* Dashboard statistics */
+.overview-stat small { font-size: 12px; }
+.overview-stat strong { font-size: var(--fs-card); line-height: 1.3; }
+.overview-stat > span:last-child { font-size: 12px; }
+
+/* Descriptions, disclaimers, footer */
+.dashboard-disclaimer { font-size: 13px; line-height: 1.5; }
+.dashboard-footer { font-size: 12px; line-height: 1.5; }
+
+/* Forms and controls */
+.dashboard-shell input,
+.dashboard-shell select,
+.dashboard-shell textarea {
+  font-size: var(--fs-body);
+  line-height: 1.45;
+}
+
+.dashboard-shell input::placeholder,
+.dashboard-shell textarea::placeholder {
+  opacity: 1;
+}
+
+.dashboard-shell .button {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+/* Tables */
+.dashboard-shell table { font-size: var(--fs-table); line-height: 1.45; }
+.dashboard-shell table th { font-size: 12px; }
+
+/* ============================================================
+   ADMIN PORTAL
+   ============================================================ */
+.admin-shell {
+  font-size: var(--fs-body);
+  line-height: 1.5;
+}
+
+.admin-shell h1 {
+  font-size: var(--fs-page);
+  line-height: var(--lh-heading);
+  letter-spacing: -0.2px;
+}
+
+.admin-shell h2 {
+  font-size: var(--fs-section);
+  line-height: 1.3;
+}
+
+.admin-shell h3 {
+  font-size: var(--fs-card);
+  line-height: 1.35;
+}
+
+.admin-shell p,
+.admin-shell li {
+  line-height: 1.55;
+}
+
+/* Admin sidebar navigation */
+.admin-shell > aside a {
+  font-size: var(--fs-nav);
+  line-height: 1.4;
+}
+
+.admin-shell > aside .sidebar-section-title,
+.admin-shell > aside div.text-\[10px\] {
+  font-size: 11px;
+}
+
+/* Admin forms and tables */
+.admin-shell input,
+.admin-shell select,
+.admin-shell textarea {
+  font-size: var(--fs-body);
+  line-height: 1.45;
+}
+
+.admin-shell button {
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.admin-shell table { font-size: var(--fs-table); line-height: 1.45; }
+.admin-shell table th { font-size: 12px; }
+
+/* Raise the smallest admin utility text for legibility */
+.admin-shell [class*="text-[10px]"],
+.admin-shell [class*="text-[11px]"] {
+  font-size: 12px;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+  .dashboard-page-title h1,
+  .admin-shell h1 { font-size: 28px; }
+}
+
+@media (max-width: 767px) {
+  .dashboard-page-title h1,
+  .admin-shell h1 { font-size: 26px; }
+  .overview-section__heading h2,
+  .panel-heading h2,
+  .admin-shell h2 { font-size: 20px; }
+  .dashboard-panel h2,
+  .dashboard-panel h3,
+  .admin-shell h3 { font-size: 16px; }
+  .dashboard-nav__link { font-size: 15px; }
+  .dashboard-bottom-nav__link { font-size: 12px; }
+}

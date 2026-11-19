@@ -24,7 +24,7 @@ import {
 } from 'lucide-react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext.jsx'
-import AmbientParticles from '../effects/AmbientParticles.jsx'
+import BioNeuralBackground from '../effects/BioNeuralBackground.jsx'
 import ProfileAvatar from './ProfileAvatar.jsx'
 import ThemeToggle from '../common/ThemeToggle.jsx'
 
@@ -190,7 +190,7 @@ function DashboardLayout() {
   return (
     <div className={`dashboard-shell${sidebarCollapsed ? ' dashboard-shell--collapsed' : ''}`}>
       <a className="dashboard-skip-link" href="#dashboard-main-content">Skip to main content</a>
-      <AmbientParticles />
+      <BioNeuralBackground />
       {sidebarOpen && <button className="sidebar-backdrop" type="button" aria-label="Close dashboard menu" onClick={closeMenus} />}
       <aside ref={sidebarRef} className={`dashboard-sidebar${sidebarOpen ? ' dashboard-sidebar--open' : ''}`} aria-label="Application sidebar" role={sidebarOpen ? 'dialog' : undefined} aria-modal={sidebarOpen ? 'true' : undefined}>
         <div className="dashboard-brand-row">
