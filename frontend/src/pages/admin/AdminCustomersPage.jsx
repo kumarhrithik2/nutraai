@@ -4,8 +4,12 @@ import { adminGetCustomer, adminListCustomers, adminUpdateCustomerStatus, getErr
 import ConfirmDialog from './ConfirmDialog.jsx'
 import { formatDate, formatMoney } from './adminFormatters.js'
 import { AdminPageHeader, Badge, EmptyState, ErrorState, LoadingState, Pagination, StatusBadge } from './AdminUi.jsx'
+import { useTheme } from '../../context/ThemeContext.jsx'
 
 export default function AdminCustomersPage() {
+  const { theme } = useTheme()
+  const dark = theme === 'dark'
+
   const [items, setItems] = useState([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -61,31 +65,31 @@ export default function AdminCustomersPage() {
 
   return (
     <div className="space-y-6">
-      {toast && <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-xl border bg-[#173d32] text-white border-[#275c4d] text-xs font-semibold" role="status">{toast}</div>}
+      {toast && <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-xl border text-xs font-semibold" role="status">{toast}</div>}
       <AdminPageHeader eyebrow="Customers" title="Customer Accounts" description="View customer profiles, assessment and order history, membership details, and manage account status."
-        actions={<button type="button" onClick={() => setReload((v) => v + 1)} className="p-2.5 rounded-xl border border-[#d6ded5] text-[#718078] hover:text-[#173d32] hover:bg-[#f6f4ec] cursor-pointer"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /></button>} />
+        actions={<button type="button" onClick={() => setReload((v) => v + 1)} className={`p-2.5 rounded-xl border transition-all duration-300 ${dark ? 'bg-[#1a1a1a] border-[#383027] text-[#B9AA98] hover:bg-[#222] hover:border-[#C6A36B]' : 'border-[#d6ded5] text-[#718078] hover:text-[#173d32] hover:bg-[#f6f4ec]'}`} aria-label="Refresh"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /></button>} />
       {error && <ErrorState message={error} onRetry={() => setReload((v) => v + 1)} />}
 
-      <div className="bg-white rounded-2xl border border-[#e5eae3] p-4 shadow-xs">
+      <div className={`bg-white rounded-2xl border p-4 shadow-xs transition-colors duration-300 ${dark ? `bg-[#141414] border-[#383027]` : 'bg-white border-[#e5eae3]'}`}>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="relative sm:col-span-2"><Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#718078]" /><input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { setPage(1); setSearch(q.trim()) } }} placeholder="Search name, email, phone…" className="w-full pl-8 pr-3 py-2 rounded-xl border border-[#d6ded5] text-xs" /></div>
-          <select value={activeFilter} onChange={(e) => { setPage(1); setActiveFilter(e.target.value) }} className="px-3 py-2 rounded-xl border border-[#d6ded5] text-xs bg-white"><option value="">All accounts</option><option value="true">Active</option><option value="false">Inactive</option></select>
+          <div className="relative sm:col-span-2"><Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#718078]" /><input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { setPage(1); setSearch(q.trim()) } }} placeholder="Search name, email, phone…" className={`w-full pl-8 pr-3 py-2 rounded-xl border text-xs transition-colors duration-300 ${dark ? 'border-[#383027] text-[#F5EBDD] bg-[#1a1a1a]' : 'border-[#d6ded5] text-[#20342d] bg-white'}`} /></div>
+          <select value={activeFilter} onChange={(e) => { setPage(1); setActiveFilter(e.target.value) }} className={`px-3 py-2 rounded-xl border text-xs transition-colors duration-300 ${dark ? 'border-[#383027] text-[#F5EBDD] bg-[#1a1a1a]' : 'border-[#d6ded5] text-[#20342d] bg-white'}`}><option value="">All accounts</option><option value="true">Active</option><option value="false">Inactive</option></select>
         </div>
-        <div className="mt-3"><button type="button" onClick={() => { setPage(1); setSearch(q.trim()) }} className="px-3 py-2 rounded-xl bg-[#173d32] text-white text-xs font-semibold cursor-pointer">Search</button></div>
+        <div className="mt-3"><button type="button" onClick={() => { setPage(1); setSearch(q.trim()) }} className={`px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all duration-300 ${dark ? 'bg-[#C6A36B] text-[#080808] hover:bg-[#F0DDB7]' : 'bg-[#173d32] text-white hover:bg-[#11241e]'}`}>Search</button></div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-[#e5eae3] shadow-xs overflow-hidden">
+      <div className={`bg-white rounded-2xl border shadow-xs overflow-hidden transition-colors duration-300 ${dark ? `bg-[#141414] border-[#383027]` : 'bg-white border-[#e5eae3]'}`}>
         {loading ? <LoadingState label="Loading customers…" /> : items.length === 0 ? <EmptyState title="No customers found" description="Registered customer accounts will appear here." /> : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="text-left text-[#718078] border-b border-[#e5eae3] bg-[#fbfaf6] uppercase text-[10px] tracking-wider"><th className="py-3 px-4">Customer</th><th className="py-3 px-3">Membership</th><th className="py-3 px-3">Orders</th><th className="py-3 px-3">Total spent</th><th className="py-3 px-3">Status</th><th className="py-3 px-3">Joined</th><th className="py-3 px-4 text-right">Actions</th></tr></thead>
-              <tbody className="divide-y divide-[#f0f3ef]">
+              <thead><tr className={`text-left text-[#718078] border-b border-[#e5eae3] bg-[#fbfaf6] uppercase text-[10px] tracking-wider transition-colors duration-300 ${dark ? 'bg-[#1a1a1a] border-[#383027] text-[#B9AA98]' : ''}`}><th className="py-3 px-4">Customer</th><th className="py-3 px-3">Membership</th><th className="py-3 px-3">Orders</th><th className="py-3 px-3">Total spent</th><th className="py-3 px-3">Status</th><th className="py-3 px-3">Joined</th><th className="py-3 px-4 text-right">Actions</th></tr></thead>
+              <tbody className="divide-y divide-[#f0f3ef] transition-colors duration-300">
                 {items.map((c) => (
-                  <tr key={c.id} className="hover:bg-[#fcfbf7]">
-                    <td className="py-3 px-4"><div className="font-semibold text-[#173d32]">{c.name || c.email}</div><div className="text-[#718078]">{c.email}{c.phone ? ' - ' + c.phone : ''}</div></td>
+                  <tr key={c.id} className={`hover:bg-[#fcfbf7] transition-colors ${dark ? 'hover:bg-[#222]/40' : ''}`}>
+                    <td className="py-3 px-4"><div className={`font-semibold transition-colors duration-300 ${dark ? 'text-white' : 'text-[#173d32]'}`}>{c.name || c.email}</div><div className={`text-[#718078] transition-colors duration-300 ${dark ? 'text-[#B9AA98]' : ''}`}>{c.email}{c.phone ? ' - ' + c.phone : ''}</div></td>
                     <td className="py-3 px-3">{c.membership ? <><Badge tone={c.membership.plan === 'free' ? 'neutral' : 'success'}>{c.membership.plan}</Badge> <span className="text-[#718078]">({c.membership.status})</span></> : <span className="text-[#718078]">-</span>}</td>
                     <td className="py-3 px-3">{c.orderCount}</td>
-                    <td className="py-3 px-3 font-semibold text-[#173d32]">{formatMoney(c.totalSpent)}</td>
+                    <td className="py-3 px-3 font-semibold">{formatMoney(c.totalSpent)}</td>
                     <td className="py-3 px-3">{c.isActive ? <Badge tone="success">Active</Badge> : <Badge tone="danger">Inactive</Badge>}</td>
                     <td className="py-3 px-3 text-[#718078]">{formatDate(c.dateJoined)}</td>
                     <td className="py-3 px-4 text-right"><button type="button" onClick={() => openDetail(c.id)} className="p-1.5 rounded-lg border border-[#e2e7df] text-[#718078] hover:text-[#173d32] hover:bg-[#e8f0e5] cursor-pointer" title="View customer"><Eye size={14} /></button></td>
@@ -100,8 +104,8 @@ export default function AdminCustomersPage() {
 
       {selectedId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" role="dialog" aria-modal="true">
-          <div className="w-full max-w-4xl bg-white rounded-2xl border border-[#e5eae3] shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-[#e5eae3] flex items-center justify-between bg-[#fbfaf6]">
+          <div className="w-full max-w-4xl bg-white rounded-2xl border shadow-2xl max-h-[92vh] overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
               <div><h2 className="text-lg font-bold text-[#173d32]">Customer details</h2><p className="text-xs text-[#718078]">Profile, orders, assessments, and membership.</p></div>
               <button type="button" onClick={() => { setSelectedId(null); setDetail(null) }} className="p-1 text-[#718078] hover:text-[#173d32] cursor-pointer"><X size={20} /></button>
             </div>
@@ -110,34 +114,34 @@ export default function AdminCustomersPage() {
                 <>
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="text-xs space-y-1">
-                      <div className="text-sm font-bold text-[#173d32]">{detail.name || detail.email}</div>
-                      <div className="text-[#718078]">{detail.email}{detail.phone ? ' - ' + detail.phone : ''}</div>
+                      <div className={`text-sm font-bold transition-colors duration-300 ${dark ? 'text-white' : 'text-[#173d32]'}`}>{detail.name || detail.email}</div>
+                      <div className={`text-[#718078] transition-colors duration-300 ${dark ? 'text-[#B9AA98]' : ''}`}>{detail.email}{detail.phone ? ' - ' + detail.phone : ''}</div>
                       <div>Account: {detail.isActive ? <Badge tone="success">Active</Badge> : <Badge tone="danger">Inactive</Badge>} - Joined {formatDate(detail.dateJoined)} - Last login {formatDate(detail.lastLogin)}</div>
                     </div>
                     <div>
-                      <button type="button" onClick={() => setConfirm({ nextActive: !detail.isActive })} className={ 'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white cursor-pointer ' + (detail.isActive ? 'bg-[#dc2626] hover:bg-[#b91c1c]' : 'bg-[#15803d] hover:bg-[#166534]') }>
+                      <button type="button" onClick={() => setConfirm({ nextActive: !detail.isActive })} className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white cursor-pointer ${detail.isActive ? 'bg-[#dc2626] hover:bg-[#b91c1c]' : 'bg-[#15803d] hover:bg-[#166534]'}`}>
                         {detail.isActive ? <><UserX size={14} /> Deactivate account</> : <><UserCheck size={14} /> Activate account</>}
                       </button>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-xs">
-                    <div className="border border-[#e5eae3] rounded-xl p-4">
+                    <div className="border rounded-xl p-4">
                       <h3 className="font-bold uppercase tracking-wider text-[#173d32] mb-2">Profile & membership</h3>
                       {detail.profile ? <div className="space-y-1"><p><strong>Name:</strong> {detail.profile.full_name || '-'}</p><p><strong>Phone:</strong> {detail.profile.phone || '-'}</p><p><strong>DOB:</strong> {detail.profile.date_of_birth || '-'}</p><p><strong>Gender:</strong> {detail.profile.gender || '-'}</p></div> : <p className="text-[#718078]">No profile details.</p>}
-                      <div className="mt-3 pt-2 border-t border-[#e5eae3]">
+                      <div className="mt-3 pt-2 border-t">
                         <p><strong>Membership:</strong> {detail.membership ? (detail.membership.plan + ' (' + detail.membership.status + ')') : '-'}</p>
                         {detail.membership?.renewedAt ? <p><strong>Renews/ends:</strong> {formatDate(detail.membership.renewedAt)}</p> : null}
                         <p><strong>Orders:</strong> {detail.orderCount} - <strong>Total spent:</strong> {formatMoney(detail.totalSpent)}</p>
                       </div>
                     </div>
-                    <div className="border border-[#e5eae3] rounded-xl p-4">
+                    <div className="border rounded-xl p-4">
                       <h3 className="font-bold uppercase tracking-wider text-[#173d32] mb-2">Assessment history</h3>
                       {detail.assessments?.length ? <ul className="space-y-1.5 max-h-56 overflow-auto">{detail.assessments.map((a) => <li key={a.id} className="flex justify-between gap-2"><span>#{a.id}  -  BMI {a.bmi ?? '-'}  -  Age band {a.age_band || '-'}</span><span className="text-[#718078]">{formatDate(a.created_at)}</span></li>)}</ul> : <p className="text-[#718078]">No assessments submitted.</p>}
                     </div>
                   </div>
 
-                  <div className="border border-[#e5eae3] rounded-xl p-4">
+                  <div className="border rounded-xl p-4">
                     <h3 className="font-bold uppercase tracking-wider text-[#173d32] mb-2">Order history</h3>
                     {detail.orders?.length ? (
                       <div className="overflow-x-auto">

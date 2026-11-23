@@ -8,8 +8,12 @@ import {
   getErrorMessage,
 } from "../../services/apiBackend/index.js";
 import { AdminPageHeader, ErrorState, LoadingState } from "./AdminUi.jsx";
+import { useTheme } from '../../context/ThemeContext.jsx'
 
 export default function AdminSettingsPage() {
+  const { theme } = useTheme()
+  const dark = theme === 'dark'
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [store, setStore] = useState(null);
@@ -94,7 +98,7 @@ export default function AdminSettingsPage() {
     <div className="space-y-6">
       {toast && (
         <div
-          className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-xl border bg-[#173d32] text-white border-[#275c4d] text-xs font-semibold"
+          className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-xl border text-xs font-semibold"
           role="status"
         >
           {toast}
@@ -108,8 +112,7 @@ export default function AdminSettingsPage() {
           <button
             type="button"
             onClick={() => setReload((v) => v + 1)}
-            className="p-2.5 rounded-xl border border-[#d6ded5] text-[#718078] hover:text-[#173d32] hover:bg-[#f6f4ec] cursor-pointer"
-          >
+            className={`p-2.5 rounded-xl border transition-all duration-300 ${dark ? 'bg-[#1a1a1a] border-[#383027] text-[#B9AA98] hover:bg-[#222] hover:border-[#C6A36B]' : 'border-[#d6ded5] text-[#718078] hover:text-[#173d32] hover:bg-[#f6f4ec]'}`} >
             <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
           </button>
         }
@@ -123,8 +126,7 @@ export default function AdminSettingsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <form
             onSubmit={saveStore}
-            className="bg-white rounded-2xl border border-[#e5eae3] p-5 shadow-xs space-y-3"
-          >
+            className={`bg-white rounded-2xl border p-5 shadow-xs space-y-3 transition-colors duration-300 ${dark ? 'bg-[#141414] border-[#383027]' : 'bg-white border-[#e5eae3]'}`}>
             <h2 className="text-sm font-bold text-[#173d32]">Store settings</h2>
             <label className="block text-xs">
               <span className="font-semibold text-[#20342d]">Store name</span>
@@ -134,7 +136,7 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setStore((s) => ({ ...s, store_name: e.target.value }))
                 }
-                className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                className="mt-1 w-full px-3 py-2 rounded-xl border"
               />
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -148,7 +150,7 @@ export default function AdminSettingsPage() {
                   onChange={(e) =>
                     setStore((s) => ({ ...s, support_email: e.target.value }))
                   }
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border"
                 />
               </label>
               <label className="block text-xs">
@@ -160,7 +162,7 @@ export default function AdminSettingsPage() {
                   onChange={(e) =>
                     setStore((s) => ({ ...s, support_phone: e.target.value }))
                   }
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border"
                 />
               </label>
             </div>
@@ -172,7 +174,7 @@ export default function AdminSettingsPage() {
                   onChange={(e) =>
                     setStore((s) => ({ ...s, currency: e.target.value }))
                   }
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border"
                 />
               </label>
               <label className="block text-xs">
@@ -189,7 +191,7 @@ export default function AdminSettingsPage() {
                       low_stock_threshold: e.target.value,
                     }))
                   }
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border"
                 />
               </label>
             </div>
@@ -206,7 +208,7 @@ export default function AdminSettingsPage() {
                     order_notifications_email: e.target.value,
                   }))
                 }
-                className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                className="mt-1 w-full px-3 py-2 rounded-xl border"
               />
             </label>
             <div className="flex flex-wrap gap-4 text-xs">
@@ -225,10 +227,7 @@ export default function AdminSettingsPage() {
                   type="checkbox"
                   checked={Boolean(store.online_payments_enabled)}
                   onChange={(e) =>
-                    setStore((s) => ({
-                      ...s,
-                      online_payments_enabled: e.target.checked,
-                    }))
+                    setStore((s) => ({ ...s, online_payments_enabled: e.target.checked }))
                   }
                 />{" "}
                 Online payments enabled (display flag)
@@ -244,14 +243,13 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setStore((s) => ({ ...s, return_policy: e.target.value }))
                 }
-                className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                className="mt-1 w-full px-3 py-2 rounded-xl border"
               />
             </label>
             <button
               type="submit"
               disabled={savingStore}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#173d32] text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
-            >
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold disabled:opacity-50 cursor-pointer transition-all duration-300 ${dark ? 'bg-[#C6A36B] text-[#080808] hover:bg-[#F0DDB7]' : 'bg-[#173d32] text-white hover:bg-[#11241e]'}`}>
               <Save size={14} />{" "}
               {savingStore ? "Saving…" : "Save store settings"}
             </button>
@@ -259,8 +257,7 @@ export default function AdminSettingsPage() {
 
           <form
             onSubmit={saveProfile}
-            className="bg-white rounded-2xl border border-[#e5eae3] p-5 shadow-xs space-y-3"
-          >
+            className={`bg-white rounded-2xl border p-5 shadow-xs space-y-3 transition-colors duration-300 ${dark ? 'bg-[#141414] border-[#383027]' : 'bg-white border-[#e5eae3]'}`}>
             <h2 className="text-sm font-bold text-[#173d32] flex items-center gap-2">
               <User size={16} /> Admin profile
             </h2>
@@ -291,7 +288,7 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setProfile((p) => ({ ...p, name: e.target.value }))
                 }
-                className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                className="mt-1 w-full px-3 py-2 rounded-xl border"
               />
             </label>
             <label className="block text-xs">
@@ -301,14 +298,13 @@ export default function AdminSettingsPage() {
                 onChange={(e) =>
                   setProfile((p) => ({ ...p, phone: e.target.value }))
                 }
-                className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                className="mt-1 w-full px-3 py-2 rounded-xl border"
               />
             </label>
             <button
               type="submit"
               disabled={savingProfile}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#173d32] text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
-            >
+              className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold disabled:opacity-50 cursor-pointer transition-all duration-300 ${dark ? 'bg-[#C6A36B] text-[#080808] hover:bg-[#F0DDB7]' : 'bg-[#173d32] text-white hover:bg-[#11241e]'}`}>
               <Save size={14} /> {savingProfile ? "Saving…" : "Save profile"}
             </button>
           </form>

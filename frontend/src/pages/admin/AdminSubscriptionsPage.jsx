@@ -20,6 +20,7 @@ import {
   LoadingState,
   Pagination,
 } from "./AdminUi.jsx";
+import { useTheme } from '../../context/ThemeContext.jsx'
 
 function StatusBadgeSub({ status }) {
   const map = {
@@ -33,6 +34,9 @@ function StatusBadgeSub({ status }) {
 }
 
 export default function AdminSubscriptionsPage() {
+  const { theme } = useTheme()
+  const dark = theme === 'dark'
+
   const [tab, setTab] = useState("supplements");
   const [toast, setToast] = useState("");
   const [reload, setReload] = useState(0);
@@ -229,7 +233,7 @@ export default function AdminSubscriptionsPage() {
     <div className="space-y-6">
       {toast && (
         <div
-          className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-xl border bg-[#173d32] text-white border-[#275c4d] text-xs font-semibold"
+          className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl shadow-xl border text-xs font-semibold"
           role="status"
         >
           {toast}
@@ -243,8 +247,7 @@ export default function AdminSubscriptionsPage() {
           <button
             type="button"
             onClick={() => setReload((v) => v + 1)}
-            className="p-2.5 rounded-xl border border-[#d6ded5] text-[#718078] hover:text-[#173d32] hover:bg-[#f6f4ec] cursor-pointer"
-          >
+            className={`p-2.5 rounded-xl border transition-all duration-300 ${dark ? 'bg-[#1a1a1a] border-[#383027] text-[#B9AA98] hover:bg-[#222] hover:border-[#C6A36B]' : 'border-[#d6ded5] text-[#718078] hover:text-[#173d32] hover:bg-[#f6f4ec]'}`} >
             <RefreshCw
               size={16}
               className={sLoading || mLoading ? "animate-spin" : ""}
@@ -252,17 +255,17 @@ export default function AdminSubscriptionsPage() {
           </button>
         }
       />
-      <div className="flex gap-2 border-b border-[#e5eae3] pb-2">
+      <div className="flex gap-2 border-b pb-2">
         {["supplements", "memberships"].map((k) => (
           <button
             key={k}
             type="button"
             onClick={() => setTab(k)}
             className={
-              "px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer " +
+              "px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all duration-300 " +
               (tab === k
-                ? "bg-[#173d32] text-white"
-                : "bg-white border border-[#d6ded5] text-[#20342d]")
+                ? `bg-[#C6A36B] text-[#080808] hover:bg-[#F0DDB7]`
+                : `border text-[#20342d] hover:bg-[#f6f4ec]`)
             }
           >
             {k === "supplements"
@@ -272,8 +275,8 @@ export default function AdminSubscriptionsPage() {
         ))}
       </div>
       {tab === "memberships" && (
-        <div className="bg-white rounded-2xl border border-[#e5eae3] shadow-xs overflow-hidden">
-          <div className="px-5 py-3 border-b border-[#e5eae3] text-xs text-[#718078]">
+        <div className={`bg-white rounded-2xl border shadow-xs overflow-hidden transition-colors duration-300 ${dark ? 'bg-[#141414] border-[#383027]' : 'bg-white border-[#e5eae3]'}`}>
+          <div className="px-5 py-3 border-b text-xs text-[#718078] transition-colors duration-300">
             Membership records from database (managed here for visibility;
             billing provider flows may apply).
           </div>
@@ -293,21 +296,21 @@ export default function AdminSubscriptionsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="text-left text-[#718078] border-b border-[#e5eae3] bg-[#fbfaf6] uppercase text-[10px]">
+                  <tr className={`text-left text-[#718078] border-b border-[#e5eae3] bg-[#fbfaf6] uppercase text-[10px] transition-colors duration-300 ${dark ? 'bg-[#1a1a1a] border-[#383027] text-[#B9AA98]' : ''}`}>
                     <th className="py-3 px-4">Customer</th>
                     <th className="py-3 px-3">Plan</th>
                     <th className="py-3 px-3">Status</th>
                     <th className="py-3 px-3">Updated</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#f0f3ef]">
+                <tbody className="divide-y divide-[#f0f3ef] transition-colors duration-300">
                   {mItems.map((m) => (
                     <tr key={m.userId}>
                       <td className="py-3 px-4">
-                        <div className="font-semibold text-[#173d32]">
+                        <div className={`font-semibold transition-colors duration-300 ${dark ? 'text-white' : 'text-[#173d32]'}`}>
                           {m.userName}
                         </div>
-                        <div className="text-[#718078]">{m.userEmail}</div>
+                        <div className={`text-[#718078] transition-colors duration-300 ${dark ? 'text-[#B9AA98]' : ''}`}>{m.userEmail}</div>
                       </td>
                       <td className="py-3 px-3">{m.planLabel || m.plan}</td>
                       <td className="py-3 px-3">
@@ -327,7 +330,7 @@ export default function AdminSubscriptionsPage() {
       )}
       {tab === "supplements" && (
         <>
-          <div className="bg-white rounded-2xl border border-[#e5eae3] p-4 shadow-xs flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+          <div className={`bg-white rounded-2xl border p-4 shadow-xs flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between transition-colors duration-300 ${dark ? 'bg-[#141414] border-[#383027]' : 'bg-white border-[#e5eae3]'}`}>
             <div className="flex flex-wrap gap-2 items-center">
               <div className="relative">
                 <Search
@@ -344,8 +347,7 @@ export default function AdminSubscriptionsPage() {
                     }
                   }}
                   placeholder="Search customer/product..."
-                  className="pl-8 pr-3 py-2 rounded-xl border border-[#d6ded5] text-xs w-56"
-                />
+                  className={`pl-8 pr-3 py-2 rounded-xl border text-xs w-56 transition-colors duration-300 ${dark ? 'border-[#383027] text-[#F5EBDD] bg-[#1a1a1a]' : 'border-[#d6ded5] text-[#20342d] bg-white'}`} />
               </div>
               <select
                 value={sStatus}
@@ -353,8 +355,7 @@ export default function AdminSubscriptionsPage() {
                   setSPage(1);
                   setSStatus(e.target.value);
                 }}
-                className="px-3 py-2 rounded-xl border border-[#d6ded5] text-xs bg-white"
-              >
+                className={`px-3 py-2 rounded-xl border text-xs transition-colors duration-300 ${dark ? 'border-[#383027] text-[#F5EBDD] bg-[#1a1a1a]' : 'border-[#d6ded5] text-[#20342d] bg-white'}`} >
                 <option value="">All statuses</option>
                 <option value="active">Active</option>
                 <option value="paused">Paused</option>
@@ -368,15 +369,14 @@ export default function AdminSubscriptionsPage() {
                   setSPage(1);
                   setSSearch(sQ.trim());
                 }}
-                className="px-3 py-2 rounded-xl bg-[#173d32] text-white text-xs font-semibold cursor-pointer"
-              >
+                className={`px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all duration-300 ${dark ? 'bg-[#C6A36B] text-[#080808] hover:bg-[#F0DDB7]' : 'bg-[#173d32] text-white hover:bg-[#11241e]'}`} >
                 Search
               </button>
             </div>
             <button
               type="button"
               onClick={openCreate}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#173d32] text-white text-xs font-semibold cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all duration-300"
             >
               <Plus size={14} /> Add subscription
             </button>
@@ -387,7 +387,7 @@ export default function AdminSubscriptionsPage() {
               onRetry={() => setReload((v) => v + 1)}
             />
           )}
-          <div className="bg-white rounded-2xl border border-[#e5eae3] shadow-xs overflow-hidden">
+          <div className={`bg-white rounded-2xl border shadow-xs overflow-hidden transition-colors duration-300 ${dark ? 'bg-[#141414] border-[#383027]' : 'bg-white border-[#e5eae3]'}`}>
             {sLoading ? (
               <LoadingState label="Loading supplement subscriptions..." />
             ) : sItems.length === 0 ? (
@@ -399,7 +399,7 @@ export default function AdminSubscriptionsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-xs">
                   <thead>
-                    <tr className="text-left text-[#718078] border-b border-[#e5eae3] bg-[#fbfaf6] uppercase text-[10px]">
+                    <tr className={`text-left text-[#718078] border-b border-[#e5eae3] bg-[#fbfaf6] uppercase text-[10px] transition-colors duration-300 ${dark ? 'bg-[#1a1a1a] border-[#383027] text-[#B9AA98]' : ''}`}>
                       <th className="py-3 px-4">Customer</th>
                       <th className="py-3 px-3">Product</th>
                       <th className="py-3 px-3">Status</th>
@@ -409,14 +409,14 @@ export default function AdminSubscriptionsPage() {
                       <th className="py-3 px-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#f0f3ef]">
+                  <tbody className="divide-y divide-[#f0f3ef] transition-colors duration-300">
                     {sItems.map((s) => (
                       <tr key={s.id}>
                         <td className="py-3 px-4">
-                          <div className="font-semibold text-[#173d32]">
+                          <div className={`font-semibold transition-colors duration-300 ${dark ? 'text-white' : 'text-[#173d32]'}`}>
                             {s.userName}
                           </div>
-                          <div className="text-[#718078]">{s.userEmail}</div>
+                          <div className={`text-[#718078] transition-colors duration-300 ${dark ? 'text-[#B9AA98]' : ''}`}>{s.userEmail}</div>
                         </td>
                         <td className="py-3 px-3">
                           {s.productDisplayName || s.productName || "-"}
@@ -436,17 +436,13 @@ export default function AdminSubscriptionsPage() {
                             <button
                               type="button"
                               onClick={() => openEdit(s)}
-                              className="p-1.5 rounded-lg border border-[#e2e7df] text-[#718078] hover:text-[#173d32] cursor-pointer"
-                              title="Edit"
-                            >
+                              className="p-1.5 rounded-lg border border-[#e2e7df] text-[#718078] hover:text-[#173d32] cursor-pointer" title="Edit">
                               <Edit3 size={14} />
                             </button>
                             <button
                               type="button"
                               onClick={() => setConfirmDel(s)}
-                              className="p-1.5 rounded-lg border border-[#e2e7df] text-[#dc2626] hover:bg-[#fef2f2] cursor-pointer"
-                              title="Remove"
-                            >
+                              className="p-1.5 rounded-lg border border-[#e2e7df] text-[#dc2626] hover:bg-[#fef2f2] cursor-pointer" title="Remove">
                               <Trash2 size={14} />
                             </button>
                           </div>
@@ -467,16 +463,15 @@ export default function AdminSubscriptionsPage() {
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-xl bg-white rounded-2xl border border-[#e5eae3] shadow-2xl max-h-[92vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-[#e5eae3] flex items-center justify-between bg-[#fbfaf6]">
+          <div className="w-full max-w-xl bg-white rounded-2xl border shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b flex items-center justify-between">
               <h2 className="text-lg font-bold text-[#173d32]">
                 {editing ? "Edit subscription" : "Add supplement subscription"}
               </h2>
               <button
                 type="button"
                 onClick={() => setFormOpen(false)}
-                className="p-1 text-[#718078] hover:text-[#173d32] cursor-pointer"
-              >
+                className="p-1 text-[#718078] hover:text-[#173d32] cursor-pointer">
                 <X size={20} />
               </button>
             </div>
@@ -492,8 +487,7 @@ export default function AdminSubscriptionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, userId: e.target.value }))
                     }
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5] bg-white"
-                  >
+                    className="mt-1 w-full px-3 py-2 rounded-xl border bg-white">
                     <option value="">Select customer</option>
                     {customers.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -520,8 +514,7 @@ export default function AdminSubscriptionsPage() {
                         productName: p ? p.name : f.productName,
                       }));
                     }}
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5] bg-white"
-                  >
+                    className="mt-1 w-full px-3 py-2 rounded-xl border bg-white">
                     <option value="">No product (custom)</option>
                     {products.map((p) => (
                       <option key={p.id} value={p.id}>
@@ -539,7 +532,7 @@ export default function AdminSubscriptionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, productName: e.target.value }))
                     }
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                    className="mt-1 w-full px-3 py-2 rounded-xl border"
                   />
                 </label>
               </div>
@@ -551,8 +544,7 @@ export default function AdminSubscriptionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, status: e.target.value }))
                     }
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5] bg-white"
-                  >
+                    className="mt-1 w-full px-3 py-2 rounded-xl border bg-white">
                     <option value="active">Active</option>
                     <option value="paused">Paused</option>
                     <option value="cancelled">Cancelled</option>
@@ -569,8 +561,7 @@ export default function AdminSubscriptionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, frequency: e.target.value }))
                     }
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5] bg-white"
-                  >
+                    className="mt-1 w-full px-3 py-2 rounded-xl border bg-white">
                     <option value="weekly">Weekly</option>
                     <option value="biweekly">Biweekly</option>
                     <option value="monthly">Monthly</option>
@@ -586,7 +577,7 @@ export default function AdminSubscriptionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, quantity: e.target.value }))
                     }
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                    className="mt-1 w-full px-3 py-2 rounded-xl border"
                   />
                 </label>
               </div>
@@ -604,7 +595,7 @@ export default function AdminSubscriptionsPage() {
                         nextDeliveryDate: e.target.value,
                       }))
                     }
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                    className="mt-1 w-full px-3 py-2 rounded-xl border"
                   />
                 </label>
                 <label className="block">
@@ -617,19 +608,21 @@ export default function AdminSubscriptionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, startedAt: e.target.value }))
                     }
-                    className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                    className="mt-1 w-full px-3 py-2 rounded-xl border"
                   />
                 </label>
               </div>
               <label className="block">
-                <span className="font-semibold text-[#20342d]">Notes</span>
+                <span className="font-semibold text-[#20342d]">
+                  Notes
+                </span>
                 <textarea
                   value={form.notes}
                   onChange={(e) =>
                     setForm((f) => ({ ...f, notes: e.target.value }))
                   }
                   rows={2}
-                  className="mt-1 w-full px-3 py-2 rounded-xl border border-[#d6ded5]"
+                  className="mt-1 w-full px-3 py-2 rounded-xl border"
                 />
               </label>
               {formError && (
@@ -641,15 +634,14 @@ export default function AdminSubscriptionsPage() {
                 <button
                   type="button"
                   onClick={() => setFormOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-[#d6ded5] text-xs font-semibold cursor-pointer"
+                  className="px-4 py-2 rounded-xl border text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-4 py-2 rounded-xl bg-[#173d32] text-white text-xs font-semibold disabled:opacity-50 cursor-pointer"
-                >
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold disabled:opacity-50 cursor-pointer transition-all duration-300 ${dark ? 'bg-[#C6A36B] text-[#080808] hover:bg-[#F0DDB7]' : 'bg-[#173d32] text-white hover:bg-[#11241e]'}`}>
                   {saving ? "Saving..." : "Save"}
                 </button>
               </div>

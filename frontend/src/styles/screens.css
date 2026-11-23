@@ -5840,12 +5840,12 @@ button:disabled { cursor: not-allowed; }
 
 /* Remove green/teal from dark mode - hero art orbit */
 :root[data-theme="dark"] .hero-art__orbit {
-  border-color: rgba(197 160 113 / 15%);
+  border-color: rgba(226 201 159 / 20%);
 }
 
 /* Remove green/teal from dark mode - hero art stem */
 :root[data-theme="dark"] .hero-art__stem {
-  background: linear-gradient(180deg, #E2C99F, #C5A071 68%, #A98253);
+  background: linear-gradient(180deg, #E2C99F, #C6A36B 68%, #9B8052);
   box-shadow: 1px 5px 16px rgb(0 0 0 / 30%);
 }
 
@@ -5856,7 +5856,7 @@ button:disabled { cursor: not-allowed; }
 }
 
 :root[data-theme="dark"] .hero-art__leaf svg {
-  fill: rgba(197 160 113 / 20%);
+  fill: rgba(226 201 159 / 25%);
 }
 
 :root[data-theme="dark"] .hero-art__leaf--three {

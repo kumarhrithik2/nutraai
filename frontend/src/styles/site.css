@@ -3484,7 +3484,19 @@
   color: var(--text-heading);
 }
 
-:root[data-theme="dark"] .hero-copy h1 em,
+:root[data-theme="dark"] .hero-copy h1 em {
+  color: #C6A36B;
+}
+
+:root[data-theme="dark"] .hero-kicker {
+  color: #C6A36B;
+}
+
+:root[data-theme="dark"] .hero-kicker > span {
+  background: #C6A36B;
+  box-shadow: 0 0 0 4px rgb(198 163 107 / 17%);
+}
+
 :root[data-theme="dark"] .section-heading h2 em,
 :root[data-theme="dark"] .ai-content h2 em,
 :root[data-theme="dark"] .faq-intro h2 em,
@@ -3547,18 +3559,6 @@
   background: var(--app-bg);
 }
 
-:root[data-theme="dark"] .hero-section {
-  background:
-    radial-gradient(ellipse at 75% 44%, rgba(197 160 113 / 28%), transparent 36%),
-    var(--app-bg);
-}
-
-:root[data-theme="dark"] .public-page {
-  background:
-    radial-gradient(ellipse at 92% 10%, rgba(197 160 113 / 18%), transparent 25%),
-    var(--app-bg);
-}
-
 :root[data-theme="dark"] .products-section,
 :root[data-theme="dark"] .personalization-section {
   background: var(--app-bg-alt);
@@ -3589,12 +3589,12 @@
 }
 
 :root[data-theme="dark"] .hero-art::after {
-  background: rgb(0 0 0 / 22%);
+  background: rgb(0 0 0 / 40%);
 }
 
 :root[data-theme="dark"] .art-orbit,
 :root[data-theme="dark"] .art-orbit--two {
-  border-color: rgba(197 160 113 / 18%);
+  border-color: rgba(226 201 159 / 20%);
 }
 
 :root[data-theme="dark"] .wellness-card,
@@ -3882,11 +3882,9 @@
   color: #B9AA98;
 }
 
-/* Hero section - solid deep black with subtle charcoal depth */
+/* Hero section - solid deep black */
 :root[data-theme="dark"] .hero-section {
-  background:
-    radial-gradient(circle at 20% 30%, #121212, transparent 45%),
-    #080808;
+  background: #080808;
   border-color: #383027;
 }
 
@@ -3896,9 +3894,8 @@
     #080808;
 }
 
-/* Hero border - subtle muted gold */
 :root[data-theme="dark"] .hero-bottom-line {
-  border-color: #383027;
+  background: #383027;
 }
 
 /* Remove green/teal from dark mode - testimonial person strong */
@@ -3919,4 +3916,56 @@
 
 :root[data-theme="dark"] .button--gold:hover {
   background: #D6B58D;
+}
+
+/* Dark mode hero buttons - champagne-gold */
+:root[data-theme="dark"] .hero-actions .button--primary {
+  background: #E2C99F;
+  color: #080808;
+}
+
+:root[data-theme="dark"] .hero-actions .button--primary:hover {
+  background: #F0DDB7;
+}
+
+:root[data-theme="dark"] .hero-actions .button--outline {
+  background: transparent;
+  border-color: #C6A36B;
+  color: #E2C99F;
+}
+
+:root[data-theme="dark"] .hero-actions .button--outline:hover {
+  background: rgba(198 163 107 / 10%);
+  border-color: #E2C99F;
+  color: #F0DDB7;
+}
+
+:root[data-theme="dark"] .hero-actions .button:focus-visible {
+  outline-color: #C6A36B;
+  outline-offset: 2px;
+}
+
+/* Hero bottom divider - muted gold */
+:root[data-theme="dark"] .hero-bottom-line {
+  background: #9B8052;
+}
+
+/* Remove green/teal from dark mode - button--text hover */
+:root[data-theme="dark"] .button--text:hover {
+  color: #F0DDB7;
+}
+
+/* Remove green/teal from dark mode - art-plant stem and leaves */
+:root[data-theme="dark"] .art-plant::before {
+  background: #C6A36B;
+}
+
+:root[data-theme="dark"] .art-plant i {
+  border-color: rgba(198 163 107 / 30%);
+  background: rgba(226 201 159 / 25%);
+}
+
+/* Remove green/teal from dark mode - card-status dot */
+:root[data-theme="dark"] .card-status > span {
+  background: #C6A36B;
 }
