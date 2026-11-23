@@ -7,7 +7,7 @@ const steps = [
   { title: 'About you', short: 'About you', description: 'Share only the information you are comfortable entering.' },
   { title: 'Lifestyle', short: 'Lifestyle', description: 'Share a little about your day-to-day routines.' },
   { title: 'Diet and goals', short: 'Goals', description: 'Choose a diet preference and up to three areas of interest.' },
-  { title: 'Health history', short: 'History', description: 'Share only what you are comfortable recording; choose None or I donÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢t know where appropriate.' },
+  { title: 'Health history', short: 'History', description: 'Share only what you are comfortable recording; choose None or I don’t know where appropriate.' },
   { title: 'Consent', short: 'Consent', description: 'Review how your entries would be handled before continuing.' },
   { title: 'Review', short: 'Review', description: 'Check your entries before submitting.' },
 ]
@@ -24,12 +24,12 @@ const healthGoals = [
   'Digestion',
 ]
 
-const conditions = ['Diabetes', 'Thyroid', 'Blood pressure', 'Heart', 'Kidney', 'Liver', 'PCOS', 'Other', 'None', "I don't know"]
-const allergies = ['Nuts', 'Soy', 'Dairy', 'Gluten', 'Fish', 'Shellfish', 'Other', 'None', "I don't know"]
+const conditions = ['Diabetes', 'Thyroid', 'Blood pressure', 'Heart', 'Kidney', 'Liver', 'PCOS', 'Other', 'None', "I don’t know"]
+const allergies = ['Nuts', 'Soy', 'Dairy', 'Gluten', 'Fish', 'Shellfish', 'Other', 'None', "I don’t know"]
 const deficiencies = ['Vitamin D', 'B12', 'Iron', 'None', 'Unknown']
 const exclusiveOptions = {
-  conditions: ['None', "I don't know"],
-  allergies: ['None', "I don't know"],
+  conditions: ['None', "I don’t know"],
+  allergies: ['None', "I don’t know"],
   deficiencies: ['None', 'Unknown'],
 }
 
@@ -96,29 +96,29 @@ function MultiSelect({ name, options, values = [], onToggle, disabledOptions = [
 function AssessmentReview({ answers, onEdit }) {
   const rows = [
     ['About you', [
-      ['Age', answers.age ? `${answers.age} years` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
-      ['Gender', answers.gender || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
-      ['Height', answers.height ? `${answers.height} cm` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
-      ['Weight', answers.weight ? `${answers.weight} kg` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
-      ...(answers.gender === 'Female' ? [['Pregnancy', answers.pregnant || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â']] : []),
+      ['Age', answers.age ? `${answers.age} years` : '—'],
+      ['Gender', answers.gender || '—'],
+      ['Height', answers.height ? `${answers.height} cm` : '—'],
+      ['Weight', answers.weight ? `${answers.weight} kg` : '—'],
+      ...(answers.gender === 'Female' ? [['Pregnancy', answers.pregnant || '—']] : []),
     ]],
     ['Lifestyle', [
-      ['Work type', answers.workType || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
-      ['Sleep', answers.sleepHours ? `${answers.sleepHours} hours per night` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
-      ['Exercise', answers.exerciseDays === '' || answers.exerciseDays == null ? 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â' : `${answers.exerciseDays} days per week`],
-      ['Stress', answers.stressLevel ? `${answers.stressLevel} / 5` : 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Work type', answers.workType || '—'],
+      ['Sleep', answers.sleepHours ? `${answers.sleepHours} hours per night` : '—'],
+      ['Exercise', answers.exerciseDays === '' || answers.exerciseDays == null ? '—' : `${answers.exerciseDays} days per week`],
+      ['Stress', answers.stressLevel ? `${answers.stressLevel} / 5` : '—'],
       ['Sun exposure', answers.sunExposure || 'Not provided'],
     ]],
     ['Diet and goals', [
-      ['Diet type', answers.dietType || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
-      ['Goals', answers.healthGoals?.join(', ') || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Diet type', answers.dietType || '—'],
+      ['Goals', answers.healthGoals?.join(', ') || '—'],
     ]],
     ['Health history', [
-      ['Conditions', answers.conditions?.join(', ') || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Conditions', answers.conditions?.join(', ') || '—'],
       ['Other condition', answers.conditions?.includes('Other') ? answers.conditionOther || 'Not provided' : 'Not provided'],
-      ['Regular medicines', answers.regularMedicines || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Regular medicines', answers.regularMedicines || '—'],
       ['Medicine names', answers.regularMedicines === 'Yes' ? answers.medicineNames || 'Not provided' : 'Not provided'],
-      ['Allergies', answers.allergies?.join(', ') || 'ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â'],
+      ['Allergies', answers.allergies?.join(', ') || '—'],
       ['Other allergy', answers.allergies?.includes('Other') ? answers.allergyOther || 'Not provided' : 'Not provided'],
       ['Past deficiencies', answers.deficiencies?.join(', ') || 'Not provided'],
     ]],
@@ -146,7 +146,7 @@ function AssessmentReview({ answers, onEdit }) {
         </section>
       ))}
       <p className="assessment-review__consent">
-        Health data consent: {answers.healthDataConsent ? 'Accepted' : 'Not accepted'} ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â·
+        Health data consent: {answers.healthDataConsent ? 'Accepted' : 'Not accepted'} ·
         {' '}Wellness disclaimer: {answers.disclaimerConsent ? 'Accepted' : 'Not accepted'}
       </p>
     </div>
@@ -234,9 +234,9 @@ export function HealthAssessmentPage() {
       if (!Array.isArray(answers.healthGoals) || answers.healthGoals.length < 1) nextErrors.healthGoals = 'Choose at least one goal.'
     }
     if (stepIndex === 3) {
-      if (!answers.conditions?.length) nextErrors.conditions = 'Select at least one option, including None or I donÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t know if applicable.'
-      if (!answers.regularMedicines) nextErrors.regularMedicines = 'Select Yes, No or I donÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t know.'
-      if (!answers.allergies?.length) nextErrors.allergies = 'Select at least one option, including None or I donÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢t know if applicable.'
+      if (!answers.conditions?.length) nextErrors.conditions = 'Select at least one option, including None or I don’t know if applicable.'
+      if (!answers.regularMedicines) nextErrors.regularMedicines = 'Select Yes, No or I don’t know.'
+      if (!answers.allergies?.length) nextErrors.allergies = 'Select at least one option, including None or I don’t know if applicable.'
     }
     if (stepIndex === 4) {
       if (!answers.healthDataConsent) nextErrors.healthDataConsent = 'Please accept the health data consent to continue.'
@@ -294,7 +294,7 @@ export function HealthAssessmentPage() {
   function renderAboutYou() {
     return (
       <div className="assessment-fields-grid">
-        <Field label="Age" hint="18ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ90 years" error={fieldError('age')}>
+        <Field label="Age" hint="18–90 years" error={fieldError('age')}>
           <input aria-label="Age" type="number" min="18" max="90" step="1" value={answers.age ?? ''} onChange={(event) => setAnswer('age', event.target.value)} />
         </Field>
         <Field label="Gender" error={fieldError('gender')}>
@@ -332,10 +332,10 @@ export function HealthAssessmentPage() {
           <input className="assessment-range" aria-label="Sleep hours per night" type="range" min="3" max="12" step="1" value={answers.sleepHours ?? 7} onChange={(event) => setAnswer('sleepHours', event.target.value)} />
           <span className="assessment-range__ends"><span>3 hours</span><span>12 hours</span></span>
         </Field>
-        <Field label="Exercise days per week" hint="0ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ7 days" error={fieldError('exerciseDays')}>
+        <Field label="Exercise days per week" hint="0–7 days" error={fieldError('exerciseDays')}>
           <input aria-label="Exercise days per week" type="number" min="0" max="7" step="1" value={answers.exerciseDays ?? ''} onChange={(event) => setAnswer('exerciseDays', event.target.value)} />
         </Field>
-        <Field label="Stress level" hint={answers.stressLevel ? stressLabels[Number(answers.stressLevel) - 1] : 'Choose 1ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã…â€œ5'} error={fieldError('stressLevel')} className="assessment-field--full">
+        <Field label="Stress level" hint={answers.stressLevel ? stressLabels[Number(answers.stressLevel) - 1] : 'Choose 1–5'} error={fieldError('stressLevel')} className="assessment-field--full">
           <div className="assessment-scale" role="group" aria-label="Stress level from very low to very high">
             {stressLabels.map((label, index) => {
               const value = String(index + 1)
@@ -346,7 +346,7 @@ export function HealthAssessmentPage() {
         <Field label="Sun exposure" hint="Optional">
           <SelectField aria-label="Sun exposure" value={answers.sunExposure} onChange={(value) => setAnswer('sunExposure', value)}>
             <option value="">Choose if you know</option>
-            {['Low', 'Medium', 'High', "I don't know"].map((option) => <option key={option}>{option}</option>)}
+            {['Low', 'Medium', 'High', "I don’t know"].map((option) => <option key={option}>{option}</option>)}
           </SelectField>
         </Field>
       </div>
@@ -378,15 +378,15 @@ export function HealthAssessmentPage() {
           <MultiSelect name="conditions" options={conditions} values={answers.conditions} onToggle={(value) => toggleMulti('conditions', value)} />
         </Field>
         {answers.conditions?.includes('Other') && (
-          <Field label="Other condition" hint="Optional ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· if known" className="assessment-field--full">
+          <Field label="Other condition" hint="Optional · if known" className="assessment-field--full">
             <input aria-label="Other condition" type="text" maxLength="160" value={answers.conditionOther ?? ''} onChange={(event) => setAnswer('conditionOther', event.target.value)} />
           </Field>
         )}
         <Field label="Regular medicines" hint="Include blood thinners in your list if applicable." className="assessment-field--full" error={fieldError('regularMedicines')}>
-          <ChoiceList name="regularMedicines" options={['Yes', 'No', "I don't know"]} value={answers.regularMedicines} onChange={(value) => setAnswer('regularMedicines', value)} />
+          <ChoiceList name="regularMedicines" options={['Yes', 'No', "I don’t know"]} value={answers.regularMedicines} onChange={(value) => setAnswer('regularMedicines', value)} />
         </Field>
         {answers.regularMedicines === 'Yes' && (
-          <Field label="Medicine names" hint="Optional ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· list names as you know them, including blood thinners if applicable." className="assessment-field--full">
+          <Field label="Medicine names" hint="Optional · list names as you know them, including blood thinners if applicable." className="assessment-field--full">
             <textarea aria-label="Medicine names" rows="3" maxLength="500" value={answers.medicineNames ?? ''} onChange={(event) => setAnswer('medicineNames', event.target.value)} />
           </Field>
         )}
@@ -394,11 +394,11 @@ export function HealthAssessmentPage() {
           <MultiSelect name="allergies" options={allergies} values={answers.allergies} onToggle={(value) => toggleMulti('allergies', value)} />
         </Field>
         {answers.allergies?.includes('Other') && (
-          <Field label="Other allergy" hint="Optional ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· if known" className="assessment-field--full">
+          <Field label="Other allergy" hint="Optional · if known" className="assessment-field--full">
             <input aria-label="Other allergy" type="text" maxLength="160" value={answers.allergyOther ?? ''} onChange={(event) => setAnswer('allergyOther', event.target.value)} />
           </Field>
         )}
-        <Field label="Past deficiencies" hint="Optional ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· select all that apply" className="assessment-field--full">
+        <Field label="Past deficiencies" hint="Optional · select all that apply" className="assessment-field--full">
           <MultiSelect name="deficiencies" options={deficiencies} values={answers.deficiencies} onToggle={(value) => toggleMulti('deficiencies', value)} />
         </Field>
       </div>
@@ -454,7 +454,7 @@ export function HealthAssessmentPage() {
               ))}
             </ol>
             <div className="assessment-structured-body">
-              <span className="eyebrow">Step {step + 1} ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· {currentStep.short}</span>
+              <span className="eyebrow">Step {step + 1} · {currentStep.short}</span>
               <h2>{currentStep.title}</h2>
               <p className="assessment-helper">{currentStep.description}</p>
               {stepContent[step]()}

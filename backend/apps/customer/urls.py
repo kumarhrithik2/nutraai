@@ -14,4 +14,5 @@ urlpatterns = [
     path("settings/preferences/", views.PreferencesView.as_view(), name="preferences"),
     path("reports/latest/", views.WellnessReportView.as_view(), name="wellness-report"),
     path("wellness-plan/", views.WellnessPlanView.as_view(), name="wellness-plan"),
+    path("assistant/messages/", views.AssistantMessageView.as_view(), name="assistant-messages"),
 ]

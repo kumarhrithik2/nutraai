@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useRef } from 'react'
-import { ArrowUp, Bot, ChevronDown, Sparkles, Trash2, X } from 'lucide-react'
+import { ArrowUp, Bot, ChevronDown, LoaderCircle, Sparkles, Trash2, X } from 'lucide-react'
 import RobotAvatar from './RobotAvatar.jsx'
 
 const suggestedQuestions = [
@@ -22,19 +22,29 @@ function AIChatPanel({
   value,
   onChange,
   disabled = false,
+  isLoading = false,
+  error = '',
+  onRetry,
+  variant = 'floating',
 }) {
   const conversationRef = useRef(null)
 
   useEffect(() => {
     if (conversationRef.current) conversationRef.current.scrollTop = conversationRef.current.scrollHeight
-  }, [messages])
+  }, [messages, isLoading, error])
 
   useEffect(() => {
     onReady()
   }, [onReady])
 
+  const statusLabel = isLoading ? 'Thinking…' : 'AI wellness assistant'
+
   return (
-    <section className="ai-companion__panel" id="nutraai-assistant-panel" aria-label="NutraAI assistant panel">
+    <section
+      className={`ai-companion__panel${variant === 'page' ? ' ai-companion__panel--page' : ''}`}
+      id="nutraai-assistant-panel"
+      aria-label="NutraAI assistant panel"
+    >
       <header className="ai-companion__header">
         <div className="ai-companion__avatar">
           <Suspense fallback={<div className="ai-companion__scene-fallback" role="img" aria-label="NutraAI robot companion"><RobotAvatar /></div>}>
@@ -43,7 +53,7 @@ function AIChatPanel({
         </div>
         <div className="ai-companion__identity">
           <strong>NutraAI companion</strong>
-          <span><i aria-hidden="true" /> AI service unavailable</span>
+          <span className={isLoading ? 'is-thinking' : 'is-online'}><i aria-hidden="true" /> {statusLabel}</span>
         </div>
         <div className="ai-companion__controls">
           {messages.length > 0 && <button type="button" aria-label="Clear conversation" title="Clear conversation" onClick={onClear}><Trash2 size={16} /></button>}
@@ -57,29 +67,54 @@ function AIChatPanel({
           <span className="ai-companion__welcome-mark"><Bot size={17} /></span>
           <div>
             <strong>A thoughtful space for your wellness questions.</strong>
-            <p>Your messages stay in this session. The AI service is not connected yet, so I can’t provide responses.</p>
+            <p>Ask about nutrition, sleep, activity or supplements. Replies are educational guidance, not medical advice.</p>
           </div>
         </div>
 
         {messages.length === 0 && <div className="ai-companion__suggestions" aria-label="Suggested questions">
           <span>YOU COULD ASK</span>
           {suggestedQuestions.map((question) => (
-            <button type="button" key={question} onClick={() => onDraftQuestion(question)} disabled={disabled}>
+            <button type="button" key={question} onClick={() => onDraftQuestion(question)} disabled={disabled || isLoading}>
               <Sparkles size={13} />{question}
             </button>
           ))}
         </div>}
 
-        {messages.map((message, index) => (
-          <div className="ai-companion__message ai-companion__message--user" key={`${index}-${message}`}>
-            <span>You</span>
-            <p>{message}</p>
+        {messages.map((message) => {
+          const isAssistant = message.role === 'assistant'
+          return (
+            <div
+              className={`ai-companion__message ${isAssistant ? 'ai-companion__message--assistant' : 'ai-companion__message--user'}`}
+              key={message.id || `${message.role}-${message.content.slice(0, 12)}`}
+            >
+              <span>{isAssistant ? 'NutraAI' : 'You'}</span>
+              <p>{message.content}</p>
+            </div>
+          )
+        })}
+
+        {isLoading && (
+          <div className="ai-companion__message ai-companion__message--assistant" aria-hidden="true">
+            <span>NutraAI</span>
+            <p className="ai-companion__typing"><LoaderCircle size={14} className="is-spinning" /> Preparing a reply…</p>
           </div>
-        ))}
+        )}
+
+        {error && (
+          <div className="ai-companion__message ai-companion__message--error" role="alert">
+            <span>Message not sent</span>
+            <p>{error}</p>
+            {onRetry && (
+              <button type="button" className="ai-companion__retry" onClick={onRetry} disabled={isLoading}>
+                Try again
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="ai-companion__service-note" aria-live="polite" role="status">
-        {feedback || 'The assistant is unavailable until its service is connected.'}
+        {feedback || (error ? 'Your message was not delivered. Use Try again to resend it.' : 'General wellness information is not medical advice.')}
       </div>
 
       <form className="ai-companion__form" onSubmit={onSend}>
@@ -93,7 +128,9 @@ function AIChatPanel({
           rows={2}
           disabled={disabled}
         />
-        <button type="submit" aria-label="Send message" disabled={disabled}><ArrowUp size={18} /></button>
+        <button type="submit" aria-label="Send message" disabled={disabled || isLoading || !value.trim()}>
+          {isLoading ? <LoaderCircle size={18} className="is-spinning" /> : <ArrowUp size={18} />}
+        </button>
       </form>
       <p className="ai-companion__disclaimer">General wellness information is not medical advice.</p>
     </section>

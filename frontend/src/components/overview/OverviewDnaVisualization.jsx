@@ -3,17 +3,57 @@ import * as THREE from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
+import { useTheme } from '../../context/ThemeContext.jsx'
 
-// Nutrient orbs carried over from the reference "DNA particle storm" scene.
-const NUTRIENTS = [
-  { name: 'Zinc', color: '#cfe8ff', angle: 0, speed: 0.5, y: -0.5, radius: 2.0, size: 1.5, phase: 0 },
-  { name: 'C', color: '#ffc04d', angle: 1.3, speed: 0.7, y: -2.4, radius: 2.5, size: 1.1, phase: 1.6 },
-  { name: 'B12', color: '#ff6fa0', angle: 2.6, speed: 0.4, y: 2.2, radius: 2.3, size: 1.1, phase: 3.2 },
-  { name: 'D3', color: '#ffe566', angle: 3.9, speed: 0.6, y: 0.9, radius: 1.9, size: 1.2, phase: 4.8 },
-  { name: 'E', color: '#7dff8a', angle: 5.2, speed: 0.45, y: 3.4, radius: 2.6, size: 1.0, phase: 6.0 },
-]
+// Theme-aware color palettes for the DNA animation.
+// Geometry, movement, timing and performance are identical across themes;
+// only particle/glow/highlight colours change.
+const LIGHT_PALETTE = {
+  clearColor: 0xf6f4ec,
+  bloomStrength: 0.06,
+  nutrients: [
+    { name: 'Zinc', color: '#398653', angle: 0, speed: 0.5, y: -0.5, radius: 2.0, size: 1.5, phase: 0 },
+    { name: 'C', color: '#287A49', angle: 1.3, speed: 0.7, y: -2.4, radius: 2.5, size: 1.1, phase: 1.6 },
+    { name: 'B12', color: '#4B9862', angle: 2.6, speed: 0.4, y: 2.2, radius: 2.3, size: 1.1, phase: 3.2 },
+    { name: 'D3', color: '#398653', angle: 3.9, speed: 0.6, y: 0.9, radius: 1.9, size: 1.2, phase: 4.8 },
+    { name: 'E', color: '#62A875', angle: 5.2, speed: 0.45, y: 3.4, radius: 2.6, size: 1.0, phase: 6.0 },
+  ],
+  strand1: 'vec3(.16,.48,.29)',
+  strand2: 'vec3(.38,.66,.46)',
+  strand2b: 'vec3(.29,.6,.38)',
+  rung1: 'vec3(.16,.48,.29)',
+  rung2: 'vec3(.38,.66,.46)',
+  rung3: 'vec3(.29,.6,.38)',
+  rung4: 'vec3(.16,.48,.29)',
+  halo: 'vec3(.65,.85,.69)',
+  burst: 'vec3(.38,.66,.46)',
+  mouse: 'vec3(.55,.78,.6)',
+}
 
-const PARTICLE_VERTEX = `
+const DARK_PALETTE = {
+  clearColor: 0x080808,
+  bloomStrength: 0.24,
+  nutrients: [
+    { name: 'Zinc', color: '#E2C99F', angle: 0, speed: 0.5, y: -0.5, radius: 2.0, size: 1.5, phase: 0 },
+    { name: 'C', color: '#C5A071', angle: 1.3, speed: 0.7, y: -2.4, radius: 2.5, size: 1.1, phase: 1.6 },
+    { name: 'B12', color: '#D6B58D', angle: 2.6, speed: 0.4, y: 2.2, radius: 2.3, size: 1.1, phase: 3.2 },
+    { name: 'D3', color: '#C5A071', angle: 3.9, speed: 0.6, y: 0.9, radius: 1.9, size: 1.2, phase: 4.8 },
+    { name: 'E', color: '#E2C99F', angle: 5.2, speed: 0.45, y: 3.4, radius: 2.6, size: 1.0, phase: 6.0 },
+  ],
+  strand1: 'vec3(.8,.62,.44)',
+  strand2: 'vec3(.88,.7,.55)',
+  strand2b: 'vec3(.9,.75,.55)',
+  rung1: 'vec3(.8,.62,.44)',
+  rung2: 'vec3(.88,.7,.55)',
+  rung3: 'vec3(.9,.75,.55)',
+  rung4: 'vec3(.8,.62,.44)',
+  halo: 'vec3(.4,.3,.2)',
+  burst: 'vec3(.6,.4,.25)',
+  mouse: 'vec3(.6,.45,.35)',
+}
+
+function makeParticleVertex(p) {
+  return `
 attribute vec4 aData;attribute vec3 aRand;
 uniform float uTime,uRot,uAssemble,uZip,uShock,uSize,uPix,uMouseOn,uScaleY,uBaseRadius;
 uniform vec3 uP,uMouse;uniform vec3 uBurst[5];
@@ -35,17 +75,17 @@ void main(){
  vec3 p;vec3 col;float al=.6;
  if(kind<1.5){
   p=helix(kind,t,rr+sep+shk*.6);p.xz+=aRand.xy*.14;p.y+=aRand.z*.08;
-  col=mix(vec3(.03,.78,.5),vec3(.05,.9,.82),t*.8+.1*sin(uTime+t*5.));
-  if(kind>.5)col=mix(col,vec3(.12,.98,.9),.38);
+  col=mix(${p.strand1},${p.strand2},t*.8+.1*sin(uTime+t*5.));
+  if(kind>.5)col=mix(col,${p.strand2b},.38);
  }else if(kind<2.5){
   vec3 A=helix(0.,t,rr+sep),B=helix(1.,t,rr+sep);p=mix(A,B,w)+aRand*.05;
   float q=floor(seed*4.);
-  col=q<1.?vec3(.55,.9,.62):q<2.?vec3(.1,.8,.72):q<3.?vec3(.62,.58,.3):vec3(.3,.62,.66);
+  col=q<1.?${p.rung1}:q<2.?${p.rung2}:q<3.?${p.rung3}:${p.rung4};
   al=.65*(1.-smoothstep(.1,1.,sep/1.6));
  }else{
   float rad=1.5+fract(seed*7.3)*12.;float a=seed*6.2831+uTime*(.1+.25*fract(seed*13.))/(.4+rad*.25);
   float y=(fract(seed*3.7+uTime*.015*(1.+fract(seed*9.)))-.5)*H*3.4;
-  p=vec3(cos(a)*rad,y,sin(a)*rad);col=vec3(.06,.34,.26)*.5;al=.1;g=0.;burst=0.;
+  p=vec3(cos(a)*rad,y,sin(a)*rad);col=${p.halo}*.5;al=.1;g=0.;burst=0.;
  }
  if(kind<2.5){
   float a=smoothstep(0.,1.,uAssemble*1.6-seed*.5-t*.35);
@@ -54,15 +94,16 @@ void main(){
   p=mix(s0,p,a);al*=.3+.7*a;
  }
  p.xz*=1.+burst*.8;p+=aRand*burst*1.2;
- col+=vec3(.1,.6,.35)*burst*.55;col*=1.+g*1.1;
+ col+=${p.burst}*burst*.55;col*=1.+g*1.1;
  vec4 wp=modelMatrix*vec4(p,1.);
  vec2 dm=wp.xy-uMouse.xy;float dd=dot(dm,dm);float f=exp(-dd/2.4)*uMouseOn;
  vec2 nn=dm*inversesqrt(dd+.001);
- wp.xy+=nn*f*1.5+vec2(-nn.y,nn.x)*f*.9;wp.z+=f*1.5;col+=vec3(.3,.5,.4)*f;
+ wp.xy+=nn*f*1.5+vec2(-nn.y,nn.x)*f*.9;wp.z+=f*1.5; col+=${p.mouse}*f;
  vec4 mv=viewMatrix*wp;gl_Position=projectionMatrix*mv;
  gl_PointSize=uSize*uPix*(1.+g*1.2+burst*2.)*(.6+.8*fract(seed*5.))*(18./-mv.z);
  vCol=col;vA=al;
 }`
+}
 
 const PARTICLE_FRAGMENT = `
 varying vec3 vCol;varying float vA;
@@ -75,7 +116,7 @@ function makeGlowTexture(hex) {
   canvas.height = size
   const ctx = canvas.getContext('2d')
   const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2)
-  gradient.addColorStop(0, '#ffffff')
+  gradient.addColorStop(0, hex)
   gradient.addColorStop(0.18, hex)
   gradient.addColorStop(0.45, `${hex}22`)
   gradient.addColorStop(1, `${hex}00`)
@@ -94,19 +135,23 @@ function easeOutCubic(x) {
 
 export default function OverviewDnaVisualization({ className = '' }) {
   const hostRef = useRef(null)
+  const { resolvedTheme } = useTheme()
 
   useEffect(() => {
     const host = hostRef.current
     if (!host) return undefined
 
+    const palette = resolvedTheme === 'dark' ? DARK_PALETTE : LIGHT_PALETTE
+    const particleVertex = makeParticleVertex(palette)
+
     let renderer
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' })
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: 'high-performance' })
     } catch {
       return undefined
     }
 
-    renderer.setClearColor(0x061a14, 1)
+    renderer.setClearColor(palette.clearColor, 0)
     renderer.domElement.style.display = 'block'
     renderer.domElement.style.width = '100%'
     renderer.domElement.style.height = '100%'
@@ -183,7 +228,7 @@ export default function OverviewDnaVisualization({ className = '' }) {
       transparent: true,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
-      vertexShader: PARTICLE_VERTEX,
+      vertexShader: particleVertex,
       fragmentShader: PARTICLE_FRAGMENT,
     })
 
@@ -192,10 +237,10 @@ export default function OverviewDnaVisualization({ className = '' }) {
     root.add(points)
 
     // Floating nutrient orbs with additive trails.
-    const dotTexture = makeGlowTexture('#ffffff')
+    const dotTexture = makeGlowTexture('#A5D9B0')
     const TRAIL = 36
     const orbs = []
-    NUTRIENTS.forEach((nutrient, index) => {
+    palette.nutrients.forEach((nutrient, index) => {
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
         map: makeGlowTexture(nutrient.color),
         blending: THREE.AdditiveBlending,
@@ -295,12 +340,10 @@ export default function OverviewDnaVisualization({ className = '' }) {
       baseZ += (targetBaseZ - baseZ) * Math.min(1, delta * 2.5)
       camera.position.set(Math.sin(time * 0.2) * 0.6, 0, baseZ - (1 - eased) * 8)
       camera.lookAt(0, 0, 0)
-      // Diagonal composition: helix spans bottom-left -> top-right at 45 degrees.
-      // Solve the uniform scale so the rotated helix covers ~88% of the hero width.
       const viewHeight = 2 * baseZ * Math.tan(HALF_FOV)
       const viewWidth = viewHeight * camera.aspect
       const span = 0.88 * viewWidth
-      const chord = Math.SQRT2 * 11 // vertical helix length projected on the diagonal
+      const chord = Math.SQRT2 * 11
       const scaleY = chord > 0 ? span / chord : 1.3
       const radius = Math.min(1.55, Math.max(1.0, scaleY * 1.05))
       uniforms.uScaleY.value = scaleY
@@ -342,7 +385,7 @@ export default function OverviewDnaVisualization({ className = '' }) {
       }
 
       if (composer && bloom) {
-        bloom.strength = 0.24
+        bloom.strength = palette.bloomStrength
         composer.render()
       } else {
         renderer.render(scene, camera)
@@ -386,7 +429,7 @@ export default function OverviewDnaVisualization({ className = '' }) {
       }
       renderer.dispose()
     }
-  }, [])
+  }, [resolvedTheme])
 
   return <div ref={hostRef} className={className} aria-hidden="true" />
 }

@@ -1,6 +1,7 @@
 /* NutraAI — professional typography layer (Source Sans 3)
    Establishes a consistent scale and raises text that was too small.
-   Loaded after site/screens/admin styles; no new dependencies. */
+   Loaded after site/screens/admin styles; overrides hardcoded sizes with
+   central typography tokens. No new dependencies. */
 
 :root {
   font-family: var(--font-sans);
@@ -18,8 +19,13 @@ h1, h2, h3, h4 {
   letter-spacing: -0.2px;
 }
 
+h1 { font-size: var(--fs-page); line-height: var(--lh-heading); }
+h2 { font-size: var(--fs-section); line-height: 1.3; letter-spacing: -0.2px; }
+h3 { font-size: var(--fs-card); line-height: 1.35; }
+h4 { font-size: var(--fs-body-lg); line-height: 1.4; }
+
 /* ============================================================
-   CUSTOMER DASHBOARD
+   CUSTOMER DASHBOARD — token-driven typography
    ============================================================ */
 .dashboard-shell {
   font-size: var(--fs-body);
@@ -31,35 +37,32 @@ h1, h2, h3, h4 {
   font-size: var(--fs-nav);
   line-height: 1.4;
 }
-
 .sidebar-bottom > a:not(.sidebar-profile),
 .sidebar-bottom > button:not(.sidebar-profile) {
-  font-size: 13px;
+  font-size: var(--fs-nav);
   line-height: 1.4;
 }
-
-.sidebar-profile strong { font-size: 13px; }
-.sidebar-profile small { font-size: 11px; }
-
+.sidebar-profile strong { font-size: var(--fs-label); }
+.sidebar-profile small { font-size: var(--fs-micro); }
 .sidebar-caption {
-  font-size: 11px;
+  font-size: var(--fs-micro);
   letter-spacing: 1px;
 }
-
-.dashboard-brand { font-size: 16px; }
+.dashboard-brand { font-size: var(--fs-body-lg); }
 
 /* Bottom navigation (mobile/tablet) */
 .dashboard-bottom-nav__link {
-  font-size: 12px;
+  font-size: var(--fs-micro);
   line-height: 1.3;
 }
 
 /* Top bar */
-.dashboard-breadcrumb { font-size: 13px; }
-.topbar-user__name { font-size: 13px; }
+.dashboard-breadcrumb { font-size: var(--fs-label); }
+.topbar-user__name { font-size: var(--fs-label); }
+.topbar-user { font-size: var(--fs-label); }
 
 /* Page heading block */
-.dashboard-page-title .eyebrow { font-size: 12px; }
+.dashboard-page-title .eyebrow { font-size: var(--fs-micro); }
 .dashboard-page-title h1 {
   font-size: var(--fs-page);
   line-height: var(--lh-heading);
@@ -69,125 +72,432 @@ h1, h2, h3, h4 {
   font-size: var(--fs-body);
   line-height: 1.55;
 }
-.dashboard-page-title > .button { font-size: 14px; }
+.dashboard-page-title > .button { font-size: var(--fs-nav); }
 
 /* Section headings */
-.overview-section__heading h2 {
+.overview-section__heading h2,
+.panel-heading h2,
+.today-section-heading h2,
+.subscription-section-heading h2,
+.settings-card__head h2,
+.report-section h2,
+.assistant-panel__intro h2,
+.cart-summary h2,
+.report-summary h2 {
   font-size: var(--fs-section);
   line-height: 1.3;
   letter-spacing: -0.2px;
 }
-
-.panel-heading h2 {
-  font-size: var(--fs-section);
-  line-height: 1.3;
+.overview-section__heading .eyebrow,
+.panel-heading .eyebrow,
+.today-section-heading .eyebrow,
+.overview-panel-heading .eyebrow {
+  font-size: var(--fs-micro);
 }
-.panel-heading .eyebrow { font-size: 12px; }
 
-/* Cards */
+/* Card headings */
 .dashboard-panel h2,
-.dashboard-panel h3 {
+.dashboard-panel h3,
+.wellness-plan-card h2,
+.recommendation-copy h2,
+.profile-side-card h2,
+.membership-history-card__head h3,
+.product-detail-sections h2,
+.detail-tabs h2,
+.next-step-panel h2,
+.app-empty-state h2,
+.overview-panel-heading h3,
+.hydration-feature h3 {
   font-size: var(--fs-card);
   line-height: 1.35;
 }
+
+/* Body text */
 .dashboard-panel p,
-.dashboard-panel li {
+.dashboard-panel li,
+.assistant-panel p,
+.report-product-card p,
+.settings-toggle-row span,
+.report-kpi span,
+.cart-item__details p,
+.order-card > p,
+.subscription-notification p,
+.membership-trial-note p,
+.membership-faq details p,
+.product-detail-copy > p,
+.product-detail-sections p,
+.contact-copy p,
+.detail-tabs p,
+.process-step p,
+.plan-intro small,
+.subscription-shortcuts small,
+.value-item > span:last-child,
+.overview-stat small,
+.progress-summary span,
+.chart-legend small,
+.overview-live-label {
   font-size: var(--fs-body);
   line-height: 1.55;
 }
 
-/* Dashboard statistics */
-.overview-stat small { font-size: 12px; }
-.overview-stat strong { font-size: var(--fs-card); line-height: 1.3; }
-.overview-stat > span:last-child { font-size: 12px; }
+/* Labels and form text */
+.app-form > label,
+.basic-profile-form > label,
+.checkout-form > label,
+.settings-field > span,
+.supplement-subscription-form > label,
+.assessment-field__label,
+.dashboard-shell :is(.app-form, .basic-profile-form, .checkout-form, .supplement-subscription-form) > label {
+  font-size: var(--fs-label);
+  line-height: 1.4;
+  font-weight: 600;
+}
 
-/* Descriptions, disclaimers, footer */
-.dashboard-disclaimer { font-size: 13px; line-height: 1.5; }
-.dashboard-footer { font-size: 12px; line-height: 1.5; }
+/* Buttons */
+.dashboard-shell .button,
+.settings-segment,
+.settings-form__actions .button,
+.app-form > .button,
+.settings-actions > .button,
+.recommendations-tabs button,
+.catalog-filters button,
+.membership-billing button,
+.subscription-actions .button,
+.wellness-plan-actions .button,
+.tracker-actions .button,
+.assessment-actions .button,
+.recommendation-actions .button,
+.cart-summary .button,
+.checkout-form > .button,
+.subscription-selection > .button,
+.basic-profile-form__actions .button,
+.next-step-panel .button,
+.app-empty-state .button,
+.recommendation-actions .text-link,
+.subscription-actions .text-link,
+.subscription-history .text-link,
+.profile-popover > a,
+.profile-popover > button[role="menuitem"],
+.text-link,
+.product-link {
+  font-size: var(--fs-nav);
+  line-height: 1.35;
+}
+
+/* Supporting / caption text */
+.dashboard-disclaimer { font-size: var(--fs-label); line-height: 1.5; }
+.dashboard-footer { font-size: var(--fs-label); line-height: 1.5; }
+.sidebar-caption { font-size: var(--fs-micro); }
+.chart-legend { font-size: var(--fs-label); }
+.chart-legend small { font-size: var(--fs-micro); }
+.form-helper { font-size: var(--fs-micro); line-height: 1.6; }
+.assessment-field__hint { font-size: var(--fs-label); }
+.assessment-helper { font-size: var(--fs-label); }
+.text-link { font-size: var(--fs-label); }
+.sidebar-bottom > a:not(.sidebar-profile) { font-size: var(--fs-nav); }
 
 /* Forms and controls */
 .dashboard-shell input,
 .dashboard-shell select,
-.dashboard-shell textarea {
+.dashboard-shell textarea,
+.app-form input,
+.app-form select,
+.settings-field input,
+.settings-field select,
+.checkout-form input,
+.checkout-form textarea,
+.basic-profile-form input,
+.basic-profile-form select,
+.basic-profile-form textarea,
+.assessment-field input,
+.assessment-field select,
+.assessment-field textarea,
+.supplement-subscription-form input,
+.supplement-subscription-form select {
   font-size: var(--fs-body);
   line-height: 1.45;
 }
 
-.dashboard-shell input::placeholder,
-.dashboard-shell textarea::placeholder {
-  opacity: 1;
-}
+/* Dashboard statistics */
+.overview-stat small { font-size: var(--fs-label); }
+.overview-stat strong { font-size: var(--fs-card); line-height: 1.3; }
+.overview-stat > span:last-child { font-size: var(--fs-label); }
 
-.dashboard-shell .button {
-  font-size: 14px;
-  line-height: 1.3;
-}
+/* Descriptions, disclaimers, footer */
+.dashboard-disclaimer { font-size: var(--fs-label); line-height: 1.5; }
+.dashboard-footer { font-size: var(--fs-label); line-height: 1.5; }
 
 /* Tables */
 .dashboard-shell table { font-size: var(--fs-table); line-height: 1.45; }
-.dashboard-shell table th { font-size: 12px; }
+.dashboard-shell table th { font-size: var(--fs-label); }
 
 /* ============================================================
-   ADMIN PORTAL
+   ADMIN PORTAL — token-driven typography
    ============================================================ */
 .admin-shell {
   font-size: var(--fs-body);
   line-height: 1.5;
 }
-
-.admin-shell h1 {
-  font-size: var(--fs-page);
-  line-height: var(--lh-heading);
-  letter-spacing: -0.2px;
-}
-
-.admin-shell h2 {
-  font-size: var(--fs-section);
-  line-height: 1.3;
-}
-
-.admin-shell h3 {
-  font-size: var(--fs-card);
-  line-height: 1.35;
-}
-
-.admin-shell p,
-.admin-shell li {
-  line-height: 1.55;
-}
+.admin-shell h1 { font-size: var(--fs-page); line-height: var(--lh-heading); letter-spacing: -0.2px; }
+.admin-shell h2 { font-size: var(--fs-section); line-height: 1.3; }
+.admin-shell h3 { font-size: var(--fs-card); line-height: 1.35; }
+.admin-shell p, .admin-shell li { line-height: 1.55; font-size: var(--fs-body); }
 
 /* Admin sidebar navigation */
-.admin-shell > aside a {
-  font-size: var(--fs-nav);
-  line-height: 1.4;
-}
-
+.admin-shell > aside a { font-size: var(--fs-nav); line-height: 1.4; }
 .admin-shell > aside .sidebar-section-title,
-.admin-shell > aside div.text-\[10px\] {
-  font-size: 11px;
-}
+.admin-shell > aside div.text-\[10px\] { font-size: var(--fs-micro); }
 
 /* Admin forms and tables */
 .admin-shell input,
 .admin-shell select,
-.admin-shell textarea {
-  font-size: var(--fs-body);
-  line-height: 1.45;
-}
-
-.admin-shell button {
-  font-size: 14px;
-  line-height: 1.3;
-}
-
+.admin-shell textarea { font-size: var(--fs-body); line-height: 1.45; }
+.admin-shell button { font-size: var(--fs-nav); line-height: 1.3; }
 .admin-shell table { font-size: var(--fs-table); line-height: 1.45; }
-.admin-shell table th { font-size: 12px; }
+.admin-shell table th { font-size: var(--fs-label); }
 
 /* Raise the smallest admin utility text for legibility */
 .admin-shell [class*="text-[10px]"],
-.admin-shell [class*="text-[11px]"] {
-  font-size: 12px;
+.admin-shell [class*="text-[11px]"] { font-size: var(--fs-micro); }
+
+/* ============================================================
+   SHARED COMPONENTS — assessment, recommendations, assistant,
+   marketplace, profile, settings, wellness reports
+   ============================================================ */
+
+/* Health assessment */
+.assessment-panel h2,
+.assessment-panel h3,
+.assessment-body h2,
+.assessment-structured-body > h2,
+.assessment-progress-header strong,
+.assessment-review__heading h3,
+.assessment-answer dd,
+.assessment-review dd,
+.assessment-review dt,
+.assessment-choice,
+.assessment-chip,
+.assessment-field input,
+.assessment-field select,
+.assessment-field textarea,
+.button--text,
+.assessment-scale button span,
+.assessment-step-indicator small,
+.assessment-progress__step small,
+.assessment-edit-link,
+.assessment-inline-check,
+.assessment-structured-body > .assessment-helper,
+.assessment-structured-body > .eyebrow {
+  font-size: var(--fs-body);
+  line-height: 1.5;
 }
+.assessment-structured-body > .assessment-helper,
+.assessment-structured-body > .eyebrow,
+.assessment-progress-header .eyebrow,
+.assessment-field__hint {
+  font-size: var(--fs-label);
+}
+.assessment-scale button small,
+.assessment-body > .eyebrow,
+.assessment-complete p,
+.assessment-disclaimer,
+.dashboard-disclaimer {
+  font-size: var(--fs-label);
+}
+
+/* Recommendations */
+.recommendation-copy h2 { font-size: var(--fs-card); line-height: 1.35; }
+.recommendation-copy p { font-size: var(--fs-body); line-height: 1.55; }
+.recommendation-copy .eyebrow { font-size: var(--fs-micro); }
+.recommendation-actions .button { font-size: var(--fs-nav); }
+.recommendations-tabs button { font-size: var(--fs-nav); }
+
+/* AI assistant */
+.assistant-panel__top strong { font-size: var(--fs-label); }
+.assistant-panel__top small { font-size: var(--fs-micro); }
+.chat-message p { font-size: var(--fs-body); line-height: 1.7; }
+.quick-prompts > span { font-size: var(--fs-micro); }
+.quick-prompts button { font-size: var(--fs-nav); }
+.assistant-input input { font-size: var(--fs-body); }
+.assistant-safety { font-size: var(--fs-label); line-height: 1.6; }
+.assistant-preview__head strong { font-size: var(--fs-label); }
+.assistant-preview__head small { font-size: var(--fs-micro); }
+.assistant-preview__body p { font-size: var(--fs-body-lg); line-height: 1.4; }
+.assistant-preview__body small { font-size: var(--fs-label); }
+.assistant-preview__reply { font-size: var(--fs-label); line-height: 1.65; }
+.assistant-preview__footer > span { font-size: var(--fs-label); }
+.assistant-preview__footer a { font-size: var(--fs-label); font-weight: 600; }
+.assistant-preview__badge { font-size: var(--fs-micro); }
+
+/* Marketplace / commerce */
+.marketplace-callout h2 { font-size: var(--fs-section); }
+.marketplace-callout p { font-size: var(--fs-body); line-height: 1.6; }
+.marketplace-callout .button { font-size: var(--fs-nav); }
+.marketplace-card h2 { font-size: var(--fs-card); }
+.marketplace-card__details { font-size: var(--fs-label); }
+.marketplace-card__content > p { font-size: var(--fs-body); line-height: 1.6; }
+.marketplace-card__price strong, .product-detail-price strong { font-size: var(--fs-card); }
+.marketplace-card__price > span, .product-detail-price > span { font-size: var(--fs-label); }
+.marketplace-filter select, .marketplace-search input { font-size: var(--fs-body); }
+.catalog-filters button { font-size: var(--fs-nav); }
+.recommendations-tabs button { font-size: var(--fs-nav); }
+.breadcrumbs { font-size: var(--fs-label); }
+.product-detail-copy h1 { font-size: var(--fs-page); }
+.product-detail-price { font-size: var(--fs-body-lg); font-weight: 700; }
+.product-detail-copy > p { font-size: var(--fs-body); line-height: 1.75; }
+.detail-tabs [role="tab"] { font-size: var(--fs-label); }
+.detail-tabs h2 { font-size: var(--fs-card); }
+.detail-tabs p { font-size: var(--fs-body); line-height: 1.8; }
+.detail-promises span { font-size: var(--fs-label); }
+.quantity-picker button { font-size: var(--fs-body-lg); }
+.quantity-picker span { font-size: var(--fs-label); }
+.quantity-row .button { font-size: var(--fs-nav); }
+.form-status { font-size: var(--fs-label); line-height: 1.6; }
+.app-error-screen p { font-size: var(--fs-body); line-height: 1.7; }
+.app-error-screen .button { font-size: var(--fs-nav); }
+.not-found h1 { font-size: var(--fs-page); }
+.not-found a { font-size: var(--fs-label); }
+
+/* Profile */
+.profile-side-card h2 { font-size: var(--fs-card); }
+.profile-side-card p { font-size: var(--fs-body); line-height: 1.7; }
+.profile-side-card .eyebrow { font-size: var(--fs-micro); }
+.profile-completion-card__heading strong { font-size: var(--fs-card); }
+.profile-completion-card__heading small { font-size: var(--fs-label); }
+.profile-completion-card__heading > b { font-size: var(--fs-body-lg); }
+.profile-completion-card > .text-link { font-size: var(--fs-label); }
+.profile-completion { font-size: var(--fs-label); }
+.profile-form-panel label { font-size: var(--fs-label); }
+.profile-popover__identity strong { font-size: var(--fs-label); }
+.profile-popover__identity small { font-size: var(--fs-micro); }
+.profile-popover > a, .profile-popover > button[role="menuitem"] { font-size: var(--fs-nav); }
+
+/* Settings */
+.settings-card__head h2 { font-size: var(--fs-section); }
+.settings-notice { font-size: var(--fs-label); line-height: 1.5; }
+.settings-muted { font-size: var(--fs-label); }
+.settings-field > span { font-size: var(--fs-label); font-weight: 600; }
+.settings-field input, .settings-field select { font-size: var(--fs-body); }
+.settings-segment { font-size: var(--fs-nav); font-weight: 600; }
+.settings-form__actions .button { font-size: var(--fs-nav); }
+.settings-toggle-row span { font-size: var(--fs-body); line-height: 1.4; }
+.settings-toggle-row small { font-size: var(--fs-label); }
+.settings-toggle-row strong { font-size: var(--fs-label); font-weight: 600; }
+.settings-subcard h3 { font-size: var(--fs-card); }
+.settings-summary dt { font-size: var(--fs-label); }
+.settings-summary dd { font-size: var(--fs-body); font-weight: 600; }
+.settings-form__actions--split .button { font-size: var(--fs-nav); }
+
+/* Wellness reports / subscription */
+.report-summary h2 { font-size: var(--fs-card); }
+.report-summary p { font-size: var(--fs-body); line-height: 1.7; }
+.report-product-card h2 { font-size: var(--fs-card); }
+.report-product-card p { font-size: var(--fs-body); line-height: 1.6; }
+.report-product-card > strong { font-size: var(--fs-label); }
+.report-product-card .button { font-size: var(--fs-nav); }
+.subscription-section-heading h2 { font-size: var(--fs-section); }
+.subscription-plan h2 { font-size: var(--fs-card); }
+.subscription-plan p { font-size: var(--fs-body); line-height: 1.6; }
+.subscription-plan li { font-size: var(--fs-label); }
+.subscription-plan .button { font-size: var(--fs-nav); }
+.subscription-current-plan { font-size: var(--fs-label); }
+.subscription-status { font-size: var(--fs-micro); font-weight: 700; text-transform: uppercase; }
+.subscription-detail span { font-size: var(--fs-micro); }
+.subscription-detail strong { font-size: var(--fs-label); }
+.subscription-history-row strong { font-size: var(--fs-label); }
+.subscription-history-row small { font-size: var(--fs-micro); }
+.subscription-history-row em { font-size: var(--fs-micro); font-style: normal; }
+.subscription-trial > p, .subscription-section-heading p, .subscription-history > p { font-size: var(--fs-label); line-height: 1.65; }
+.subscription-consent { font-size: var(--fs-label); line-height: 1.65; }
+.subscription-nav a { font-size: var(--fs-nav); font-weight: 600; }
+.subscription-shortcuts strong { font-size: var(--fs-label); }
+.subscription-billing button { font-size: var(--fs-nav); }
+.membership-section-heading h2 { font-size: var(--fs-section); }
+.membership-section-heading p { font-size: var(--fs-body); line-height: 1.6; }
+.membership-plan-card__header p { font-size: var(--fs-body-lg); line-height: 1.1; }
+.membership-current-card__meta dd, .membership-history-card__meta dd { font-size: var(--fs-body); }
+.membership-current-card__benefits h3 { font-size: var(--fs-card); }
+.membership-billing button small { font-size: var(--fs-micro); }
+.membership-pricing-note { font-size: var(--fs-label); line-height: 1.6; }
+.membership-cycle { font-size: var(--fs-micro); }
+.plan-price strong { font-size: var(--fs-body-lg); font-weight: 400; }
+.plan-price > span { font-size: var(--fs-label); }
+.order-detail-hero__main h2 { font-size: var(--fs-section); }
+.order-detail-hero__meta { font-size: var(--fs-label); font-weight: 500; }
+.order-item-card__title-row h3 { font-size: var(--fs-card); }
+.order-item-card__title-row strong { font-size: var(--fs-body-lg); line-height: 1.4; }
+.order-item-card__meta { font-size: var(--fs-micro); white-space: nowrap; }
+.order-card > p { font-size: var(--fs-body); }
+.order-card > small { font-size: var(--fs-micro); }
+.order-card .cart-total { font-size: var(--fs-label); font-weight: 700; }
+.order-price-breakdown > div { font-size: var(--fs-label); }
+.order-price-breakdown .is-total { font-size: var(--fs-body-lg); }
+.order-tracking-step__content strong { font-size: var(--fs-label); }
+.order-tracking-step__content span { font-size: var(--fs-body); line-height: 1.3; }
+.order-tracking-footnote { font-size: var(--fs-micro); line-height: 1.45; }
+.order-history-item__head strong { font-size: var(--fs-label); }
+.order-history-item__head span { font-size: var(--fs-micro); text-transform: capitalize; }
+.order-history-item p { font-size: var(--fs-body); }
+.order-info-block { font-size: var(--fs-body); }
+.order-detail-notice p { font-size: var(--fs-body); font-weight: 500; }
+.order-detail-notice h2 { font-size: var(--fs-card); }
+.cart-empty h2 { font-size: var(--fs-card); }
+.cart-empty p { font-size: var(--fs-body); line-height: 1.6; }
+.cart-empty .button { font-size: var(--fs-nav); }
+.cart-summary > div { font-size: var(--fs-body); }
+.cart-summary > div strong { font-size: var(--fs-body-lg); }
+.cart-summary .cart-total { font-weight: 700; }
+.cart-summary .button { font-size: var(--fs-nav); }
+.cart-summary > p { font-size: var(--fs-label); line-height: 1.6; }
+.cart-item__details h2 { font-size: var(--fs-card); }
+.cart-item__details p, .cart-item > strong { font-size: var(--fs-body); }
+.cart-item__info h3 { font-size: var(--fs-body-lg); }
+.cart-item__info p { font-size: var(--fs-body); }
+.order-price-note { font-size: var(--fs-label); }
+.payment-badge { font-size: var(--fs-label); }
+.order-status-pill { font-size: var(--fs-label); }
+.order-payment-badge { font-size: var(--fs-label); font-weight: 600; }
+
+/* Today / hydration / tracking */
+.today-section-heading h2 { font-size: var(--fs-section); }
+.today-card__copy strong { font-size: var(--fs-card); }
+.today-card__copy small { font-size: var(--fs-label); }
+.hydration-count { font-size: var(--fs-label); }
+.hydration-count strong { font-size: var(--fs-body-lg); }
+.hydration-glasses > span { font-size: var(--fs-micro); }
+.tracker-actions .button { font-size: var(--fs-nav); }
+.adherence-empty p { font-size: var(--fs-label); line-height: 1.5; }
+.tracker-note { font-size: var(--fs-micro); line-height: 1.45; }
+.connected-empty p { font-size: var(--fs-label); }
+.progress-metrics article span { font-size: var(--fs-label); }
+.progress-metrics article strong { font-size: var(--fs-body-lg); line-height: 1.3; }
+.progress-metrics article small { font-size: var(--fs-micro); }
+.tracking-panel .panel-heading .eyebrow { font-size: var(--fs-micro); }
+.tracking-tip p { font-size: var(--fs-label); line-height: 1.6; }
+.chart-legend { font-size: var(--fs-label); }
+.chart-footnote { font-size: var(--fs-micro); }
+.progress-chart-empty > strong { font-size: var(--fs-label); }
+.progress-chart-empty > p { font-size: var(--fs-label); line-height: 1.55; }
+.progress-chart-empty > a { font-size: var(--fs-label); font-weight: 600; }
+.range-select select { font-size: var(--fs-label); }
+
+/* Empty states & forms */
+.app-empty-state h2 { font-size: var(--fs-card); }
+.app-empty-state p { font-size: var(--fs-body); line-height: 1.65; }
+.app-empty-state .button { font-size: var(--fs-nav); }
+.app-form > label { font-size: var(--fs-label); font-weight: 600; }
+.app-form input, .app-form select { font-size: var(--fs-body); }
+.form-helper { font-size: var(--fs-micro); line-height: 1.6; }
+.app-form > .button { font-size: var(--fs-nav); }
+.basic-profile-intro { font-size: var(--fs-label); line-height: 1.65; }
+.basic-profile-picture__actions > strong { font-size: var(--fs-label); }
+.basic-profile-picture__actions > small { font-size: var(--fs-micro); }
+.basic-profile-form > label { font-size: var(--fs-label); font-weight: 600; }
+.basic-profile-form > label > span { font-size: var(--fs-micro); }
+.basic-profile-form input, .basic-profile-form select, .basic-profile-form textarea { font-size: var(--fs-body); }
+.basic-profile-form__actions .button { font-size: var(--fs-nav); }
+.basic-profile-upload { font-size: var(--fs-nav); }
+.basic-profile-remove { font-size: var(--fs-nav); }
 
 /* ============================================================
    RESPONSIVE
@@ -195,6 +505,15 @@ h1, h2, h3, h4 {
 @media (max-width: 1024px) {
   .dashboard-page-title h1,
   .admin-shell h1 { font-size: 28px; }
+  .overview-section__heading h2,
+  .panel-heading h2,
+  .admin-shell h2 { font-size: 21px; }
+  .dashboard-panel h2,
+  .dashboard-panel h3,
+  .admin-shell h3 { font-size: 17px; }
+  .dashboard-nav__link { font-size: 14px; }
+  .dashboard-bottom-nav__link { font-size: 12px; }
+  .dashboard-disclaimer, .dashboard-footer { font-size: 12px; }
 }
 
 @media (max-width: 767px) {
@@ -208,4 +527,7 @@ h1, h2, h3, h4 {
   .admin-shell h3 { font-size: 16px; }
   .dashboard-nav__link { font-size: 15px; }
   .dashboard-bottom-nav__link { font-size: 12px; }
+  .dashboard-disclaimer, .dashboard-footer { font-size: 12px; }
+  .app-form > label, .basic-profile-form > label, .checkout-form > label { font-size: 12px; }
+  .dashboard-shell .button { font-size: 14px; }
 }

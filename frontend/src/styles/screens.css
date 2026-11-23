@@ -878,6 +878,32 @@ button:disabled { cursor: not-allowed; }
 .sidebar-bottom > button:not(.sidebar-profile):disabled { opacity: 0.6; cursor: progress; }
 .dashboard-shell--collapsed .sidebar-bottom > button:not(.sidebar-profile) { justify-content: center; padding: 0; }
 
+/* Light mode sidebar - warm ivory with sage and champagne-gold accents */
+.dashboard-nav__link.is-active {
+  color: #080808;
+  background: #C5A071;
+}
+
+.profile-avatar {
+  color: #91A997;
+}
+
+.sidebar-profile > svg {
+  color: #91A997;
+}
+
+.sidebar-caption {
+  color: #91A997;
+}
+
+.sidebar-profile strong {
+  color: #4a5a4f;
+}
+
+.sidebar-profile small {
+  color: #8e9a90;
+}
+
 .dashboard-main { min-width: 0; width: calc(100% - 218px); min-height: 100vh; display: flex; flex-direction: column; margin-left: 218px; }
 .dashboard-topbar { height: 62px; flex: 0 0 62px; display: flex; align-items: center; justify-content: space-between; padding: 0 31px; border-bottom: 1px solid #e6eae3; background: #fff; }
 .dashboard-service-notice { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; padding: 9px clamp(15px, 3vw, 31px); border-bottom: 1px solid #e1e9de; color: #536559; background: #edf2e8; font-size: 9px; line-height: 1.5; }
@@ -5251,7 +5277,7 @@ button:disabled { cursor: not-allowed; }
 /* Dark theme - customer dashboard, orders/memberships, forms/tables/cards/notifications/loading/mobile */
 :root[data-theme="dark"] .dashboard-shell {
   color: var(--text);
-  background: #071a13;
+  background: #050505;
 }
 
 :root[data-theme="dark"] .dashboard-sidebar,
@@ -5365,8 +5391,8 @@ button:disabled { cursor: not-allowed; }
 
 :root[data-theme="dark"] .dashboard-nav__link.is-active,
 :root[data-theme="dark"] .dashboard-bottom-nav__link.is-active {
-  background: #204534;
-  color: #f4f8f4;
+  background: #201C17;
+  color: #F5EBDD;
 }
 
 :root[data-theme="dark"] .sidebar-profile,
@@ -5376,12 +5402,12 @@ button:disabled { cursor: not-allowed; }
 }
 
 :root[data-theme="dark"] .dashboard-service-notice {
-  background: #16231d;
+  background: #191715;
   color: var(--text-muted);
 }
 
 :root[data-theme="dark"] .dashboard-service-notice strong {
-  color: var(--accent-mint);
+  color: var(--gold);
 }
 
 :root[data-theme="dark"] .dashboard-panel,
@@ -5425,8 +5451,8 @@ button:disabled { cursor: not-allowed; }
 :root[data-theme="dark"] .membership-empty-state__icon,
 :root[data-theme="dark"] .membership-history-card__icon,
 :root[data-theme="dark"] .membership-history-empty span {
-  background: var(--accent-mint-soft);
-  color: var(--accent-mint);
+  background: var(--accent-gold-soft);
+  color: var(--gold);
 }
 
 :root[data-theme="dark"] .overview-stat__icon--gold {
@@ -5455,7 +5481,7 @@ button:disabled { cursor: not-allowed; }
 :root[data-theme="dark"] .product-detail-image,
 :root[data-theme="dark"] .order-item-card__image,
 :root[data-theme="dark"] .cart-item__image {
-  background: #141d18;
+  background: #191715;
 }
 
 :root[data-theme="dark"] .marketplace-card__content > p,
@@ -5470,7 +5496,7 @@ button:disabled { cursor: not-allowed; }
 :root[data-theme="dark"] .product-detail-price > span,
 :root[data-theme="dark"] .marketplace-card__meta .is-in-stock,
 :root[data-theme="dark"] .product-detail-stock.is-in-stock {
-  color: var(--accent-mint);
+  color: var(--gold);
 }
 
 :root[data-theme="dark"] .cart-item,
@@ -5503,9 +5529,9 @@ button:disabled { cursor: not-allowed; }
 :root[data-theme="dark"] .order-payment-badge,
 :root[data-theme="dark"] .membership-status-badge,
 :root[data-theme="dark"] .membership-payment-badge {
-  background: #1d3328;
-  color: #cfead9;
-  border-color: #355243;
+  background: #191715;
+  color: #D6B58D;
+  border-color: #383027;
 }
 
 :root[data-theme="dark"] .order-status-pill--cancelled,
@@ -5537,15 +5563,15 @@ button:disabled { cursor: not-allowed; }
 :root[data-theme="dark"] .membership-payment-badge.is-paid,
 :root[data-theme="dark"] .membership-payment-badge.is-success,
 :root[data-theme="dark"] .membership-payment-badge.is-completed {
-  background: #1b3326;
-  color: #bfe9cd;
-  border-color: #355c45;
+  background: #191715;
+  color: #C5A071;
+  border-color: #383027;
 }
 
 :root[data-theme="dark"] .order-detail-notice--info,
 :root[data-theme="dark"] .order-detail-notice--success {
-  background: #16231d;
-  border-color: #355243;
+  background: #191715;
+  border-color: #383027;
 }
 
 :root[data-theme="dark"] .order-detail-notice--warning {
@@ -5565,28 +5591,28 @@ button:disabled { cursor: not-allowed; }
 }
 
 :root[data-theme="dark"] .order-tracking-step__line {
-  background: #34453d;
+  background: #383027;
 }
 
 :root[data-theme="dark"] .order-tracking-step.is-completed .order-tracking-step__icon {
-  background: #2f6a4b;
-  border-color: #2f6a4b;
-  color: #fff;
+  background: #201C17;
+  border-color: #C5A071;
+  color: #F5EBDD;
 }
 
 :root[data-theme="dark"] .order-tracking-step.is-completed .order-tracking-step__line {
-  background: #4f8a66;
+  background: #C5A071;
 }
 
 :root[data-theme="dark"] .order-tracking-step.is-current .order-tracking-step__icon {
-  background: #1d3328;
-  border-color: #4f8a66;
-  color: #bfe9cd;
-  box-shadow: 0 0 0 4px rgb(127 212 168 / 12%);
+  background: #191715;
+  border-color: #C5A071;
+  color: #D6B58D;
+  box-shadow: 0 0 0 4px rgb(197 160 113 / 12%);
 }
 
 :root[data-theme="dark"] .order-history-item__dot {
-  box-shadow: 0 0 0 4px #1d3328;
+  box-shadow: 0 0 0 4px #191715;
 }
 
 :root[data-theme="dark"] .notification-popover > a,
@@ -5603,7 +5629,7 @@ button:disabled { cursor: not-allowed; }
 }
 
 :root[data-theme="dark"] .form-status {
-  color: var(--accent-mint);
+  color: var(--gold);
 }
 
 :root[data-theme="dark"] .form-status[role="alert"],
@@ -5619,11 +5645,11 @@ button:disabled { cursor: not-allowed; }
 
 :root[data-theme="dark"] .menu-dismiss,
 :root[data-theme="dark"] .sidebar-backdrop {
-  background: rgb(4 8 6 / 55%);
+  background: rgba(5 5 5 / 55%);
 }
 
 :root[data-theme="dark"] .integration-module:hover {
-  border-color: #4a6857;
+  border-color: #383027;
 }
 
 :root[data-theme="dark"] .dashboard-bottom-nav__link {
@@ -5635,9 +5661,9 @@ button:disabled { cursor: not-allowed; }
 }
 
 :root[data-theme="dark"] .dashboard-skip-link {
-  background: #204534;
-  border-color: #355243;
-  color: #fff;
+  background: #201C17;
+  border-color: #383027;
+  color: #F5EBDD;
 }
 
 :root[data-theme="dark"] .assessment-panel,
@@ -5659,7 +5685,7 @@ button:disabled { cursor: not-allowed; }
 :root[data-theme="dark"] .site-header :is(a, button):focus-visible,
 :root[data-theme="dark"] .public-page :is(a, button, [tabindex]):focus-visible,
 :root[data-theme="dark"] .auth-page :is(a, button, input):focus-visible {
-  outline-color: #d4b06a;
+  outline-color: #C5A071;
 }
 
 /* Admin portal theming moved to styles/admin.css (token-driven, both themes) */
@@ -5688,8 +5714,8 @@ button:disabled { cursor: not-allowed; }
 }
 
 :root[data-theme="dark"] .settings-field input:disabled {
-  background: #1a2420;
-  color: #8da096;
+  background: #191715;
+  color: #B9AA98;
 }
 
 :root[data-theme="dark"] .settings-toggle-row,
@@ -5708,12 +5734,12 @@ button:disabled { cursor: not-allowed; }
   border-color: #5a3732;
 }
 
-:root[data-theme="dark"] .settings-notice--success { color: #bfe9cd; background: #1b3326; }
-:root[data-theme="dark"] .settings-notice--error { color: #f7c2bc; background: #2b1b19; }
-:root[data-theme="dark"] .settings-notice--info { color: #d8e6de; background: #1c2823; }
+:root[data-theme="dark"] .settings-notice--success { color: #D6B58D; background: #191715; border-color: #383027; }
+:root[data-theme="dark"] .settings-notice--error { color: #f7c2bc; background: #2b1b19; border-color: #5a3732; }
+:root[data-theme="dark"] .settings-notice--info { color: #B9AA98; background: #191715; border-color: #383027; }
 
 :root[data-theme="dark"] .settings-segmented {
-  background: #1a2420;
+  background: #191715;
   border-color: var(--card-border);
 }
 
@@ -5722,7 +5748,7 @@ button:disabled { cursor: not-allowed; }
 }
 
 :root[data-theme="dark"] .settings-segment.is-selected {
-  background: #24342d;
+  background: #201C17;
   color: var(--text-heading);
   box-shadow: none;
 }
@@ -5765,12 +5791,78 @@ button:disabled { cursor: not-allowed; }
 }
 
 :root[data-theme="dark"] .membership-billing button.is-selected {
-  border-color: var(--accent-mint);
-  background: var(--accent-mint-soft);
+  border-color: var(--gold);
+  background: var(--accent-gold-soft);
   color: var(--text-heading);
 }
 
 :root[data-theme="dark"] .membership-comparison {
   background: var(--card-bg);
   border-color: var(--card-border);
+}
+
+/* Remove green/teal from dark mode - dashboard brand mark */
+:root[data-theme="dark"] .dashboard-brand .brand-mark {
+  background: #141414;
+  border-color: #383027;
+  color: #C5A071;
+}
+
+/* Remove green/teal from dark mode - hero art seed gradient */
+:root[data-theme="dark"] .hero-art__seed {
+  background: radial-gradient(circle at 35% 28%, #141414, transparent 62%);
+  box-shadow: 0 12px 25px rgb(0 0 0 / 35%);
+}
+
+/* Remove green/teal from dark mode - journey metric ring */
+:root[data-theme="dark"] .journey-metric__ring {
+  background: conic-gradient(var(--ring-color, #C5A071) var(--ring-progress), #383027 0);
+}
+
+:root[data-theme="dark"] .journey-metric__ring > span {
+  color: var(--ring-color, #C5A071);
+  background: var(--card-bg);
+}
+
+/* Remove green/teal from dark mode - assistant preview panel */
+:root[data-theme="dark"] .assistant-preview {
+  border-color: #383027;
+  background: #141414;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 35%);
+}
+
+/* Remove green/teal from dark mode - assistant preview body */
+:root[data-theme="dark"] .assistant-preview__body {
+  background: #141414;
+  border-color: #383027;
+  color: #F5EBDD;
+}
+
+/* Remove green/teal from dark mode - hero art orbit */
+:root[data-theme="dark"] .hero-art__orbit {
+  border-color: rgba(197 160 113 / 15%);
+}
+
+/* Remove green/teal from dark mode - hero art stem */
+:root[data-theme="dark"] .hero-art__stem {
+  background: linear-gradient(180deg, #E2C99F, #C5A071 68%, #A98253);
+  box-shadow: 1px 5px 16px rgb(0 0 0 / 30%);
+}
+
+/* Remove green/teal from dark mode - hero art leaves */
+:root[data-theme="dark"] .hero-art__leaf {
+  color: #E2C99F;
+  filter: drop-shadow(5px 10px 7px rgb(0 0 0 / 35%));
+}
+
+:root[data-theme="dark"] .hero-art__leaf svg {
+  fill: rgba(197 160 113 / 20%);
+}
+
+:root[data-theme="dark"] .hero-art__leaf--three {
+  color: #D6B58D;
+}
+
+:root[data-theme="dark"] .hero-art__leaf--four {
+  color: #E2C99F;
 }

@@ -1,15 +1,28 @@
 import { useEffect, useRef } from 'react'
+import { useTheme } from '../../context/ThemeContext.jsx'
 import './BioNeuralBackground.css'
 
-// Combination C (Charcoal + Deep Forest) adapted for a luminous dark workspace.
-const PALETTE = {
-  core: [66, 184, 131], // emerald #42B883
-  sage: [66, 184, 131],
-  mint: [168, 230, 200], // mint highlight
-  accent: [66, 184, 131],
-  aurora1: [66, 184, 131],
-  aurora2: [125, 211, 168],
-  aurora3: [32, 43, 39], // charcoal #202B27 depth
+// Theme-responsive palettes for the bio-neural background animation.
+// Geometry, particle counts, movement, timing and performance are identical
+// across themes; only colours and opacity change.
+const DARK_PALETTE = {
+  core: [197, 160, 113], // gold #C5A071
+  sage: [197, 160, 113],
+  mint: [226, 201, 159], // champagne highlight
+  accent: [197, 160, 113],
+  aurora1: [197, 160, 113],
+  aurora2: [226, 201, 159],
+  aurora3: [5, 5, 5], // black depth
+}
+
+const LIGHT_PALETTE = {
+  core: [57, 134, 83], // sage #398653 - primary particles
+  sage: [98, 168, 117], // #62A875 - connecting lines
+  mint: [139, 198, 154], // #8BC69A - highlights
+  accent: [75, 152, 98], // #4B9862 - glowing nodes
+  aurora1: [57, 134, 83], // #398653
+  aurora2: [98, 168, 117], // #62A875
+  aurora3: [75, 152, 98], // #4B9862
 }
 
 const rgba = (c, a) => `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`
@@ -32,6 +45,7 @@ function makeGlowSprite(color) {
 export default function BioNeuralBackground({ className = '' }) {
   const hostRef = useRef(null)
   const canvasRef = useRef(null)
+  const { resolvedTheme } = useTheme()
 
   useEffect(() => {
     const host = hostRef.current
@@ -40,8 +54,10 @@ export default function BioNeuralBackground({ className = '' }) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return undefined
 
+    const PALETTE = resolvedTheme === 'dark' ? DARK_PALETTE : LIGHT_PALETTE
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const state = { pulseActivity: 0.5, density: 0.55, vis: 1.2 }
+    const state = { pulseActivity: 0.5, density: 0.55, vis: resolvedTheme === 'dark' ? 1.2 : 1.0 }
 
     let width = 0
     let height = 0
@@ -192,7 +208,7 @@ export default function BioNeuralBackground({ className = '' }) {
       ctx.fill()
 
       if (n.layer === 2) {
-        ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 0.5 + boost * 0.45)})`
+        ctx.fillStyle = rgba(PALETTE.mint, Math.min(1, 0.5 + boost * 0.45))
         ctx.beginPath()
         ctx.arc(n.x - n.radius * 0.25, n.y - n.radius * 0.25, n.radius * 0.35, 0, Math.PI * 2)
         ctx.fill()
@@ -305,7 +321,7 @@ export default function BioNeuralBackground({ className = '' }) {
         ctx.globalAlpha = 0.7 * fade * state.vis
         ctx.drawImage(emeraldGlow, pos.x - halo, pos.y - halo, halo * 2, halo * 2)
         ctx.globalAlpha = 1
-        ctx.fillStyle = `rgba(255, 255, 255, ${0.85 * fade})`
+        ctx.fillStyle = rgba(PALETTE.mint, 0.85 * fade)
         ctx.beginPath()
         ctx.arc(pos.x, pos.y, p.size * 0.75, 0, Math.PI * 2)
         ctx.fill()
@@ -398,7 +414,7 @@ export default function BioNeuralBackground({ className = '' }) {
       document.removeEventListener('visibilitychange', onVisibility)
       ctx.clearRect(0, 0, width, height)
     }
-  }, [])
+  }, [resolvedTheme])
 
   return (
     <div ref={hostRef} className={`bio-neural-background ${className}`.trim()} aria-hidden="true">

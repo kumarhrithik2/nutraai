@@ -3,6 +3,7 @@ import { Bot, Sparkles } from 'lucide-react'
 import { gsap } from 'gsap'
 import { useLocation } from 'react-router-dom'
 import RobotAvatar from './RobotAvatar.jsx'
+import useAssistantChat from './useAssistantChat.js'
 import { useAuth } from '../../context/AuthContext.jsx'
 import './assistant.css'
 
@@ -11,14 +12,12 @@ const RobotCharacter = lazy(() => import('./RobotCharacter.jsx'))
 
 function FloatingAICompanionInner({ isDashboard }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState([])
-  const [message, setMessage] = useState('')
-  const [feedback, setFeedback] = useState('')
   const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const buttonRef = useRef(null)
   const panelRef = useRef(null)
   const messageRef = useRef(null)
   const contentRef = useRef(null)
+  const chat = useAssistantChat()
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -71,24 +70,15 @@ function FloatingAICompanionInner({ isDashboard }) {
 
   const handleSend = (event) => {
     event.preventDefault()
-    const trimmedMessage = message.trim()
-    if (!trimmedMessage) {
-      setFeedback('Enter a message before sending.')
-      return
-    }
-
-    setMessages((currentMessages) => [...currentMessages, trimmedMessage])
-    setMessage('')
-    setFeedback('Your message is visible in this session, but the AI service is not connected yet.')
+    return chat.send()
   }
 
   const handleClear = () => {
-    setMessages([])
-    setFeedback('Conversation cleared. The AI service is not connected yet.')
+    chat.clear()
   }
 
   const handleSuggestedQuestion = (question) => {
-    setMessage(question)
+    chat.draft(question)
     messageRef.current?.focus()
   }
 
@@ -99,8 +89,8 @@ function FloatingAICompanionInner({ isDashboard }) {
           <h2 className="ai-companion__sr-only" id="nutraai-assistant-title">NutraAI wellness assistant</h2>
           <Suspense fallback={<div className="ai-companion__loading" role="status">Preparing your companion…</div>}>
             <AIChatPanel
-              messages={messages}
-              feedback={feedback}
+              messages={chat.messages}
+              feedback={chat.feedback}
               inputRef={messageRef}
               onClose={closePanel}
               onClear={handleClear}
@@ -109,11 +99,11 @@ function FloatingAICompanionInner({ isDashboard }) {
               onReady={handlePanelReady}
               onSend={handleSend}
               RobotCharacter={RobotCharacter}
-              value={message}
-              onChange={(event) => {
-                setMessage(event.target.value)
-                if (feedback === 'Enter a message before sending.') setFeedback('')
-              }}
+              value={chat.value}
+              onChange={(event) => chat.setValue(event.target.value)}
+              isLoading={chat.isLoading}
+              error={chat.error}
+              onRetry={chat.retry}
             />
           </Suspense>
         </div>

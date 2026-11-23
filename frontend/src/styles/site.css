@@ -3434,7 +3434,7 @@
 /* Dark theme - public site, auth, footer, shared marketing surfaces */
 :root[data-theme="dark"] .site-header {
   background: var(--header-bg);
-  border-bottom-color: rgb(127 212 168 / 10%);
+  border-bottom-color: rgba(197 160 113 / 10%);
 }
 
 :root[data-theme="dark"] .primary-navigation > a,
@@ -3491,7 +3491,7 @@
 :root[data-theme="dark"] .catalog-heading h1 em,
 :root[data-theme="dark"] .contact-copy h1 em,
 :root[data-theme="dark"] .personalization-copy h2 em {
-  color: #8fb39a;
+  color: #C5A071;
 }
 
 :root[data-theme="dark"] .hero-description,
@@ -3549,13 +3549,13 @@
 
 :root[data-theme="dark"] .hero-section {
   background:
-    radial-gradient(ellipse at 75% 44%, rgb(40 74 55 / 28%), transparent 36%),
+    radial-gradient(ellipse at 75% 44%, rgba(197 160 113 / 28%), transparent 36%),
     var(--app-bg);
 }
 
 :root[data-theme="dark"] .public-page {
   background:
-    radial-gradient(ellipse at 92% 10%, rgb(40 74 55 / 18%), transparent 25%),
+    radial-gradient(ellipse at 92% 10%, rgba(197 160 113 / 18%), transparent 25%),
     var(--app-bg);
 }
 
@@ -3585,7 +3585,7 @@
 }
 
 :root[data-theme="dark"] .hero-art::before {
-  background: #1a2b22;
+  background: #141414;
 }
 
 :root[data-theme="dark"] .hero-art::after {
@@ -3594,7 +3594,7 @@
 
 :root[data-theme="dark"] .art-orbit,
 :root[data-theme="dark"] .art-orbit--two {
-  border-color: rgb(127 212 168 / 18%);
+  border-color: rgba(197 160 113 / 18%);
 }
 
 :root[data-theme="dark"] .wellness-card,
@@ -3653,7 +3653,7 @@
 :root[data-theme="dark"] .subscription-detail,
 :root[data-theme="dark"] .cart-item__image {
   background: var(--surface-muted);
-  color: var(--accent-mint);
+  color: var(--gold);
 }
 
 :root[data-theme="dark"] .card-progress,
@@ -3667,7 +3667,7 @@
 
 :root[data-theme="dark"] .card-progress span,
 :root[data-theme="dark"] .report-bar > span {
-  background: var(--accent-mint);
+  background: var(--gold);
 }
 
 :root[data-theme="dark"] .products-more,
@@ -3675,30 +3675,30 @@
 :root[data-theme="dark"] .text-link,
 :root[data-theme="dark"] .hero-bottom a,
 :root[data-theme="dark"] .not-found a {
-  color: var(--accent-mint);
+  color: var(--gold);
 }
 
 :root[data-theme="dark"] .footer-links h3,
 :root[data-theme="dark"] .brand--footer,
 :root[data-theme="dark"] .entry-card h1 {
-  color: #f0f6f1;
+  color: #F5EBDD;
 }
 
 :root[data-theme="dark"] .footer-brand-block > p,
 :root[data-theme="dark"] .footer-links a,
 :root[data-theme="dark"] .footer-bottom {
-  color: #b7c5bc;
+  color: #B9AA98;
 }
 
 :root[data-theme="dark"] .site-footer {
-  background: #0f1714;
+  background: #080808;
 }
 
 :root[data-theme="dark"] .entry-page,
 :root[data-theme="dark"] .screen-loading,
 :root[data-theme="dark"] .app-error-screen {
   background:
-    radial-gradient(ellipse at 50% 36%, rgb(40 74 55 / 18%), transparent 52%),
+    radial-gradient(ellipse at 50% 36%, rgba(197 160 113 / 18%), transparent 52%),
     var(--app-bg);
   color: var(--text);
 }
@@ -3718,10 +3718,10 @@
 
 :root[data-theme="dark"] .auth-page {
   background:
-    linear-gradient(90deg, rgb(11 28 21 / 88%), rgb(20 44 34 / 72%)),
-    radial-gradient(ellipse at 20% 30%, #2f4e3a, transparent 40%),
-    radial-gradient(ellipse at 80% 75%, #1f3428, transparent 43%),
-    #111916;
+    linear-gradient(90deg, rgba(5 5 5 / 88%), rgba(25 23 21 / 72%)),
+    radial-gradient(ellipse at 20% 30%, #3a2d1f, transparent 40%),
+    radial-gradient(ellipse at 80% 75%, #2a1f15, transparent 43%),
+    #050505;
 }
 
 :root[data-theme="dark"] .auth-field,
@@ -3738,15 +3738,15 @@
 :root[data-theme="dark"] .auth-field input::placeholder,
 :root[data-theme="dark"] .contact-form input::placeholder,
 :root[data-theme="dark"] .contact-form textarea::placeholder {
-  color: #7f9388;
+  color: #B9AA98;
 }
 
 :root[data-theme="dark"] .catalog-filters button:hover,
 :root[data-theme="dark"] .catalog-filters button.is-selected,
 :root[data-theme="dark"] .recommendations-tabs button.is-selected {
-  border-color: #4f7a63;
-  color: #fff;
-  background: #2f6a4b;
+  border-color: #383027;
+  color: #050505;
+  background: #C5A071;
 }
 
 :root[data-theme="dark"] .quantity-picker {
@@ -3778,12 +3778,12 @@
 
 /* Dark theme contrast corrections for branded marketing surfaces */
 :root[data-theme="dark"] .button--primary:hover {
-  background: #2f6a4b;
-  color: #f2fbf5;
+  background: #C5A071;
+  color: #050505;
 }
 
 :root[data-theme="dark"] .ai-section {
-  background: #14231b;
+  background: #191715;
 }
 
 :root[data-theme="dark"] .ai-content h2,
@@ -3798,13 +3798,13 @@
 }
 
 :root[data-theme="dark"] .plan-badge {
-  background: #2f6a4b;
-  color: #f2fbf5;
+  background: #C5A071;
+  color: #050505;
 }
 
 :root[data-theme="dark"] .membership-card--featured {
-  background: linear-gradient(180deg, #1d2a22 0%, #18221d 100%);
-  border-color: #4c6b55;
+  background: linear-gradient(180deg, #191715 0%, #111111 100%);
+  border-color: #383027;
 }
 
 :root[data-theme="dark"] .plan-price,
@@ -3831,7 +3831,7 @@
 :root[data-theme="dark"] .journey-visual__surface {
   border-color: var(--card-border);
   background:
-    radial-gradient(ellipse at 50% 46%, rgb(40 74 55 / 32%), transparent 43%),
+    radial-gradient(ellipse at 50% 46%, rgba(197 160 113 / 32%), transparent 43%),
     var(--surface-muted);
   color: var(--text);
 }
@@ -3848,4 +3848,75 @@
 
 :root[data-theme="dark"] .journey-visual__surface > p em {
   color: var(--text-heading);
+}
+
+/* Remove green/teal from dark mode - AI orbit icons */
+:root[data-theme="dark"] .ai-orbit-icon {
+  background: #141414;
+  border-color: #383027;
+  color: #B9AA98;
+}
+
+/* Remove green/teal from dark mode - AI insight cards */
+:root[data-theme="dark"] .ai-insight {
+  background: #141414;
+  border-color: #383027;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 35%);
+}
+
+/* Remove green/teal from dark mode - closing CTA */
+:root[data-theme="dark"] .closing-cta {
+  background: #080808;
+  border-color: #383027;
+}
+
+/* Remove green/teal from dark mode - site footer */
+:root[data-theme="dark"] .site-footer {
+  background: #080808;
+}
+
+/* Remove green/teal from dark mode - AI flow labels */
+:root[data-theme="dark"] .ai-flow-label {
+  background: #141414;
+  border-color: #383027;
+  color: #B9AA98;
+}
+
+/* Hero section - solid deep black with subtle charcoal depth */
+:root[data-theme="dark"] .hero-section {
+  background:
+    radial-gradient(circle at 20% 30%, #121212, transparent 45%),
+    #080808;
+  border-color: #383027;
+}
+
+:root[data-theme="dark"] .public-page {
+  background:
+    radial-gradient(ellipse at 92% 10%, rgba(197 160 113 / 12%), transparent 30%),
+    #080808;
+}
+
+/* Hero border - subtle muted gold */
+:root[data-theme="dark"] .hero-bottom-line {
+  border-color: #383027;
+}
+
+/* Remove green/teal from dark mode - testimonial person strong */
+:root[data-theme="dark"] .testimonial-person strong {
+  color: #F5EBDD;
+}
+
+/* Remove green/teal from dark mode - FAQ item button */
+:root[data-theme="dark"] .faq-item button {
+  color: #F5EBDD;
+}
+
+/* Remove green/teal from dark mode - button--gold text */
+:root[data-theme="dark"] .button--gold {
+  color: #080808;
+  background: #E2C99F;
+}
+
+:root[data-theme="dark"] .button--gold:hover {
+  background: #D6B58D;
 }

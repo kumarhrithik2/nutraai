@@ -18,18 +18,13 @@
 }
 
 .ambient-particles__dot--gold {
-  background: #d4b77f;
-  box-shadow: 0 0 4px rgb(212 183 127 / 34%);
+  background: #C5A071;
+  box-shadow: 0 0 4px rgb(197 160 113 / 34%);
 }
 
-.ambient-particles__dot--sage {
-  background: #9caf98;
-  box-shadow: 0 0 4px rgb(156 175 152 / 28%);
-}
-
-.ambient-particles__dot--ivory {
-  background: #fffdf4;
-  box-shadow: 0 0 4px rgb(255 253 244 / 34%);
+.ambient-particles__dot--champagne {
+  background: #E2C99F;
+  box-shadow: 0 0 4px rgb(226 201 159 / 34%);
 }
 
 @keyframes ambient-particle-drift {

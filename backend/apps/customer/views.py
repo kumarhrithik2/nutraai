@@ -286,3 +286,33 @@ class WellnessPlanView(APIView):
             "steps": steps,
             "note": "This plan is based on your assessment goals and is not medical advice.",
         })
+
+
+class AssistantMessageView(APIView):
+    """POST /assistant/messages/ — educational wellness assistant reply."""
+
+    @extend_schema(tags=TAG, summary="Send a message to the wellness assistant")
+    async def post(self, request):
+        import uuid
+
+        from django.utils import timezone
+        from rest_framework import serializers
+
+        from . import services
+
+        question = str(request.data.get("question") or "").strip()
+        if not question:
+            raise serializers.ValidationError({"question": "A question is required."})
+        if len(question) > services.ASSISTANT_MAX_QUESTION:
+            raise serializers.ValidationError(
+                {"question": f"Keep your question under {services.ASSISTANT_MAX_QUESTION} characters."}
+            )
+
+        answer = await services.answer_assistant_question(request.user, question)
+        return Response(
+            {
+                "id": uuid.uuid4().hex,
+                "answer": answer,
+                "created_at": timezone.now().isoformat(),
+            }
+        )

@@ -1,11 +1,14 @@
-import { lazy, Suspense, useState, useEffect } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Activity, ArrowRight, FileHeart, ShoppingBag, Sparkles } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import IntegrationState from '../components/common/IntegrationState.jsx'
+import useAssistantChat from '../components/assistant/useAssistantChat.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import { getDashboardSummary, getLatestRecommendation, getWellnessPlan, getWellnessReport, getErrorMessage } from '../services/apiBackend/index.js'
 
 const OverviewDnaVisualization = lazy(() => import('../components/overview/OverviewDnaVisualization.jsx'))
+const AIChatPanel = lazy(() => import('../components/assistant/AIChatPanel.jsx'))
+const RobotCharacter = lazy(() => import('../components/assistant/RobotCharacter.jsx'))
 
 function PageTitle({ eyebrow, title, description, action }) {
   return (
@@ -270,6 +273,59 @@ export function RecommendationsPage() {
           </article>
         ))}</div> : <IntegrationState title="No recommendations available" description={error || 'Complete an assessment to receive product suggestions from the catalogue.'} />
       )}
+    </>
+  )
+}
+
+export function AssistantPage() {
+  const { isPreviewMode } = useAuth()
+  const navigate = useNavigate()
+  const chat = useAssistantChat()
+  const inputRef = useRef(null)
+  const handleReady = useCallback(() => inputRef.current?.focus(), [])
+  const goOverview = useCallback(() => navigate('/dashboard/overview'), [navigate])
+
+  if (isPreviewMode) {
+    return (
+      <>
+        <PageTitle eyebrow="Your wellness" title="AI wellness assistant" description="Personalized guidance is available after sign-in." />
+        <IntegrationState title="Preview mode" description="Sign in to chat with the NutraAI wellness assistant." />
+      </>
+    )
+  }
+
+  return (
+    <>
+      <PageTitle
+        eyebrow="Your wellness"
+        title="AI wellness assistant"
+        description="Ask about nutrition, sleep, activity or supplements. Replies are educational guidance, not medical advice."
+      />
+      <section className="dashboard-panel assistant-page">
+        <Suspense fallback={<IntegrationState state="loading" title="Loading assistant" description="Preparing your wellness companion." />}>
+          <AIChatPanel
+            variant="page"
+            messages={chat.messages}
+            feedback={chat.feedback}
+            inputRef={inputRef}
+onClose={goOverview}
+            onClear={chat.clear}
+            onDraftQuestion={(question) => {
+              chat.draft(question)
+              inputRef.current?.focus()
+            }}
+            onMinimize={goOverview}
+            onReady={handleReady}
+            onSend={chat.send}
+            RobotCharacter={RobotCharacter}
+            value={chat.value}
+            onChange={(event) => chat.setValue(event.target.value)}
+            isLoading={chat.isLoading}
+            error={chat.error}
+            onRetry={chat.retry}
+          />
+        </Suspense>
+      </section>
     </>
   )
 }

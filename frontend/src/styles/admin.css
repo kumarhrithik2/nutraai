@@ -372,3 +372,13 @@
 .admin-login-page input::placeholder {
   color: var(--admin-text-secondary);
 }
+
+/* Dark mode overrides for unmapped admin green colors */
+:root[data-theme="dark"] .admin-shell .bg-\[\#122e26\],
+:root[data-theme="dark"] .admin-shell .bg-\[\#0e241e\] {
+  background-color: var(--admin-sidebar);
+}
+
+:root[data-theme="dark"] .admin-shell .bg-\[\#10b981\] {
+  background-color: var(--admin-accent);
+}

@@ -6,7 +6,7 @@ import { getAccessToken } from './core.js'
 
 /**
  * Purpose: send a question and get the assistant's reply (educational guidance only).
- * Endpoint: POST /assistant/messages/   [NOT IN BACKEND YET: fails with 404]
+ * Endpoint: POST /assistant/messages/  (apps.customer.views.AssistantMessageView)
  * Params: question: string (up to the textarea's maxLength)
  * Returns: Promise<{ id, answer, createdAt }>
  */
@@ -17,5 +17,11 @@ export async function askAssistant(question) {
     })
   }
   const { data } = await apiClient.post('/assistant/messages/', { question: String(question).trim() })
-  return { id: data.id, answer: data.answer, createdAt: data.created_at }
+  const answer = typeof data?.answer === 'string' ? data.answer : ''
+  if (!answer) {
+    throw Object.assign(new Error('The assistant returned an empty response.'), {
+      apiError: { status: 502, code: 'empty_response', message: 'The assistant returned an empty response.', details: null },
+    })
+  }
+  return { id: data?.id ?? null, answer, createdAt: data?.created_at ?? null }
 }
